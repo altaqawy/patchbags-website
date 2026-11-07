@@ -149,3 +149,9 @@
  .patch-commerce-layer,.patch-commerce-dialog{animation:none}
  .patch-action-button,.patch-review-controls button{transition:none}
 }
+
+/* Payment radio rows override the shared stacked-field layout. */
+.patch-commerce-form label.patch-pay-option{flex-direction:row;align-items:flex-start;gap:13px;font-weight:400}
+.patch-commerce-form label.patch-pay-option input{flex:none;width:16px;height:16px;margin-top:3px;min-height:16px}
+/* The source quote already contains quotation marks: avoid drawing a second pair. */
+.patch-review-quote{quotes:none}
