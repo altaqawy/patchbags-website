@@ -15,9 +15,23 @@ const on=()=>{
    const scene=document.createElement('div');scene.className='patch-tunnel-reviews';scene.setAttribute('aria-label','Customer feedback in an automatic 3D gallery');
    scene.innerHTML='<i class="patch-portal right" aria-hidden="true"></i><i class="patch-portal left" aria-hidden="true"></i><div class="patch-review-space">'+quoteText.map(([q,who],i)=>'<article style="--index:'+i+'" aria-hidden="'+(i!==0)+'"><p class="quote">“'+q+'”</p><small>'+who+'</small></article>').join('')+'</div>';
    parent.replaceWith(scene);
-   const photo=reviews.querySelector('.patch-words-photo');if(photo){photo.style.minHeight='370px';}
-   // The previous review's auto-rotation is disabled after its elements are replaced.
-   // A screen reader announcement would otherwise constantly interrupt reading.
+   const photo=reviews.querySelector('.patch-words-photo');
+   if(photo){
+     photo.style.minHeight='370px';
+     const img=photo.querySelector('img');
+     const related=[
+      'assets/new/ivory-tote-portrait-front.webp',
+      'assets/new/crescent-crossbody-taupe.webp',
+      'assets/new/striped-tote-studio-angle.webp',
+      'assets/new/ivory-tote-lifestyle-carry.webp'
+     ];
+     let next=0,visible=false;
+     const watcher=new IntersectionObserver(entries=>visible=!!entries[0]?.isIntersecting,{threshold:.06});watcher.observe(reviews);
+     if(img && !matchMedia('(prefers-reduced-motion:reduce)').matches){
+       setInterval(()=>{if(!visible)return;next=(next+1)%related.length;img.src=related[next]},8000);
+     }
+   }
+   // Disable the old 2D review timer so pictures remain in step with the 3D cycle.
   }
  }
  const lookbook=document.querySelector('.lookbook-section');
