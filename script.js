@@ -68,3 +68,11 @@ function setup(){byId('year').textContent=new Date().getFullYear();renderProduct
 }
 function closeMobileMenu(){byId('mobileNav').classList.remove('open');byId('menuToggle').setAttribute('aria-expanded','false')}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
+
+// Editorial category tiles reuse existing product filters.
+document.addEventListener('click', function(event) {
+  const tile=event.target.closest('[data-shop-filter]');
+  if(!tile)return;
+  const chip=document.querySelector('.filter-chip[data-filter="'+tile.dataset.shopFilter+'"]');
+  if(chip)chip.click();
+});
