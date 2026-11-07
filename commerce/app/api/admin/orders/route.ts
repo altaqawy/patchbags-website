@@ -1,0 +1,3 @@
+import {NextRequest} from 'next/server';import {db,readOnlyOwner,error,json} from '../../../../lib/server';
+export async function GET(req:NextRequest){const admin=await readOnlyOwner();if(!admin)return error(403,'Owner only');const status=req.nextUrl.searchParams.get('status');const params:string[]=[];let where='';if(status&&['unpaid','paid','failed','awaiting_verification','refunded'].includes(status)){params.push(status);where='WHERE payment_status=$1'}
+ const r=await db().query('SELECT id,customer_name,email,phone,city,method,payment_status,status,total_minor,manual_reference,created_at FROM orders '+where+' ORDER BY created_at DESC LIMIT 150',params);return json({orders:r.rows})}

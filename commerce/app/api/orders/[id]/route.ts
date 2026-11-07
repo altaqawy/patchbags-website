@@ -1,0 +1,3 @@
+import {NextRequest} from 'next/server';import {db,publicError,publicJson,publicOriginAllowed} from '../../../../lib/server';import {sha256} from '../../../../lib/security.mjs';
+export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}){if(!publicOriginAllowed(req))return publicError(403,'Origin not allowed');const {id}=await params;const token=req.nextUrl.searchParams.get('token')||'';
+ if(!/^[a-f\d-]{36}$/i.test(id)||token.length<30)return publicError(404,'Order not found');const r=await db().query('SELECT id,method,payment_status,status,total_minor,currency,created_at FROM orders WHERE id=$1 AND tracking_token_hash=$2',[id,sha256(token)]);return r.rowCount?publicJson({order:r.rows[0]}):publicError(404,'Order not found')}

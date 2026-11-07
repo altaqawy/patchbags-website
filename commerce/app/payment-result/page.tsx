@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function PaymentResult(){return <main className="shell"><div className="panel"><h1>Payment status / حالة الدفع</h1><p>Returning from Paymob does not confirm a successful payment. The store verifies your payment securely through a server callback. Please contact the studio if your order remains pending.</p><Link href="/">العودة للمتجر</Link></div></main>}

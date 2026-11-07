@@ -1,0 +1,2 @@
+import {NextRequest} from 'next/server';import {db,error,getAdmin,json,originAllowed} from '../../../../lib/server';import {sha256} from '../../../../lib/security.mjs';
+export async function POST(req:NextRequest){if(!originAllowed(req))return error(403,'Invalid origin');const admin=await getAdmin();if(admin)await db().query('DELETE FROM admin_sessions WHERE token_hash=$1',[sha256(admin.token)]);const r=json({ok:true});r.cookies.delete('patch_admin_session');r.cookies.delete('patch_csrf');return r}
