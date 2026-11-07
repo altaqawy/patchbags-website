@@ -328,7 +328,7 @@ function setupCommerce(){
  buildModal();
  upgradeBag();
  enhanceSocialIcons();
- setupReviews();
+ if(!document.querySelector('script[src$="three-d-motion.js"]'))setupReviews();
  enhanceMotion();
  updateAccountCopy();
  document.addEventListener('click',e=>{
