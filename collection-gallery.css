@@ -1,0 +1,37 @@
+/* New collection + photo gallery | original fonts and site palette preserved */
+.collection .products-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:47px 17px}
+.product-card .product-photo{isolation:isolate}
+.product-photo .primary-photo{position:absolute;inset:0;z-index:0}
+.product-photo .hover-photo{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity .5s ease,transform .85s ease}
+.product-card:hover .product-photo .hover-photo{opacity:1;transform:scale(1.055)}
+.product-card:hover .product-photo .primary-photo{transform:scale(1.055)}
+.product-photo .photo-count{position:absolute;z-index:2;left:15px;bottom:15px;background:rgba(252,251,248,.92);font-size:10px;letter-spacing:.06em;border-radius:99px;padding:7px 11px;color:#4a5147}
+.product-photo .product-image-label{z-index:2}
+.product-photo .product-quick{z-index:3}
+.product-modal-photo{position:relative;min-width:0}
+.product-modal-photo #modalPhoto{position:absolute;inset:0;height:100%;width:100%;object-fit:cover}
+.modal-photo-controls{position:absolute;left:18px;right:18px;bottom:106px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none}
+.modal-photo-controls button{display:grid;place-items:center;background:rgba(250,248,244,.94);color:#283129;border:0;border-radius:50%;width:35px;height:35px;font-size:17px;pointer-events:auto;cursor:pointer}
+.modal-photo-controls button[hidden]{visibility:hidden}
+.modal-photo-controls span{padding:6px 10px;border-radius:99px;background:rgba(252,251,247,.93);font:600 10px var(--sans);pointer-events:none}
+.modal-thumbnails{position:absolute;bottom:0;left:0;right:0;z-index:3;display:flex;gap:7px;padding:11px 16px 13px;overflow-x:auto;overscroll-behavior-x:contain;background:linear-gradient(0deg,rgba(22,25,22,.62),rgba(22,25,22,.02));scrollbar-width:thin}
+.modal-thumbnails[hidden]{display:none}
+.modal-thumb{flex:none;position:relative;width:55px;height:69px;padding:0;border:2px solid transparent;background:transparent;opacity:.75;border-radius:2px;overflow:hidden;cursor:pointer}
+.modal-thumb.active{border-color:#fff;opacity:1}
+.modal-thumb img{width:100%;height:100%;object-fit:cover}
+.lookbook-section{padding:30px 0 112px;background:#f8f7f2}
+.lookbook-head{display:flex;align-items:end;justify-content:space-between;padding-bottom:27px;gap:20px}
+.lookbook-head .eyebrow{font-size:10px;color:#868c80}
+.lookbook-head h2{margin:0;font:500 clamp(41px,5vw,76px)/1.08 var(--serif);letter-spacing:-.065em}
+.lookbook-head h2 em{color:#8b967d}
+.lookbook-grid{display:grid;grid-template-columns:1.45fr 1fr 1fr;gap:12px;width:calc(100% - 32px);max-width:1530px;margin:auto}
+.lookbook-frame{position:relative;aspect-ratio:3/3.6;margin:0;overflow:hidden;background:#e1ddd6}
+.lookbook-frame img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .75s ease}
+.lookbook-frame:hover img{transform:scale(1.045)}
+.lookbook-frame figcaption{position:absolute;left:18px;bottom:18px;color:#fff;background:rgba(28,30,27,.45);padding:9px 11px;font:700 9px var(--sans);letter-spacing:.13em}
+.social-gallery{grid-template-columns:repeat(6,1fr);gap:10px}
+.social-gallery a{aspect-ratio:3/4}
+@media(max-width:900px){.collection .products-grid{gap:36px 14px}.lookbook-grid{grid-template-columns:1fr 1fr}.lookbook-feature{grid-column:1/-1;aspect-ratio:4/3}.lookbook-frame:not(.lookbook-feature){aspect-ratio:3/3.8}.social-gallery{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:680px){.collection .products-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 10px}.product-photo .photo-count{font-size:8px;left:8px;bottom:8px;padding:5px 8px}.product-photo .product-quick{bottom:8px;right:8px}.modal-photo-controls{bottom:75px;left:10px;right:10px}.modal-thumbnails{padding:7px 12px}.modal-thumb{height:55px;width:45px}.lookbook-section{padding:0 0 72px}.lookbook-head{display:block;padding-bottom:22px}.lookbook-head .eyebrow{margin-bottom:10px}.lookbook-head h2{font-size:clamp(42px,10vw,61px)}.lookbook-grid{width:calc(100% - 18px);gap:8px}.lookbook-feature{aspect-ratio:3/3.5}.lookbook-frame:not(.lookbook-feature){aspect-ratio:3/4.7}.lookbook-frame figcaption{bottom:10px;left:10px;font-size:7px;padding:7px}.social-gallery{grid-template-columns:repeat(3,1fr);gap:7px}}
+@media(hover:none){.product-photo .hover-photo{display:none}}
+@media(prefers-reduced-motion:reduce){.product-photo .hover-photo,.lookbook-frame img{transition:none}}

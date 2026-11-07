@@ -3,12 +3,18 @@
 // Website concept uses the customer's own photographs. Product labels are editable
 // working names, not confirmed SKU names or claims of inventory/pricing.
 const products = [
-  {id:'PB-01',name:'The Striped Tote',category:'bags',label:'COTTON CORD BAG',tag:'Signature texture',image:'assets/woven-stripe-tote.webp',description:'A beautifully textured cotton cord tote with a sculptural woven flap and soft striped finish. Made for the moments you want to carry something special.'},
-  {id:'PB-02',name:'The Blush Tote',category:'bags',label:'COTTON CORD BAG',tag:'A soft favorite',image:'assets/blush-cotton-tote.webp',description:'Gentle blush-pink stripes meet an expressive woven flap. A handmade statement with a soft, easygoing personality.'},
-  {id:'PB-03',name:'The Round Crossbody',category:'bags',label:'WOVEN CROSSBODY',tag:'Everyday classic',image:'assets/round-crossbody-sun.webp',description:'A round cotton cord crossbody with a tactile spiral weave, decorative flap and contrasting strap details. Easy to style, beautiful to look at.'},
-  {id:'PB-04',name:'The Chapter Sleeve',category:'accessories',label:'BOOK ACCESSORIES',tag:'For book lovers',image:'assets/book-sleeve-natural.webp',description:'A book sleeve made for the one-more-chapter kind of day. A simple, thoughtful way to carry your current read.'},
-  {id:'PB-05',name:'The Gingham Chapter',category:'accessories',label:'BOOK ACCESSORIES',tag:'Little joys',image:'assets/book-sleeve-gingham.webp',description:'A playful red gingham take on the book sleeve, featuring the “Just One More Chapter” motif. A sweet gift for a reader.'},
-  {id:'PB-06',name:'The Monogram Pouch',category:'personalized',label:'PERSONALIZED POUCH',tag:'Made personal',image:'assets/personalized-pouch.webp',description:'A fabric zip pouch with a bold initial detail. Ask the studio about personalizing it with your chosen letter or special touch.'}
+  {"id":"PB-01","name":"The Signature Striped Tote","category":"bags","label":"HANDMADE COTTON ROPE TOTE","tag":"Signature piece","images":["assets/new/striped-tote-studio-front.webp","assets/new/striped-tote-studio-angle.webp","assets/new/striped-tote-clasp-closeup.webp","assets/new/striped-tote-label-closeup.webp","assets/new/striped-tote-inside.webp","assets/new/striped-tote-capacity.webp"],"description":"A striped cotton-rope tote with a sculptural flap and distinctive clasp. Explore the weave, finishing and inner space through the photo gallery.","image":"assets/new/striped-tote-studio-front.webp"},
+  {"id":"PB-02","name":"The Ivory Sculpted Tote","category":"bags","label":"HANDMADE COTTON ROPE TOTE","tag":"In the spotlight","images":["assets/new/ivory-tote-portrait-front.webp","assets/new/ivory-tote-portrait.webp","assets/new/ivory-tote-lifestyle-raised.webp","assets/new/ivory-tote-lifestyle-carry.webp","assets/new/ivory-tote-orange-lifestyle.webp","assets/new/ivory-tote-knot-closeup.webp","assets/new/ivory-tote-shoulder-detail.webp"],"description":"An ivory-toned woven tote with a sculptural front flap. The gallery shows close-up texture and different ways to wear or hold it.","image":"assets/new/ivory-tote-portrait-front.webp"},
+  {"id":"PB-03","name":"The Blush Striped Tote","category":"bags","label":"PINK STRIPED HANDMADE TOTE","tag":"Soft color story","images":["assets/blush-cotton-tote.webp","assets/new/blush-tote-scarf-closeup.webp","assets/new/blush-tote-hand-detail.webp","assets/new/blush-tote-label-detail.webp"],"description":"A soft pink-and-ivory striped tote with textured cotton-rope detailing. See the decorative scarf and the handmade brand tag in close-up.","image":"assets/blush-cotton-tote.webp"},
+  {"id":"PB-04","name":"The Taupe Crescent Crossbody","category":"bags","label":"WOVEN CROSSBODY","tag":"Everyday texture","images":["assets/new/crescent-crossbody-taupe.webp"],"description":"A compact woven crossbody in an earthy taupe shade, with a statement curved flap and detachable-style strap fittings shown in the photo.","image":"assets/new/crescent-crossbody-taupe.webp"},
+  {"id":"PB-05","name":"The Ivory Crescent Crossbody","category":"bags","label":"WOVEN CROSSBODY","tag":"A soft neutral","images":["assets/new/crescent-crossbody-ivory.webp"],"description":"A light ivory crossbody with a curved woven flap and long matching strap, photographed from above.","image":"assets/new/crescent-crossbody-ivory.webp"},
+  {"id":"PB-06","name":"The Ruby Crescent Crossbody","category":"bags","label":"WOVEN CROSSBODY","tag":"A pop of color","images":["assets/new/round-crossbody-red.webp"],"description":"A vivid red woven crossbody with a sculptural flap, styled on a wooden display.","image":"assets/new/round-crossbody-red.webp"},
+  {"id":"PB-07","name":"The Round Crossbody","category":"bags","label":"COTTON ROPE CROSSBODY","tag":"A timeless shape","images":["assets/round-crossbody-sun.webp","assets/round-crossbody-lifestyle.webp"],"description":"A round cotton-rope crossbody featuring concentric woven lines and a compact shape.","image":"assets/round-crossbody-sun.webp"},
+  {"id":"PB-08","name":"The Mustard Phone Pouch","category":"accessories","label":"COTTON ROPE PHONE POUCH","tag":"Hands-free essential","images":["assets/new/phone-pouch-mustard.webp"],"description":"A small mustard-yellow woven pouch with a matching long cord strap and wooden-button closure.","image":"assets/new/phone-pouch-mustard.webp"},
+  {"id":"PB-09","name":"The Natural Phone Pouch","category":"accessories","label":"COTTON ROPE PHONE POUCH","tag":"Naturally simple","images":["assets/new/phone-pouch-natural.webp"],"description":"A natural-toned woven pouch with a long matching cord strap and wooden button.","image":"assets/new/phone-pouch-natural.webp"},
+  {"id":"PB-10","name":"The Initial Zip Pouch","category":"personalized","label":"MONOGRAM ACCESSORY","tag":"Make it yours","images":["assets/new/monogram-black-h.webp","assets/new/monogram-cream-s.webp","assets/personalized-pouch.webp"],"description":"Personalized initial pouches in different fabrics and colors. The photographs show examples with H and S initials; ask the studio about available letters.","image":"assets/new/monogram-black-h.webp"},
+  {"id":"PB-11","name":"The Chapter Book Sleeve","category":"accessories","label":"BOOK ACCESSORY","tag":"For book lovers","images":["assets/new/book-sleeve-grey.webp","assets/book-sleeve-natural.webp"],"description":"A soft book sleeve with the Just One More Chapter message, made for everyday reading moments.","image":"assets/new/book-sleeve-grey.webp"},
+  {"id":"PB-12","name":"The Gingham Book Sleeve","category":"accessories","label":"BOOK ACCESSORY","tag":"The little joys","images":["assets/book-sleeve-gingham.webp"],"description":"A red gingham book sleeve with the Just One More Chapter motif.","image":"assets/book-sleeve-gingham.webp"}
 ];
 const $ = (selector,scope=document) => scope.querySelector(selector);
 const $$ = (selector,scope=document) => [...scope.querySelectorAll(selector)];
@@ -17,6 +23,7 @@ let picks = [];
 try {const old = JSON.parse(localStorage.getItem('patchbags_enquiry') || '[]'); if(Array.isArray(old)) picks = old.filter(id=>products.some(p=>p.id===id));}catch(e){}
 let currentFilter='all';
 let activeProduct=null;
+let activeImageIndex=0;
 let activeDialog=null;
 let returnFocus=null;
 let toastTimer=null;
@@ -33,7 +40,9 @@ function removePick(id){picks=picks.filter(p=>p!==id);persist();toast('Removed f
 function renderProducts(){const list=currentFilter==='all'?products:products.filter(p=>p.category===currentFilter);const grid=byId('productGrid');grid.innerHTML=list.map((p,i)=>`
   <article class="product-card" style="animation-delay:${Math.min(i,5)*55}ms">
   <div class="product-photo">
-  <img src="${p.image}" alt="${p.name}" loading="eager">
+  <img class="primary-photo" src="${p.image}" alt="${p.name}" loading="lazy" decoding="async">
+  ${p.images.length>1?`<img class="hover-photo" src="${p.images[1]}" alt="" loading="lazy" decoding="async">`:''}
+  ${p.images.length>1?`<span class="photo-count">${p.images.length} photos</span>`:''}
   <span class="product-image-label">${p.tag}</span>
   <button class="product-quick" type="button" aria-label="View ${p.name}" data-detail="${p.id}">↗</button>
   </div>
@@ -46,20 +55,39 @@ function openDialog(name){closeMobileMenu();if(activeDialog){closeDialog(true)}r
  const el=byId(name==='bag'?'bagDrawer':name==='search'?'searchModal':'productModal');el.classList.add('open');el.setAttribute('aria-hidden','false');setTimeout(()=>{if(name==='search')byId('searchInput').focus();else el.focus()},120);
 }
 function closeDialog(immediate=false){if(!activeDialog)return;const name=activeDialog;const overlay=byId('overlay');overlay.classList.remove('show');const el=byId(name==='bag'?'bagDrawer':name==='search'?'searchModal':'productModal');el.classList.remove('open');el.setAttribute('aria-hidden','true');document.body.classList.remove('no-scroll');activeDialog=null;const focus=returnFocus;returnFocus=null;setTimeout(()=>{if(!activeDialog)overlay.hidden=true;if(focus&&document.contains(focus))focus.focus()},immediate?0:320)}
-function showProduct(id){const p=products.find(p=>p.id===id);if(!p)return;activeProduct=id;byId('modalPhoto').src=p.image;byId('modalPhoto').alt=p.name;byId('modalTitle').textContent=p.name;byId('modalDescription').textContent=p.description;byId('modalCode').textContent=`PIECE ${p.id}`;openDialog('product');}
+function setGalleryImage(index){
+ const p=products.find(p=>p.id===activeProduct);if(!p)return;
+ activeImageIndex=(index+p.images.length)%p.images.length;
+ const photo=byId('modalPhoto');photo.src=p.images[activeImageIndex];photo.alt=`${p.name} — view ${activeImageIndex+1} of ${p.images.length}`;
+ byId('modalImageStatus').textContent=`${activeImageIndex+1} / ${p.images.length}`;
+ const thumbWrap=byId('modalThumbnails');
+ thumbWrap.innerHTML=p.images.map((src,i)=>`<button class="modal-thumb ${i===activeImageIndex?'active':''}" data-image-index="${i}" type="button" aria-label="View photo ${i+1} of ${p.name}" aria-pressed="${i===activeImageIndex}"><img src="${src}" alt="" loading="lazy"></button>`).join('');
+ $$('[data-image-index]',thumbWrap).forEach(button=>button.addEventListener('click',()=>setGalleryImage(+button.dataset.imageIndex)));
+ byId('modalPrevPhoto').hidden=p.images.length<2;byId('modalNextPhoto').hidden=p.images.length<2;
+ thumbWrap.hidden=p.images.length<2;
+}
+function showProduct(id){const p=products.find(p=>p.id===id);if(!p)return;activeProduct=id;
+ byId('modalTitle').textContent=p.name;byId('modalDescription').textContent=p.description;byId('modalCode').textContent=`PIECE ${p.id}`;
+ setGalleryImage(0);openDialog('product');}
+
 function renderSearch(term=''){const words=term.trim().toLocaleLowerCase();const found=products.filter(p=>(p.name+' '+p.label+' '+p.description).toLocaleLowerCase().includes(words));byId('searchResults').innerHTML=found.length?found.map(p=>`<button class="search-result" type="button" data-search-product="${p.id}"><img src="${p.image}" alt=""><span><strong>${p.name}</strong><small>${p.label}</small></span></button>`).join(''):'<p class="search-empty">No matches yet. Try “bag”, “book” or “pouch”.</p>';$$('[data-search-product]',byId('searchResults')).forEach(el=>el.addEventListener('click',()=>showProduct(el.dataset.searchProduct)));}
 async function copyEnquiry(){if(!picks.length){toast('Choose a piece from the collection first');return;}const details=picks.map(id=>{const p=products.find(p=>p.id===id);return `• ${p.name} (${p.id})`;}).join('\n');const message=`Hello PatCh.BaGs! ♡\nI'm interested in these handmade pieces:\n${details}\nCould you please share the prices, available colors, and order details? Thank you!`;
  let success=false;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(message);success=true;}else{const area=document.createElement('textarea');area.value=message;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();success=document.execCommand('copy');area.remove();}}catch(e){}
  if(success)toast('Enquiry copied — paste it into your Instagram message');else{window.prompt('Copy this enquiry and send it on Instagram:',message)}
 }
 function setup(){byId('year').textContent=new Date().getFullYear();renderProducts();updatePicks();
+ const count=byId('allPiecesCount');if(count)count.textContent=String(products.length).padStart(2,'0');
+ byId('modalPrevPhoto').addEventListener('click',()=>setGalleryImage(activeImageIndex-1));
+ byId('modalNextPhoto').addEventListener('click',()=>setGalleryImage(activeImageIndex+1));
+ let touchX=null;byId('modalPhoto').addEventListener('touchstart',e=>{touchX=e.changedTouches[0].screenX},{passive:true});
+ byId('modalPhoto').addEventListener('touchend',e=>{if(touchX===null)return;const d=e.changedTouches[0].screenX-touchX;touchX=null;if(Math.abs(d)>45)setGalleryImage(activeImageIndex+(d<0?1:-1))},{passive:true});
  $$('.filter-chip').forEach(btn=>btn.addEventListener('click',()=>{currentFilter=btn.dataset.filter;$$('.filter-chip').forEach(chip=>{const pressed=chip===btn;chip.classList.toggle('active',pressed);chip.setAttribute('aria-pressed',String(pressed));});renderProducts();}));
  $$('[data-open]').forEach(btn=>btn.addEventListener('click',()=>{if(btn.dataset.open==='search')renderSearch();openDialog(btn.dataset.open)}));
  $$('[data-close]').forEach(btn=>btn.addEventListener('click',()=>closeDialog()));byId('overlay').addEventListener('click',()=>closeDialog());
  byId('searchInput').addEventListener('input',e=>renderSearch(e.target.value));
  byId('copyEnquiry').addEventListener('click',copyEnquiry);
  byId('modalAdd').addEventListener('click',()=>{if(activeProduct)addPick(activeProduct)});
- document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDialog();closeMobileMenu()}if(e.key==='Tab'&&activeDialog){const el=byId(activeDialog==='bag'?'bagDrawer':activeDialog==='search'?'searchModal':'productModal');const nodes=$$('a[href],button:not([disabled]),input:not([disabled])',el).filter(n=>n.getClientRects().length);if(nodes.length){const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDialog();closeMobileMenu()}if(activeDialog==='product'&&e.key==='ArrowRight')setGalleryImage(activeImageIndex+1);if(activeDialog==='product'&&e.key==='ArrowLeft')setGalleryImage(activeImageIndex-1);if(e.key==='Tab'&&activeDialog){const el=byId(activeDialog==='bag'?'bagDrawer':activeDialog==='search'?'searchModal':'productModal');const nodes=$$('a[href],button:not([disabled]),input:not([disabled])',el).filter(n=>n.getClientRects().length);if(nodes.length){const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}}});
  byId('menuToggle').addEventListener('click',()=>{const isOpen=byId('mobileNav').classList.toggle('open');byId('menuToggle').setAttribute('aria-expanded',String(isOpen));});
  $$('#mobileNav a').forEach(a=>a.addEventListener('click',closeMobileMenu));
  const observer=window.IntersectionObserver?new IntersectionObserver((entries,obs)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');obs.unobserve(entry.target)}})},{threshold:.09,rootMargin:'0px 0px 35px 0px'}):null;
@@ -69,7 +97,7 @@ function setup(){byId('year').textContent=new Date().getFullYear();renderProduct
 function closeMobileMenu(){byId('mobileNav').classList.remove('open');byId('menuToggle').setAttribute('aria-expanded','false')}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
 
-// Editorial category tiles reuse existing product filters.
+// Editorial category tiles reuse the existing product filters and collection navigation.
 document.addEventListener('click', function(event) {
   const tile=event.target.closest('[data-shop-filter]');
   if(!tile)return;
