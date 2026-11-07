@@ -1,0 +1,82 @@
+/* PatCh.BaGs — mobile spacing cleanup, review imagery breakpoints and subtle footer account links.
+   No style changes to the original header, logo, hero or typography. */
+
+/* A nested clipping reveal occasionally left section headings invisible on phones.
+   Keep the original working section reveal, but let the titles remain readable. */
+.patch-motion-on .patch-text-unveil,
+.patch-motion-on .patch-text-unveil.patch-visible{
+  opacity:1 !important;
+  transform:none !important;
+  clip-path:none !important;
+  -webkit-clip-path:none !important;
+  transition:none !important;
+}
+
+/* The unused, tall account hero has been removed from the markup.
+   Preserve login / registration access discreetly in the existing footer. */
+.site-footer .patch-footer-action{
+  display:block;
+  padding:0;
+  margin:0;
+  border:0;
+  background:transparent;
+  color:inherit;
+  text-align:left;
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:inherit;
+  cursor:pointer;
+  transition:color .2s ease;
+}
+.site-footer .patch-footer-action:hover,
+.site-footer .patch-footer-action:focus-visible{color:#92a991;text-decoration:underline;text-underline-offset:4px;}
+
+/* Keep the editorial customer photo on desktop and tablet; hide it only on phones. */
+@media (max-width:767px){
+  .patch-words-stage{grid-template-columns:minmax(0,1fr) !important;min-height:0;}
+  .patch-words-photo{display:none !important;}
+  .patch-words-copy{
+    min-height:0 !important;
+    gap:13px;
+    padding:25px 22px 28px;
+  }
+  .patch-review-quote{
+    min-height:130px;
+    font-size:clamp(27px,7.2vw,37px);
+    line-height:1.28;
+    margin:9px 0 13px;
+  }
+  .patch-review-controls{margin-top:19px;gap:9px}
+  .patch-quote-glyph{font-size:66px}
+  .patch-words-head{margin-bottom:20px}
+  .patch-words-section{padding-top:49px;padding-bottom:57px}
+  .patch-words-head>p{margin-top:10px;line-height:1.65}
+}
+@media (min-width:768px){
+  .patch-words-photo{display:block !important;}
+}
+
+/* Reduce compounded padding between the marquee, category gallery,
+   collection and review sections. Preserve the full-width photo cards. */
+@media (min-width:681px) and (max-width:900px){
+  .visual-categories{padding-top:68px;padding-bottom:60px}
+  .collection.section-pad{padding-top:51px;padding-bottom:88px}
+  .category-header{margin-bottom:23px}
+  .patch-words-section{padding-top:77px;padding-bottom:80px}
+}
+@media (max-width:680px){
+  .visual-categories{padding-top:40px !important;padding-bottom:28px !important}
+  .category-header{gap:7px;margin-bottom:19px !important}
+  .category-header .eyebrow{margin-bottom:0}
+  .collection.section-pad{padding-top:32px !important;padding-bottom:61px !important}
+  .collection .section-heading{margin-bottom:20px !important}
+  .collection .filters{margin-bottom:19px !important}
+  .collection .products-grid{row-gap:27px}
+  .lookbook-section{padding-bottom:50px !important}
+  .lookbook-head{padding-bottom:16px !important}
+  .feature-section{padding-top:60px;padding-bottom:60px}
+  .social-section{padding-top:57px !important;padding-bottom:61px !important}
+}
+@media (prefers-reduced-motion:reduce){
+  .site-footer .patch-footer-action{transition:none}
+}
