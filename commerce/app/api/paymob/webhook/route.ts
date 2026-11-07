@@ -29,10 +29,16 @@ export async function POST(req:NextRequest){
   await c.query('UPDATE payment_attempts SET status=$2,updated_at=now() WHERE id=$1',[a.id,decision]);
   if(decision==='paid'){
    // Compare-and-set prevents two verified attempts from double-fulfilling an order.
-   const updated=await c.query("UPDATE orders SET payment_status='paid',status='pending_fulfillment',updated_at=now() WHERE id=$1 AND payment_status<>'paid' AND payment_status<>'refunded' RETURNING id",[order.id]);
+   const updated=await c.query("UPDATE orders SET payment_status='paid',status='on_hold_stock',updated_at=now() WHERE id=$1 AND payment_status<>'paid' AND payment_status<>'refunded' RETURNING id",[order.id]);
    if(updated.rowCount){
     const lines=await c.query('SELECT product_id,quantity FROM order_items WHERE order_id=$1',[order.id]);
-    for(const line of lines.rows){await c.query('UPDATE products SET stock=GREATEST(0,stock-$2) WHERE id=$1',[line.product_id,line.quantity]);}
+    const ids=lines.rows.map((l:any)=>l.product_id);
+    const stock=await c.query('SELECT id,stock FROM products WHERE id=ANY($1::text[]) ORDER BY id FOR UPDATE',[ids]);
+    const available=lines.rows.every((l:any)=>stock.rows.find((p:any)=>p.id===l.product_id)?.stock>=l.quantity);
+    if(available){
+     for(const line of lines.rows)await c.query('UPDATE products SET stock=stock-$2 WHERE id=$1',[line.product_id,line.quantity]);
+     await c.query("UPDATE orders SET status='pending_fulfillment' WHERE id=$1",[order.id]);
+    }
    }
   }else if(decision==='refunded'&&order.payment_status==='paid'){
    await c.query("UPDATE orders SET payment_status='refunded',status='on_hold',updated_at=now() WHERE id=$1",[order.id]);

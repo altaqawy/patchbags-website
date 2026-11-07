@@ -22,7 +22,7 @@ const on=()=>{
  }
  const lookbook=document.querySelector('.lookbook-section');
  if(lookbook && !document.getElementById('patchCms3d')){
-  const srcs=[
+  const fallbackSrcs=[
    ['assets/new/ivory-tote-lifestyle-carry.webp','Everyday carry'],
    ['assets/new/striped-tote-studio-angle.webp','The handmade edit'],
    ['assets/new/round-crossbody-red.webp','A pop of color'],
@@ -30,6 +30,7 @@ const on=()=>{
    ['assets/new/phone-pouch-mustard.webp','Little essentials'],
    ['assets/new/blush-tote-scarf-closeup.webp','Soft details']
   ];
+  const srcs=(typeof products!=='undefined' && Array.isArray(products) && products.length) ? products.slice(0,8).map(p=>[p.images?.[1]||p.image, p.name]) : fallbackSrcs;
   const section=document.createElement('section');section.className='patch-cms3d';section.id='patchCms3d';section.setAttribute('aria-label','Automatic 3D collection photo carousel');
   section.innerHTML='<p class="patch-cms-eyebrow">THE PATCH COLLECTION</p><h2>In every <em>detail.</em></h2><div class="patch-cms3d-stage">'+srcs.map(([src,title],i)=>'<figure class="patch-cms3d-card"><img src="'+src+'" alt="'+title+'" loading="lazy"><figcaption>'+title+'</figcaption></figure>').join('')+'</div><div class="patch-cms3d-progress" aria-hidden="true"></div>';
   lookbook.after(section);

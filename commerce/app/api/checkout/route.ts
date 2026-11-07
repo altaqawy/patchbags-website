@@ -17,6 +17,14 @@ export async function POST(req:NextRequest){
  if(!['paymob','cod','bank','wallet'].includes(method)||!/^[-\w]{20,120}$/.test(ref))return publicError(400,'Invalid method or request identifier');
  const name=String(customer.name||'').trim(),email=String(customer.email||'').trim().toLowerCase(),phone=String(customer.phone||'').trim(),city=String(customer.city||'').trim(),address=String(customer.address||'').trim(),notes=String(customer.notes||'').trim();
  if(name.length<2||name.length>100||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)||phone.length<7||phone.length>25||city.length<2||city.length>100||address.length<4||address.length>300||notes.length>400)return publicError(400,'Please complete valid customer and delivery fields');
+ // Do not create an orphan payment order if no merchant integration is configured.
+ const liveGateway=method==='paymob'?await settings('live'):null;
+ const testGateway=method==='paymob'?await settings('test'):null;
+ const chosenEnv=liveGateway?.live_activated?'live':'test';
+ const chosenGateway=chosenEnv==='live'?liveGateway:testGateway;
+ if(method==='paymob'&&(!chosenGateway?.secret_cipher||!chosenGateway.public_key||
+    !chosenGateway.integration_ids?.length||chosenGateway.credential_status!=='verified'))
+   return publicError(503,'Paymob payment is not yet configured and verified');
  const mode=method==='paymob'?'paymob':method;
  const [allowed,ship,active]=await Promise.all([
   db().query('SELECT enabled,receiving_account,instructions FROM payment_methods WHERE method=$1',[mode]),
@@ -44,7 +52,7 @@ export async function POST(req:NextRequest){
  if(method!=='paymob'){
   return publicJson({orderId,trackingToken:token,method,status:method==='cod'?'pending_confirmation':'awaiting_verification',paymentStatus:method==='cod'?'unpaid':'awaiting_verification',instructions:method==='cod'?'Pay when the store confirms delivery.':allowed.rows[0].instructions,receivingAccount:method==='cod'?'':allowed.rows[0].receiving_account},201);
  }
- const live=await settings('live'),test=await settings('test');const env=live?.live_activated?'live':'test',g=env==='live'?live:test;
+ const env=chosenEnv,g=chosenGateway;
  if(!g?.secret_cipher||!g.public_key||!g.integration_ids?.length||g.credential_status!=='verified')return publicError(503,'Paymob configuration is incomplete. Order remains pending; contact the studio.');
  if(!base?.startsWith('https://'))return publicError(503,'Secure backend URL is missing');
  await db().query('UPDATE payment_attempts SET environment=$2 WHERE id=$1',[attemptId,env]);
