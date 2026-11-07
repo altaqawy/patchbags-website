@@ -39,7 +39,7 @@ export async function POST(req:NextRequest){
  let orderId:string;
  try{orderId=await transaction(async c=>{
   const existing=await c.query('SELECT id FROM orders WHERE client_request_id=$1',[ref]);if(existing.rowCount)throw Error('Duplicate request ID — refresh status instead of submitting again');
-  const customerRow=await c.query('INSERT INTO customers(email,full_name,phone) VALUES($1,$2,$3) ON CONFLICT(email) DO UPDATE SET full_name=$2,phone=$3 RETURNING id',[email,name,phone]);
+  const customerRow=await c.query('INSERT INTO customers(email,full_name,phone) VALUES($1,$2,$3) ON CONFLICT(email) DO UPDATE SET email=EXCLUDED.email RETURNING id',[email,name,phone]);
   const status=method==='cod'?'pending_confirmation':method==='paymob'?'pending_payment':'awaiting_payment_verification';
   const paymentStatus=method==='cod'?'unpaid':method==='paymob'?'pending':'awaiting_verification';
   const result=await c.query(`INSERT INTO orders(customer_id,customer_name,email,phone,city,address,notes,shipping_minor,subtotal_minor,total_minor,method,status,payment_status,client_request_id,tracking_token_hash)

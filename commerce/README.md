@@ -65,3 +65,7 @@ npm run dev
 Transaction Processed Callback is authoritative. We use the Paymob-prescribed ordered 20 fields from `body.obj`, SHA-512 and timing-safe comparison. A browser redirect never updates an order. DB uniqueness on transaction ID+status, row locking and conditional paid transition prevent duplicate paid fulfillment. Amount/currency/provider order are checked against immutable server totals. Secrets are encrypted; HMAC and actual keys never appear in API responses or logs.
 
 **Known pre-go-live limitations:** real user signup/auth is still the existing dormant separate frontend workflow, no shipping zones/tax policy beyond a flat manually configured shipping amount and zero tax, no automatic refunds, no external payment reconciliation job or transactional email service, no hosted browser QA yet. Do not advertise the backend as production-ready until independent code review, vulnerability testing, integration tests, merchant approval and a successful Paymob sandbox cycle are completed.
+
+## Payment retries
+
+An authenticated-by-tracking-token order owner can POST `{ "trackingToken": "..." }` to `/api/orders/{orderId}/retry` to create a new Paymob intention for the same still-unpaid order; limited to five attempts/hour. Later verified callbacks from different attempts cannot double-decrement stock because the paid transition is guarded in one SQL transaction.

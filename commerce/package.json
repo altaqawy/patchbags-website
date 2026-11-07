@@ -1,6 +1,6 @@
 {
   "name":"patchbags-commerce","private":true,"version":"0.1.0","type":"module",
   "scripts":{"dev":"next dev","build":"next build","start":"next start","test":"node --test tests/*.test.mjs","typecheck":"tsc --noEmit","owner:hash":"node scripts/hash-password.mjs"},
-  "dependencies":{"next":"^15.5.0","react":"^19.1.1","react-dom":"^19.1.1","pg":"^8.16.3","zod":"^4.1.0"},
+  "dependencies":{"next":"^16.4.5","react":"^19.1.1","react-dom":"^19.1.1","pg":"^8.16.3","zod":"^4.1.0"},
   "devDependencies":{"typescript":"^5.9.0","@types/node":"^22.15.0","@types/react":"^19.1.0","@types/react-dom":"^19.1.0","@types/pg":"^8.15.5"}
 }
