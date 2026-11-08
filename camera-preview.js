@@ -92,7 +92,7 @@
   hand()?.stop();
   if(handState)setHandState('');
  }
- function productTitle=()=>{
+ const productTitle=()=>{
   const fallback=current?.name||t('product');
   if(!current?.productId||typeof products==='undefined')return fallback;
   const item=products.find(p=>p.id===current.productId);
