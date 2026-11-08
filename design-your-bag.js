@@ -15,8 +15,20 @@ const currentProduct=()=>product(state.productId)||cat()[0]||null;
 const roots=()=>cat().filter(p=>typeof colorRootById==='undefined'||!colorRootById.has(p.id)||colorRootById.get(p.id)===p.id);
 const rootId=id=>(typeof colorRootById!=='undefined'&&colorRootById.get(id))||id;
 const photos=p=>Array.isArray(p?.images)&&p.images.length?p.images.slice(0,12):[p?.image].filter(Boolean);
+const safeModelURL=value=>{
+ if(typeof value!=='string')return null;
+ const raw=value.trim();
+ const local=/^assets\/models\/[a-z0-9_-]+(?:\/[a-z0-9_-]+)*\.gl(?:b|tf)$/i.test(raw);
+ const remote=/^https:\/\/[^\s]+$/i.test(raw);
+ if(!local&&!remote)return null;
+ try{
+  const url=new URL(raw,document.baseURI);
+  if(url.protocol!=='https:'||!/\.gl(?:b|tf)$/i.test(url.pathname))return null;
+  return local?raw:url.href;
+ }catch(_){return null}
+};
 const availableModel=p=>Array.isArray(p?.mediaExtras)?
- p.mediaExtras.find(m=>m?.type==='model'&&typeof m.url==='string'&&/^https:\/\//i.test(m.url)&&/\.gl(?:b|tf)(?:[?#]|$)/i.test(m.url))?.url:null;
+ p.mediaExtras.map(m=>m?.type==='model'?safeModelURL(m.url):null).find(Boolean)||null:null;
 const families=()=>typeof productColorFamilies!=='undefined'?productColorFamilies:[];
 const choices=id=>{
  const family=families().find(f=>f.options.some(option=>option.id===id));
@@ -124,7 +136,10 @@ const tr={
  photosTab:['Photos','الصور'],
  modelTab:['3D model','نموذج 3D'],
  modelPreview:['Original 3D model provided by the studio','نموذج ثلاثي الأبعاد أصلي من الاستوديو'],
- modelHelp:['Rotate with your finger or mouse. The studio must confirm the final design.','لفّي النموذج باللمس أو الماوس، والتصميم النهائي بعد تأكيد الاستوديو.']
+ modelHelp:['Drag to rotate the 3D reference. AR and scale depend on your device; final details are confirmed by the studio.','لفّي المجسم باللمس أو الماوس. الواقع المعزز والحجم تقريبي، والتفاصيل النهائية بعد تأكيد الاستوديو.'],
+ viewAR:['VIEW IN YOUR SPACE','شوفيها في مكانك'],
+ arFailed:['AR could not start on this device. You can still rotate the 3D model.','الواقع المعزز مش متاح على الجهاز ده، لكن تقدري تلفّي المجسم 3D.'],
+ modelLoadFailed:['Could not load the 3D model. Product photos remain available.','تعذر تحميل المجسم ثلاثي الأبعاد، لكن صور الشنطة ما زالت متاحة.']
 };
 const T=k=>{const v=tr[k];return v? v[ar()?1:0]:k};
 const materialLabel=v=>tr.materialOptions.find(x=>x[0]===v)?.[ar()?2:1]||v;
@@ -212,7 +227,9 @@ function render(){
   '<p class="patch-cz-overline">'+E(T('preview'))+' <span>✳</span></p>'+
   (model?'<div class="patch-cz-view-modes" role="group"><button type="button" data-cz-view="photo" aria-pressed="'+(viewMode==='photo')+'">'+E(T('photosTab'))+'</button><button type="button" data-cz-view="model" aria-pressed="'+(viewMode==='model')+'">'+E(T('modelTab'))+'</button></div>':'')+
   '<div class="patch-cz-photo'+(viewMode==='model'?' patch-cz-photo-model':'')+'" aria-label="'+E(viewMode==='model'?T('modelPreview'):T('previewOnly'))+'">'+
-  (viewMode==='model'&&model?'<model-viewer src="'+E(model)+'" alt="'+E(productLabel(p))+'" camera-controls shadow-intensity="0.7" exposure="1.05" loading="lazy"></model-viewer>':
+  (viewMode==='model'&&model?'<model-viewer src="'+E(model)+'" poster="'+E(image)+'" alt="'+E(productLabel(p))+'" camera-controls touch-action="pan-y" shadow-intensity="0.85" exposure="1.05" environment-image="neutral" ar ar-modes="scene-viewer webxr quick-look" ar-placement="floor" ar-scale="auto" loading="eager">'+
+      '<button type="button" class="patch-cz-ar-button" slot="ar-button" aria-label="'+E(T('viewAR'))+'">'+E(T('viewAR'))+' ↗</button>'+
+      '</model-viewer>':
    '<img src="'+image+'" alt="'+E(productLabel(p)+' · '+(photoIndex+1)+' / '+imageList.length)+'" decoding="async">')+
   (viewMode==='photo'&&state.monogram?'<span class="patch-cz-monogram patch-cz-monogram--'+E(state.letterStyle)+' patch-cz-monogram--'+E(state.letterPosition)+'">'+E(state.monogram)+'</span>':'')+
   '<span class="patch-cz-photo-tag">'+E(viewMode==='model'?T('modelPreview'):T('previewOnly'))+'</span>'+
@@ -252,6 +269,19 @@ function render(){
    ).join('')+'</div><button type="button" class="patch-cz-share-all" data-cz-copy-all>'+E(T('share'))+' ↗</button>'
    :'<p class="patch-cz-empty">'+E(T('savedNone'))+'</p>')+
   '<p class="patch-cz-fineprint">'+E(T('savedDevice'))+'</p></div></div>';
+ const viewer=body.querySelector('model-viewer');
+ if(viewer){
+  viewer.addEventListener('ar-status',event=>{
+   if(event.detail?.status==='failed'){
+    const info=body.querySelector('.patch-cz-preview-note');
+    if(info)info.textContent=T('arFailed');
+   }
+  });
+  viewer.addEventListener('error',()=>{
+   const info=body.querySelector('.patch-cz-preview-note');
+   if(info)info.textContent=T('modelLoadFailed');
+  });
+ }
  const editor=body.querySelector('.patch-cz-editor');
  if(editor)editor.scrollTop=scroll;
  if(focusAttr){
@@ -445,6 +475,7 @@ function setup(){
   document.querySelectorAll('[data-cz-open]').forEach(btn=>{btn.textContent=T('open')+' ↗'});
  };
  document.addEventListener('patch:language-changed',language);
+ document.addEventListener('patch:reference-3d-ready',()=>{if(layer&&!layer.hidden)render()});
  window.addEventListener('storage',e=>{if(e.key===KEY){saved=read();if(layer&&!layer.hidden)render();document.dispatchEvent(new Event('patch:custom-designs-changed'))}});
  if(saved.length)document.dispatchEvent(new Event('patch:custom-designs-changed'));
 }

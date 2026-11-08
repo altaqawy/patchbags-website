@@ -498,3 +498,44 @@ html[lang="ar"] .patch-cz-view-modes button{
  .patch-cz-view-modes~.patch-cz-thumbs{grid-row:5}
  .patch-cz-view-modes~.patch-cz-summary{grid-row:6}
 }
+
+
+/* V4.3 — mobile augmented reality button for actual product reference models.
+ * model-viewer hides the slotted button when AR cannot be offered. */
+.patch-cz-photo-model model-viewer .patch-cz-ar-button{
+ position:absolute;
+ z-index:10;
+ top:15px;
+ inset-inline-end:15px;
+ display:inline-flex;
+ align-items:center;
+ justify-content:center;
+ gap:8px;
+ max-width:calc(100% - 30px);
+ padding:12px 18px;
+ border:1px solid rgba(255,255,255,.88);
+ border-radius:100px;
+ background:#314d3b;
+ color:#fff;
+ box-shadow:0 10px 25px rgba(12,32,17,.25);
+ font:750 11px/1.5 var(--pb-ui-en,Manrope,system-ui);
+ text-align:center;
+ letter-spacing:.055em;
+ cursor:pointer;
+}
+.patch-cz-photo-model model-viewer .patch-cz-ar-button:hover{background:#425f48}
+.patch-cz-photo-model model-viewer .patch-cz-ar-button:focus-visible{
+ outline:3px solid #dfedcf;outline-offset:3px
+}
+html[lang="ar"] .patch-cz-photo-model model-viewer .patch-cz-ar-button{
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
+ font-size:12px;
+ font-weight:700;
+ letter-spacing:0;
+}
+@media(max-width:690px){
+ .patch-cz-photo-model model-viewer .patch-cz-ar-button{
+  top:9px;inset-inline-end:8px;max-width:calc(100% - 16px);
+  padding:9px 11px;font-size:10px
+ }
+}
