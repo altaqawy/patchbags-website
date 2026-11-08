@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ <meta name="theme-color" content="#f5f5ef">
+ <meta name="robots" content="noindex,nofollow">
+ <meta name="description" content="معاينة تجريبية لواجهة إدارة متجر PatCh.BaGs. غير متصلة ببيانات حقيقية أو بوابات الدفع.">
+ <title>PatCh Studio — معاينة لوحة المالكة</title>
+ <link rel="icon" href="assets/patch-logo.png" type="image/png">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+ <link href="owner-preview.css" rel="stylesheet">
+ <script src="owner-preview.js" defer></script>
+</head>
+<body>
+ <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <symbol id="ico-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></symbol>
+  <symbol id="ico-bag" viewBox="0 0 24 24"><path d="M4 8h16l-1 13H5L4 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+  <symbol id="ico-box" viewBox="0 0 24 24"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="M3 7v10l9 5 9-5V7M12 12v10"/></symbol>
+  <symbol id="ico-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-2a6.5 6.5 0 0 1 13 0v2"/><path d="M17 5a3 3 0 0 1 0 6M19 15a5 5 0 0 1 2 4v1"/></symbol>
+  <symbol id="ico-credit" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 10h20M6 16h4"/></symbol>
+  <symbol id="ico-chart" viewBox="0 0 24 24"><path d="M3 20h18M5 16V9M10 16V5M15 16v-3M20 16v-9"/></symbol>
+  <symbol id="ico-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></symbol>
+  <symbol id="ico-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-7-7 7 7-7 7"/></symbol>
+  <symbol id="ico-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></symbol>
+  <symbol id="ico-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="ico-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></symbol>
+  <symbol id="ico-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+  <symbol id="ico-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+  <symbol id="ico-external" viewBox="0 0 24 24"><path d="M13 5h6v6M19 5l-9 9M19 13v6H5V5h6"/></symbol>
+  <symbol id="ico-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></symbol>
+ </svg>
+ <div class="owner-layout">
+  <div id="ownerBackdrop" class="owner-sidebar-backdrop" hidden></div>
+  <aside id="ownerSidebar" class="owner-sidebar" aria-label="القائمة الرئيسية">
+   <div class="owner-sidebar-head">
+    <a href="index.html" class="owner-mini-logo"><img src="assets/patch-logo.png" alt=""><span>PatCh.BaGs<small>STUDIO / OWNER</small></span></a>
+    <button class="icon-btn close-sidebar" id="closeSidebar" aria-label="إغلاق القائمة"><svg><use href="#ico-close"/></svg></button>
+   </div>
+   <div class="owner-profile"><span class="owner-avatar">P</span><span><strong>مساحة صاحبة البراند</strong><small>نموذج تفاعلي · صلاحية المالكة</small></span><span class="owner-olive-dot" aria-hidden="true"></span></div>
+   <p class="sidebar-group-label">إدارة المتجر</p>
+   <nav id="ownerNav" class="owner-nav">
+    <button type="button" class="is-selected" data-view="overview" aria-current="page"><svg><use href="#ico-grid"/></svg>نظرة عامة</button>
+    <button type="button" data-view="products"><svg><use href="#ico-box"/></svg>المنتجات <span class="owner-nav-count">12</span></button>
+    <button type="button" data-view="orders"><svg><use href="#ico-bag"/></svg>الطلبات</button>
+    <button type="button" data-view="customers"><svg><use href="#ico-users"/></svg>العملاء</button>
+    <button type="button" data-view="payments"><svg><use href="#ico-credit"/></svg>المدفوعات</button>
+    <button type="button" data-view="insights"><svg><use href="#ico-chart"/></svg>الإحصائيات</button>
+   </nav>
+   <p class="sidebar-group-label">الحساب</p>
+   <nav class="owner-nav"><button type="button" data-view="settings"><svg><use href="#ico-settings"/></svg>إعدادات المتجر</button></nav>
+   <div class="owner-sidebar-foot"><span class="mini-sun">✳</span><p>كل تفصيلة صغيرة<br><strong>بتصنع فرق كبير</strong></p><a href="index.html" target="_blank" rel="noopener noreferrer">زيارة المتجر <svg><use href="#ico-external"/></svg></a></div>
+  </aside>
+  <div class="owner-content">
+   <header class="owner-topbar">
+    <div class="owner-topbar-start">
+     <button class="icon-btn owner-menu" id="openSidebar" aria-label="فتح القائمة" aria-expanded="false" aria-controls="ownerSidebar"><svg><use href="#ico-menu"/></svg></button>
+     <span class="owner-topbar-crumb">PatCh.BaGs <span>/</span> <strong id="currentPageName">نظرة عامة</strong></span>
+    </div>
+    <div class="owner-topbar-end"><span class="owner-preview-pill"><span class="live-dot"></span> PREVIEW MODE</span><a href="index.html" class="owner-visit-store" target="_blank" rel="noopener noreferrer">عرض المتجر <svg><use href="#ico-external"/></svg></a><div class="owner-top-avatar" aria-label="حساب المالكة التجريبي">P</div></div>
+   </header>
+   <main class="owner-main" id="ownerMain">
+    <div class="demo-notice" role="note"><svg><use href="#ico-alert"/></svg><span><strong>دي معاينة لشكل لوحة المالكة.</strong> الأرقام والطلبات الحقيقية مش متصلة لسه. أي تعديل هنا للتجربة فقط، ولا بيغير الموقع أو بيحفظ مفاتيح الدفع.</span></div>
+    <section data-panel="overview" class="owner-panel is-active" aria-labelledby="dashTitle">
+     <div class="section-top"><div><p class="overline">YOUR CREATIVE STUDIO / لوحة المالكة</p><h1 id="dashTitle">أهلاً بيكي في <em>مساحتك.</em></h1><p class="section-description">من هنا هتتابعي منتجاتك والطلبات وألوان كل قطعة، وكل ما يخص البراند من مكان واحد.</p></div><button class="owner-button dark" data-action="new-product"><svg><use href="#ico-plus"/></svg>إضافة منتج</button></div>
+     <div class="owner-stats">
+      <article class="metric-card"><span>المنتجات في الكتالوج</span><strong id="statProducts">12</strong><small>مأخوذة من صور موقعك الحالي</small><svg><use href="#ico-box"/></svg></article>
+      <article class="metric-card"><span>الطلبات المتصلة</span><strong>—</strong><small>بانتظار ربط نظام الطلبات</small><svg><use href="#ico-bag"/></svg></article>
+      <article class="metric-card"><span>العملاء المسجلون</span><strong>—</strong><small>بيظهروا بعد تفعيل الحسابات</small><svg><use href="#ico-users"/></svg></article>
+      <article class="metric-card"><span>المدفوعات المؤكدة</span><strong>—</strong><small>لا توجد بوابة فعالة حاليًا</small><svg><use href="#ico-credit"/></svg></article>
+     </div>
+     <div class="owner-overview-grid">
+      <article class="owner-featured">
+       <div class="owner-featured-text"><span class="overline">THE PATCH EDIT</span><h2>صناعتك ليها <em>حكاية.</em></h2><p>ممكن تضيفي المنتجات، تحددي أسعار الألوان، وتتابعي كل أوردر لما نظام الإدارة يتفعل.</p><button class="owner-button light" data-view="products">إدارة المنتجات <svg><use href="#ico-arrow"/></svg></button></div>
+       <img src="assets/new/ivory-tote-portrait-front.webp" alt="شنطة PatCh.BaGs هاند ميد" loading="lazy">
+      </article>
+      <article class="owner-todo"><span class="overline">NEXT STEPS / قبل التشغيل</span><h2>خلّينا نجهّز المتجر</h2><div class="todo-line"><span class="todo-index">01</span><div><strong>راجعي المنتجات والألوان</strong><small>الصور مستوردة من كتالوج الموقع</small></div><span class="todo-status">جاهز للمراجعة</span></div><div class="todo-line"><span class="todo-index">02</span><div><strong>حددي الأسعار والتوفر</strong><small>علشان نفتح طلبات حقيقية</small></div><span class="todo-status muted">لسه</span></div><div class="todo-line"><span class="todo-index">03</span><div><strong>فعّلي الدفع والشحن</strong><small>بعد نشر Backend وربط Paymob</small></div><span class="todo-status muted">لسه</span></div><button class="text-action" data-view="settings">كل الإعدادات <svg><use href="#ico-arrow"/></svg></button></article>
+     </div>
+     <div class="owner-subheading"><div><p class="overline">PRODUCTS AT A GLANCE</p><h2>من مجموعتك الحالية</h2></div><button class="text-action" data-view="products">عرض المنتجات كلها <svg><use href="#ico-arrow"/></svg></button></div>
+     <div class="owner-featured-products" id="featuredProducts"></div>
+    </section>
+    <section data-panel="products" class="owner-panel" aria-labelledby="productsTitle" hidden>
+      <div class="section-top"><div><p class="overline">MANAGE YOUR COLLECTION</p><h1 id="productsTitle">منتجاتك <em>وتفاصيلها.</em></h1><p class="section-description">كل قطعة ليها صورتها ورقمها. جرّبي تعديل الأسعار والمخزون — التغييرات هنا للمعاينة فقط.</p></div><button class="owner-button dark" data-action="new-product"><svg><use href="#ico-plus"/></svg>إضافة منتج</button></div>
+      <div class="owner-panel-card">
+        <div class="product-toolbar"><label class="product-search"><svg><use href="#ico-search"/></svg><input id="productSearch" type="search" placeholder="ابحثي باسم القطعة أو رقمها" aria-label="بحث المنتجات"></label><select id="productCategory" aria-label="تصفية حسب القسم"><option value="all">كل الأقسام</option><option value="bags">الشنط</option><option value="accessories">الإكسسوارات</option><option value="personalized">المخصصة</option></select><span class="count-text" id="productsCount">12 قطعة</span></div>
+        <div class="table-scroll"><table class="owner-table"><thead><tr><th>المنتج</th><th>الرقم</th><th>القسم</th><th>السعر</th><th>الحالة</th><th></th></tr></thead><tbody id="productsTable"></tbody></table></div>
+        <div id="productEmpty" class="no-results" hidden>مفيش منتجات مطابقة للبحث.</div>
+      </div>
+    </section>
+    <section data-panel="orders" class="owner-panel" aria-labelledby="ordersTitle" hidden>
+     <div class="section-top"><div><p class="overline">ORDER WORKSPACE</p><h1 id="ordersTitle">طلبات <em>واضحة ومنظمة.</em></h1><p class="section-description">كل طلب هيظهر هنا مع العميل والمنتج واللون والعنوان وحالة التجهيز والدفع.</p></div></div>
+     <div class="owner-panel-card empty-workspace"><span class="empty-illustration"><svg><use href="#ico-bag"/></svg></span><h2>لسه مفيش طلبات متصلة</h2><p>دي معاينة بس. بعد تشغيل قاعدة البيانات والـ Checkout هتقدري تستقبلي الطلبات وتحددي حالتها من هنا.</p><div class="sample-flow"><span>طلب جديد</span><b>←</b><span>قيد التنفيذ</span><b>←</b><span>جاهز للشحن</span><b>←</b><span>تم التسليم</span></div></div>
+    </section>
+    <section data-panel="customers" class="owner-panel" aria-labelledby="customersTitle" hidden>
+     <div class="section-top"><div><p class="overline">CUSTOMER CARE</p><h1 id="customersTitle">كل عميل <em>له مكان.</em></h1><p class="section-description">بيانات العملاء وطلباتهم هتبقى منظمة، مش متفرقة في المحادثات.</p></div></div>
+     <div class="owner-panel-card empty-workspace"><span class="empty-illustration"><svg><use href="#ico-users"/></svg></span><h2>قاعدة العملاء غير متصلة بعد</h2><p>لما النظام يتنشر بصورة آمنة، هنا هتشوفي الاسم ووسيلة التواصل والطلبات السابقة، بصلاحيات خاصة بالمالكة فقط.</p></div>
+    </section>
+    <section data-panel="payments" class="owner-panel" aria-labelledby="paymentsTitle" hidden>
+      <div class="section-top"><div><p class="overline">PAYMENT SETTINGS</p><h1 id="paymentsTitle">الدفع <em>على طريقتك.</em></h1><p class="section-description">صاحبة المشروع تقدر تضيف وسائل الدفع بنفسها من لوحة الإدارة الآمنة بعد تفعيل الخادم.</p></div></div>
+      <div class="payment-grid">
+       <article class="owner-panel-card payment-method"><div class="payment-symbol"><svg><use href="#ico-credit"/></svg></div><h2>Paymob</h2><span class="pill neutral">غير متصل</span><p>بطاقات بنكية ومحافظ حسب الخدمات اللي Paymob هتفعلها لحسابك.</p><button class="owner-button outline" data-action="payment-info">خطوات ربط Paymob</button></article>
+       <article class="owner-panel-card payment-method"><div class="payment-symbol"><svg><use href="#ico-bag"/></svg></div><h2>الدفع عند الاستلام</h2><span class="pill neutral">يحتاج تشغيل الطلبات</span><p>الطلب يبدأ غير مدفوع، ويتم تسجيل التحصيل عند التسليم.</p><button class="owner-button outline" data-action="payment-info">طريقة التشغيل</button></article>
+       <article class="owner-panel-card payment-method"><div class="payment-symbol"><svg><use href="#ico-credit"/></svg></div><h2>InstaPay / تحويل</h2><span class="pill neutral">يحتاج تحقق يدوي</span><p>العميل يبعت مرجع التحويل، وصاحبة المتجر تؤكد الاستلام بنفسها.</p><button class="owner-button outline" data-action="payment-info">طريقة التشغيل</button></article>
+      </div>
+      <div class="owner-panel-card guide-panel" id="paymentGuide"><span class="overline">OWNER-ONLY SETUP</span><h2>إزاي تجهّزي بوابة الدفع؟</h2><p>افتحي حساب تاجر باسمك، وكمّلي إجراءات التحقق والتفعيل مع Paymob. بعد نشر الخادم، هتدخلي المفاتيح في صفحة الإدارة المؤمّنة، مش في المعاينة العامة ولا في الشات.</p><a class="owner-button dark" href="https://egypt.paymob.com/portal/en/register" target="_blank" rel="noopener noreferrer">إنشاء حساب Paymob الرسمي <svg><use href="#ico-external"/></svg></a><p class="small-muted">المعاينة دي لا تقبل مفاتيح سرية ولا تعمل عمليات مالية.</p></div>
+    </section>
+    <section data-panel="insights" class="owner-panel" aria-labelledby="insightsTitle" hidden>
+     <div class="section-top"><div><p class="overline">STORE INSIGHTS</p><h1 id="insightsTitle">قرارات مبنية <em>على أرقام.</em></h1><p class="section-description">هنا هنعرض الطلبات والإيرادات والمنتجات الأكثر طلبًا بعد تفعيل تتبع البيانات.</p></div></div>
+     <div class="owner-stats"><article class="metric-card"><span>إجمالي الطلبات</span><strong>—</strong><small>بانتظار البيانات الحقيقية</small></article><article class="metric-card"><span>الإيرادات المؤكدة</span><strong>—</strong><small>مش هنعرض أرقام تخمينية</small></article><article class="metric-card"><span>متوسط الطلب</span><strong>—</strong><small>بعد تشغيل Checkout</small></article></div>
+     <div class="owner-panel-card empty-workspace"><span class="empty-illustration"><svg><use href="#ico-chart"/></svg></span><h2>التقارير بتبدأ مع أول طلب حقيقي</h2><p>لما قاعدة البيانات تتوصل، هتقدري تعرفي المنتجات الناجحة وطرق الدفع المفضلة للعميل.</p></div>
+    </section>
+    <section data-panel="settings" class="owner-panel" aria-labelledby="settingsTitle" hidden>
+     <div class="section-top"><div><p class="overline">STORE PREFERENCES</p><h1 id="settingsTitle">إعدادات <em>المتجر.</em></h1><p class="section-description">تفاصيل البراند، قنوات التواصل وطرق الدفع. المعاينة دي للعرض فقط.</p></div></div>
+     <div class="settings-grid"><div class="owner-panel-card setting-card"><span class="overline">IDENTITY</span><h2>PatCh.BaGs</h2><p>HANDMADE STUDIO · Alexandria, Egypt</p><div class="setting-row"><span>الموقع</span><strong>altaqawy.github.io/patchbags-website</strong></div><div class="setting-row"><span>واتساب</span><strong dir="ltr">01141693208</strong></div><div class="setting-row"><span>Instagram</span><strong dir="ltr">@patch.bags.nbd</strong></div><div class="setting-row"><span>TikTok</span><strong dir="ltr">@noha.yehia13</strong></div></div>
+     <div class="owner-panel-card setting-card"><span class="overline">LAUNCH CHECKLIST</span><h2>قبل البيع الحقيقي</h2><div class="settings-check"><svg><use href="#ico-check"/></svg> صور المنتجات والهوية جاهزة</div><div class="settings-check waiting"><svg><use href="#ico-alert"/></svg> تحديد أسعار المنتجات والألوان</div><div class="settings-check waiting"><svg><use href="#ico-alert"/></svg> نشر لوحة الإدارة المؤمّنة</div><div class="settings-check waiting"><svg><use href="#ico-alert"/></svg> ربط قاعدة العملاء والطلبات</div><div class="settings-check waiting"><svg><use href="#ico-alert"/></svg> اختبار Paymob في بيئة Test</div></div></div>
+    </section>
+   </main>
+  </div>
+ </div>
+ <div id="ownerEditorBackdrop" class="editor-backdrop" hidden></div>
+ <section id="ownerProductEditor" class="owner-editor" role="dialog" aria-modal="true" aria-labelledby="editorTitle" hidden>
+  <div class="editor-head"><div><span class="overline">PRODUCT DETAILS / معاينة</span><h2 id="editorTitle">تعديل المنتج</h2></div><button id="editorClose" class="icon-btn" aria-label="إغلاق التحرير"><svg><use href="#ico-close"/></svg></button></div>
+  <form id="productForm">
+   <img id="editorImage" class="editor-image" src="assets/new/striped-tote-studio-front.webp" alt="صورة المنتج">
+   <p class="editor-hint">التعديل للتجربة فقط، ومش بيتحفظ في الموقع العام أو قاعدة البيانات.</p>
+   <input type="hidden" id="editorSku">
+   <label>اسم المنتج<input type="text" id="editorName" required></label>
+   <div class="editor-fields"><label>السعر بالجنيه<input type="number" id="editorPrice" min="0" step=".01" placeholder="لم يتحدد"></label><label>المخزون<input type="number" id="editorStock" min="0" step="1" value="0"></label></div>
+   <label class="toggle-line"><input type="checkbox" id="editorActive"> متاح للطلب بعد التسعير والتجهيز</label>
+   <div class="editor-actions"><button type="button" class="owner-button outline" id="editorCancel">إلغاء</button><button type="submit" class="owner-button dark">تطبيق في المعاينة</button></div>
+  </form>
+ </section>
+ <div id="ownerToast" class="owner-toast" role="status" aria-live="polite"></div>
+</body>
+</html>
