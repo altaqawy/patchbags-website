@@ -3,35 +3,81 @@
 (()=>{
 const on=()=>{
  const reviews=document.getElementById('patchWords');
- if(reviews&&!reviews.querySelector('.patch-tunnel-reviews')){
+ if(reviews&&!reviews.querySelector('.patch-stack3d-reviews')){
   const parent=reviews.querySelector('.patch-words-copy');
   if(parent){
-   const quoteText=[
-    ['I bought one of your bags and it’s super well made. Great job and keep going.','ORIGINAL CUSTOMER MESSAGE'],
-    ['Thank you — amazing quality.','ORIGINAL CUSTOMER MESSAGE'],
-    ['The bag is absolutely gorgeous. I was genuinely happy with it.','TRANSLATED CUSTOMER MESSAGE'],
-    ['Lovely material and finishing. Such a beautiful bright white.','TRANSLATED CUSTOMER MESSAGE']
+   // These four authors and the substance of their words are grounded in
+   // customer screenshots provided by the store owner. Arabic quotes are translated.
+   // Stars below are decorative sparkles, NOT fabricated star ratings.
+   const messages=[
+    {
+     text:"I bought one of your bags and it's super well made. Great job and keep going.",
+     author:"Habeeba MH",source:"ORIGINAL ENGLISH · CUSTOMER FEEDBACK",
+     image:"assets/new/ivory-tote-portrait-front.webp"
+    },
+    {
+     text:"The bag is gorgeous. I really loved it. Beautiful work!",
+     author:"Marian Imakethis",source:"TRANSLATED FROM ARABIC · CUSTOMER FEEDBACK",
+     image:"assets/new/striped-tote-studio-angle.webp"
+    },
+    {
+     text:"Wonderful material, finishing and sizing — even the white is beautifully bright.",
+     author:"Haidy Elsherief",source:"TRANSLATED FROM ARABIC · CUSTOMER FEEDBACK",
+     image:"assets/new/ivory-tote-lifestyle-carry.webp"
+    },
+    {
+     text:"Such a beautiful piece, lovely material and amazing craftsmanship. Definitely not my last order!",
+     author:"Mariam Ehab",source:"TRANSLATED FROM ARABIC · CUSTOMER FEEDBACK",
+     image:"assets/new/ivory-tote-portrait.webp"
+    }
    ];
-   const scene=document.createElement('div');scene.className='patch-tunnel-reviews';scene.setAttribute('aria-label','Customer feedback in an automatic 3D gallery');
-   scene.innerHTML='<i class="patch-portal right" aria-hidden="true"></i><i class="patch-portal left" aria-hidden="true"></i><div class="patch-review-space">'+quoteText.map(([q,who],i)=>'<article style="--index:'+i+'" aria-hidden="'+(i!==0)+'"><p class="quote">“'+q+'”</p><small>'+who+'</small></article>').join('')+'</div>';
+   const scene=document.createElement('div');
+   scene.className='patch-stack3d-reviews';
+   scene.setAttribute('aria-label','Real customer testimonials in an automatic three-dimensional card stack');
+   scene.innerHTML='<div class="patch-review-stack">'+messages.map((item,i)=>(
+    '<article class="patch-stack-card" data-review-index="'+i+'" aria-hidden="'+(i===0?'false':'true')+'">'+
+      '<div class="patch-stack-top"><span class="patch-stack-label">KIND WORDS / PATCH.BAGS</span>'+
+        '<span class="patch-review-sparkles" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span></span></div>'+
+      '<blockquote>“'+item.text+'”</blockquote>'+
+      '<footer><span class="patch-stack-author">'+item.author+'</span>'+
+        '<span class="patch-stack-source">'+item.source+'</span></footer>'+
+    '</article>'
+   )).join('')+'</div>'+
+   '<div class="patch-stack-progress" aria-hidden="true"><span></span></div>';
    parent.replaceWith(scene);
-   const photo=reviews.querySelector('.patch-words-photo');
-   if(photo){
-     photo.style.minHeight='370px';
-     const img=photo.querySelector('img');
-     const related=[
-      'assets/new/ivory-tote-portrait-front.webp',
-      'assets/new/crescent-crossbody-taupe.webp',
-      'assets/new/striped-tote-studio-angle.webp',
-      'assets/new/ivory-tote-lifestyle-carry.webp'
-     ];
-     let next=0,visible=false;
-     const watcher=new IntersectionObserver(entries=>visible=!!entries[0]?.isIntersecting,{threshold:.06});watcher.observe(reviews);
-     if(img && !matchMedia('(prefers-reduced-motion:reduce)').matches){
-       setInterval(()=>{if(!visible)return;next=(next+1)%related.length;img.src=related[next]},8000);
-     }
+   const cards=[...scene.querySelectorAll('.patch-stack-card')];
+   let active=0;
+   const photo=reviews.querySelector('.patch-words-photo img');
+   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   let visible=true;
+   function render(){
+    cards.forEach((card,i)=>{
+     const delta=(i-active+cards.length)%cards.length;
+     card.classList.toggle('is-front',delta===0);
+     card.classList.toggle('is-next',delta===1);
+     card.classList.toggle('is-next2',delta===2);
+     card.classList.toggle('is-back',delta===cards.length-1);
+     card.setAttribute('aria-hidden',delta===0?'false':'true');
+    });
+    if(photo) {
+     photo.src=messages[active].image;
+     photo.alt='PatCh.BaGs handmade bag pictured beside a customer testimonial';
+    }
    }
-   // Disable the old 2D review timer so pictures remain in step with the 3D cycle.
+   render();
+   if(!reduced){
+    if('IntersectionObserver' in window){
+     const observer=new IntersectionObserver(entries=>{visible=Boolean(entries[0]?.isIntersecting)}, {threshold:.08});
+     observer.observe(reviews);
+    }
+    const progress=scene.querySelector('.patch-stack-progress span');
+    setInterval(()=>{
+     if(!visible||document.hidden)return;
+     active=(active+1)%cards.length;
+     render();
+     if(progress){progress.classList.remove('is-restarting');void progress.offsetWidth;progress.classList.add('is-restarting');}
+    },6500);
+   }
   }
  }
  const lookbook=document.querySelector('.lookbook-section');
