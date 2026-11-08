@@ -59,8 +59,10 @@ function updateCloudItem(id,qty){
  if(!authSession||!authClient()||!cartCloudReady||suppressCloud)return;
  const uid=authSession.user.id,client=authClient();
  cloudWrite=cloudWrite.then(async()=>{
-  if(qty<=0)await client.from('customer_cart_items').delete().eq('user_id',uid).eq('product_id',id);
-  else await client.from('customer_cart_items').upsert({user_id:uid,product_id:id,quantity:qty},{onConflict:'user_id,product_id'});
+  const {error}=qty<=0
+    ?await client.from('customer_cart_items').delete().eq('user_id',uid).eq('product_id',id)
+    :await client.from('customer_cart_items').upsert({user_id:uid,product_id:id,quantity:qty},{onConflict:'user_id,product_id'});
+  if(error)throw error;
  }).catch(()=>announce('Your bag is saved on this device; cloud sync needs setup.'));
 }
 async function activateCustomerSession(session){
