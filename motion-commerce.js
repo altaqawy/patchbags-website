@@ -50,7 +50,7 @@ function saveCart(){
   if(activeUserId)localStorage.setItem('patchbags_user_cart_v1_'+activeUserId,JSON.stringify(cart));
   else localStorage.setItem(cartStorageKey,JSON.stringify(cart));
   // Keep the old enquiry list compatible with the original storefront.
-  localStorage.setItem('patchbags_enquiry',JSON.stringify(Object.keys(cart)));
+  if(!activeUserId)localStorage.setItem('patchbags_enquiry',JSON.stringify(Object.keys(cart)));
  }catch(_){}
  if(typeof picks!=='undefined')picks=Object.keys(cart);
  renderCart();
@@ -111,6 +111,7 @@ async function initializeCustomerAuth(){
     if(nextSession?.user)activateCustomerSession(nextSession).catch(()=>{});
     else if(event==='SIGNED_OUT'){
      activeUserId=null;authSession=null;cartCloudReady=false;cart={};
+     try{localStorage.removeItem('patchbags_enquiry')}catch(_){}
      loadCart();renderCart();updateAccountCopy();
     }
    },0);
@@ -252,6 +253,7 @@ async function signOut(){
  checkoutAfterAuth=false;
  if(client)try{await client.auth.signOut()}catch(_){}
  authSession=null;activeUserId=null;cartCloudReady=false;cart={};
+ try{localStorage.removeItem('patchbags_enquiry')}catch(_){}
  loadCart();renderCart();updateAccountCopy();closeModal();announce('Signed out');
 }
 function updateAccountCopy(){
