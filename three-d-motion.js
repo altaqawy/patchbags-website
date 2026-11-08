@@ -22,7 +22,7 @@ const on=()=>{
    stage.className='patch-depth-reviews';
    stage.setAttribute('aria-label','Automatically rotating customer review cards with 3D depth');
    stage.innerHTML='<div class="patch-review-space" aria-live="off">'+feedback.map((r,i)=>
-    '<article class="patch-depth-card" style="--index:'+i+'" aria-hidden="'+(i!==0)+'">'+
+    '<article class="patch-depth-card" style="--delay:'+(i*7)+'s" aria-hidden="'+(i!==0)+'">'+
       '<div class="patch-review-card-top">'+
         '<span class="patch-review-card-label">WORDS WE TREASURE</span>'+
         '<span class="patch-review-sparkles" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></span>'+
