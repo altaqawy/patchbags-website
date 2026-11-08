@@ -31,7 +31,7 @@
   position:absolute;
   z-index:3;
   top:0;
-  left:73%;
+  left:65%;
   transform:translateX(-50%);
   width:42px;
   height:8px;
@@ -62,7 +62,7 @@
   position:absolute;
   z-index:1;
   top:39%;
-  left:73%;
+  left:65%;
   transform:translate(-50%,-50%);
   display:grid;
   place-items:center;
@@ -106,7 +106,7 @@
     max-height:none;
   }
   .editorial-hero>.patch-reactbits-strip::before{
-    left:73%;
+    left:65%;
     width:36px;
     height:7px;
   }
