@@ -1,0 +1,151 @@
+/* PatCh.BaGs / Premium editorial layer, Nov 2026.
+   Additive only: preserves existing commerce, owner's CMS and media. */
+:root{--patch-premium-ease:cubic-bezier(.22,1,.36,1)}
+.patch-scroll-progress{position:fixed;top:0;left:0;z-index:110;width:100%;height:2px;pointer-events:none;background:transparent}
+.patch-scroll-progress>span{display:block;height:100%;width:100%;background:#adad8a;transform-origin:left;transform:scaleX(0);will-change:transform}
+.patch-lang-toggle{display:inline-flex;align-items:center;direction:ltr;gap:2px;padding:3px;border:1px solid #cdd2c7;border-radius:99px;background:#fff8;flex:none}
+.patch-lang-toggle button{border:0;background:transparent;border-radius:99px;min-width:36px;min-height:30px;padding:5px 8px;font:700 11px/1.1 var(--sans);color:#637063;transition:background .25s,color .25s}
+.patch-lang-toggle button[aria-pressed="true"]{background:#344536;color:#fff}
+.patch-lang-toggle button:focus-visible{outline:2px solid #667a61;outline-offset:3px}
+.patch-lang-toggle-mobile{display:none}
+.editorial-hero .patch-hero-light{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.34;background:radial-gradient(circle 29vw at var(--pointer-x,24%) var(--pointer-y,44%),rgba(229,223,191,.19),transparent 90%);transition:opacity .6s}
+.editorial-hero .patch-hero-vertical{position:absolute;top:10%;right:2.6%;z-index:7;color:#fff8;font:600 9px/1 var(--sans);letter-spacing:.23em;writing-mode:vertical-rl;text-transform:uppercase;pointer-events:none}
+.editorial-hero .hero-kicker{font-size:10px}
+.editorial-hero h1{filter:drop-shadow(0 12px 30px #0002)}
+.patch-hero-lead{max-width:380px;margin:-18px 0 28px;color:#fff;opacity:.85;font-size:clamp(13px,1.25vw,16px);line-height:1.85;letter-spacing:.018em;text-wrap:pretty}
+.patch-hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:18px}
+.patch-hero-secondary{border-bottom:1px solid #ffffffa6;padding:10px 0 8px;color:#fff;font-size:12px;font-weight:600;transition:opacity .2s}
+.patch-hero-secondary:hover{opacity:.68}
+.patch-hero-notes{margin-top:34px;display:flex;align-items:center;gap:17px;color:#fff9;font:600 9px var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.patch-hero-notes>i{width:18px;height:1px;background:#fffb;flex:none}
+.patch-hero-index{position:absolute;z-index:7;right:5%;bottom:80px;display:flex;align-items:center;gap:8px;color:#fff;font:500 11px var(--sans);letter-spacing:.13em;pointer-events:none}
+.patch-hero-index i{display:block;width:52px;height:1px;background:#fffa}
+.patch-hero-index strong{font-size:15px;font-weight:600}
+.category-tile,.feature-card,.product-card .product-photo,.lookbook-frame{isolation:isolate}
+.category-tile::after,.feature-card::after{content:"";position:absolute;z-index:2;inset:0;border:1px solid #ffffff1f;pointer-events:none;opacity:0;transition:opacity .4s}
+.category-tile:hover::after,.feature-card:hover::after{opacity:1}
+.collection .product-card{transition:transform .65s var(--patch-premium-ease)}
+@media(hover:hover) and (pointer:fine){.collection .product-card:hover{transform:translateY(-5px)}}
+.lookbook-section.patch-lookbook-premium{padding:96px 0 128px;background:#f0eee8;overflow:hidden}
+.patch-lookbook-premium .lookbook-head{padding-bottom:35px;align-items:end}
+.patch-lookbook-premium .lookbook-head .eyebrow{margin:0 0 13px;letter-spacing:.16em}
+.patch-lookbook-premium .lookbook-head h2{font-size:clamp(52px,6vw,95px)}
+.patch-lookbook-intro{max-width:300px;margin:0 0 3px;color:#777f75;font-size:13px;line-height:1.85}
+.patch-lookbook-premium .lookbook-grid{width:min(1460px,calc(100% - 64px));display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;align-items:stretch}
+.patch-lookbook-premium .lookbook-frame{min-width:0;aspect-ratio:auto;height:420px;grid-column:span 5;border-radius:2px;background:#d9d3c9}
+.patch-lookbook-premium .lookbook-frame:nth-child(1),.patch-lookbook-premium .lookbook-frame:nth-child(4){grid-column:span 7}
+.patch-lookbook-premium .lookbook-frame:nth-child(1){height:555px}
+.patch-lookbook-premium .lookbook-frame:nth-child(2){height:555px}
+.patch-lookbook-premium .lookbook-frame:nth-child(3){height:430px}
+.patch-lookbook-premium .lookbook-frame:nth-child(4){height:430px}
+.patch-lookbook-premium .lookbook-frame>img{height:100%;width:100%;object-fit:cover;transition:transform 1.15s var(--patch-premium-ease),filter .8s}
+.patch-lookbook-premium .lookbook-frame:hover>img{transform:scale(1.055)}
+.patch-lookbook-premium .lookbook-frame::after{content:"";position:absolute;inset:45% 0 0;pointer-events:none;background:linear-gradient(transparent,#10141178);z-index:1}
+.patch-lookbook-premium .lookbook-frame figcaption{z-index:3;left:24px;bottom:23px;right:24px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;padding:0;font:700 10px/1.5 var(--sans);color:white;letter-spacing:.16em;text-shadow:0 2px 10px #0006}
+.patch-lookbook-premium .lookbook-frame figcaption .lookbook-frame-number{opacity:.68;font-weight:500}
+.lookbook-hotspot{position:absolute;z-index:4;top:var(--hotspot-y,50%);left:var(--hotspot-x,50%);width:40px;height:40px;border-radius:50%;border:1px solid #fff;display:grid;place-items:center;background:#fbf9f4ef;color:#263326;box-shadow:0 0 0 7px #ffffff29,0 6px 24px #0003;transition:transform .25s,box-shadow .25s;cursor:pointer}
+.lookbook-hotspot::before,.lookbook-hotspot::after{content:"";position:absolute;background:currentColor;pointer-events:none}
+.lookbook-hotspot::before{width:13px;height:1px}.lookbook-hotspot::after{width:1px;height:13px}
+.lookbook-hotspot:hover,.lookbook-hotspot:focus-visible{transform:scale(1.13);box-shadow:0 0 0 11px #ffffff32,0 10px 32px #0004}
+.lookbook-hotspot:focus-visible{outline:2px solid #fff;outline-offset:6px}
+.lookbook-hotspot-label{position:absolute;bottom:calc(100% + 15px);left:50%;transform:translateX(-50%);width:max-content;max-width:195px;white-space:normal;text-align:center;padding:8px 12px;border-radius:4px;background:#faf8f1;color:#344137;font:600 11px/1.4 var(--sans);box-shadow:0 4px 18px #0002;opacity:0;pointer-events:none;transition:opacity .2s}
+.lookbook-hotspot:hover .lookbook-hotspot-label,.lookbook-hotspot:focus-visible .lookbook-hotspot-label{opacity:1}
+.patch-lookbook-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:25px;color:#71796e;font:600 10px var(--sans);letter-spacing:.12em;text-transform:uppercase}
+.patch-lookbook-footer span{display:flex;align-items:center;gap:10px}
+.patch-lookbook-footer span::before{content:"";display:block;width:24px;height:1px;background:#84917e}
+.patch-lookbook-controls{display:none;align-items:center;gap:8px}
+.patch-lookbook-controls button{width:45px;height:45px;border:1px solid #c7c9be;border-radius:50%;background:transparent;color:#334338;font-size:20px}
+.patch-lookbook-controls button:hover{background:#dfe3d9}
+html[lang="ar"] body{font-family:"Cairo",var(--sans);letter-spacing:normal}
+html[lang="ar"] .topline,html[lang="ar"] .hero-kicker,html[lang="ar"] .eyebrow,
+html[lang="ar"] .patch-hero-lead,html[lang="ar"] .patch-hero-notes,html[lang="ar"] .patch-lookbook-intro,
+html[lang="ar"] .desktop-nav a,html[lang="ar"] .mobile-nav a,
+html[lang="ar"] .lookbook-frame figcaption,html[lang="ar"] .patch-lookbook-footer,
+html[lang="ar"] .footer-bottom{font-family:"Cairo",var(--sans);letter-spacing:normal}
+html[lang="ar"] .editorial-hero h1,html[lang="ar"] .section-heading h2,html[lang="ar"] .category-header h2,
+html[lang="ar"] .lookbook-head h2,html[lang="ar"] .feature-top h2,html[lang="ar"] .story-copy h2,
+html[lang="ar"] .custom-copy h2,html[lang="ar"] .social-heading h2,html[lang="ar"] .patch-footer-cta p{font-family:"Cairo",var(--sans);font-weight:600;letter-spacing:-.045em}
+html[lang="ar"] .editorial-hero h1{line-height:1.28}
+html[lang="ar"] .nav-wrap{direction:ltr}
+html[lang="ar"] .desktop-nav{direction:rtl}
+html[lang="ar"] .editorial-hero-content{direction:rtl;text-align:right}
+html[lang="ar"] .patch-hero-actions{direction:rtl}
+html[lang="ar"] .hero-kicker,html[lang="ar"] .patch-hero-notes{direction:rtl}
+html[lang="ar"] .editorial-hero-bottom{direction:rtl}
+html[lang="ar"] .category-header,html[lang="ar"] .section-heading,
+html[lang="ar"] .patch-lookbook-premium .lookbook-head,
+html[lang="ar"] .social-heading,html[lang="ar"] .patch-lookbook-footer{direction:rtl}
+html[lang="ar"] .lookbook-frame figcaption{direction:rtl}
+html[lang="ar"] .lookbook-hotspot-label{direction:rtl}
+html[lang="ar"] input[type="email"],html[lang="ar"] input[type="tel"],html[lang="ar"] input[type="password"]{direction:ltr;text-align:left}
+html[lang="ar"] .patch-cart-card,html[lang="ar"] .patch-commerce-content,html[lang="ar"] .product-modal-info,html[lang="ar"] .drawer,
+html[lang="ar"] .search-modal{direction:rtl;text-align:right}
+html[lang="ar"] .patch-hero-index{right:auto;left:5%;direction:ltr}
+html[lang="ar"] .product-name button{text-align:right}
+html[lang="ar"] .patch-footer-nav{direction:rtl}
+html[lang="ar"] .patch-footer-opening{direction:rtl}
+@media(max-width:1120px){
+ .nav-actions{gap:11px}
+ .desktop-nav{gap:17px}
+ .patch-lang-toggle button{min-width:32px;padding:5px 6px}
+ .patch-hero-index{display:none}
+}
+@media(max-width:900px){
+ .patch-lookbook-premium .lookbook-grid{width:calc(100% - 36px);gap:10px}
+ .patch-lookbook-premium .lookbook-frame:nth-child(n){grid-column:span 6;height:420px}
+ .patch-lookbook-premium .lookbook-head h2{font-size:clamp(46px,7vw,72px)}
+}
+@media(max-width:680px){
+ .nav-actions>.patch-lang-toggle{display:flex}
+ .patch-lang-toggle button{min-height:28px;min-width:30px;font-size:10px}
+ .nav-actions{gap:7px}
+ .brand{min-width:0}
+ .brand>span{font-size:17px}
+ .brand small{font-size:7px}
+ .editorial-hero .patch-hero-light{opacity:.17}
+ .editorial-hero .patch-hero-vertical{display:none}
+ .editorial-hero .patch-hero-lead{font-size:13px;line-height:1.7;max-width:270px;margin:-9px 0 20px}
+ .editorial-hero .patch-hero-actions{gap:10px;align-items:flex-start}
+ .editorial-hero .patch-hero-secondary{font-size:11px}
+ .editorial-hero .patch-hero-notes{margin-top:22px;font-size:8px;gap:9px}
+ .editorial-hero .patch-hero-notes>i{width:11px}
+ .editorial-hero .hero-cta{gap:17px}
+ .patch-lookbook-premium.lookbook-section{padding:70px 0 84px}
+ .patch-lookbook-premium .lookbook-head{display:block;padding-bottom:25px}
+ .patch-lookbook-premium .lookbook-head h2{font-size:48px}
+ .patch-lookbook-intro{margin-top:16px;font-size:12px;max-width:350px}
+ .patch-lookbook-premium .lookbook-grid{display:flex;width:100%;max-width:none;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:16px;padding:0 16px 18px;overscroll-behavior-x:contain;scrollbar-width:thin}
+ .patch-lookbook-premium .lookbook-frame:nth-child(n){flex:0 0 83vw;height:auto;aspect-ratio:3 / 4.2;grid-column:auto;scroll-snap-align:center}
+ .patch-lookbook-premium .lookbook-frame figcaption{left:14px;right:14px;bottom:17px;font-size:9px}
+ .patch-lookbook-footer{padding:0 17px;margin-top:6px;font-size:9px}
+ .patch-lookbook-controls{display:flex}
+ .patch-lookbook-footer span{max-width:58%;line-height:1.6}
+ .lookbook-hotspot{width:39px;height:39px}
+ .lookbook-hotspot-label{opacity:1;font-size:10px;padding:6px 8px}
+ html[lang="ar"] .editorial-hero h1{font-size:clamp(45px,10vw,65px)}
+ html[lang="ar"] .patch-hero-actions{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:390px){
+ .nav-actions{gap:4px}
+ .bag-button{padding:7px 7px 7px 10px;gap:5px}
+ .patch-lang-toggle{padding:2px}
+ .patch-lang-toggle button{min-width:26px;padding:5px 4px}
+ .editorial-hero .patch-hero-lead{max-width:240px}
+}
+@media (hover:none){.patch-lookbook-premium .lookbook-frame:hover>img{transform:none}}
+@media (prefers-reduced-motion:reduce){
+ .patch-scroll-progress>span,.patch-hero-light,.patch-lookbook-premium .lookbook-frame>img,
+ .lookbook-hotspot,.patch-lang-toggle button,.collection .product-card{transition:none!important;animation:none!important}
+ .patch-scroll-progress>span{will-change:auto}
+ html{scroll-behavior:auto}
+}
+
+/* Keep the header usable down to narrow 320px phones; full control remains in menu. */
+@media(max-width:900px){.patch-lang-toggle-mobile{display:inline-flex;margin:7px 0 14px}}
+@media(max-width:400px){
+ .patch-lang-toggle-header button[aria-pressed="false"]{display:none}
+ .patch-lang-toggle-header button[aria-pressed="true"]{min-width:31px}
+ .brand img{width:34px;height:34px}
+ .brand>span{font-size:15px}
+ .bag-button{padding-inline:8px}
+}
