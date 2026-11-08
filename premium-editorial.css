@@ -139,3 +139,13 @@ html[lang="ar"] .patch-footer-opening{direction:rtl}
  .patch-scroll-progress>span{will-change:auto}
  html{scroll-behavior:auto}
 }
+
+/* Keep the header usable down to narrow 320px phones; full control remains in menu. */
+@media(max-width:900px){.patch-lang-toggle-mobile{display:inline-flex;margin:7px 0 14px}}
+@media(max-width:400px){
+ .patch-lang-toggle-header button[aria-pressed="false"]{display:none}
+ .patch-lang-toggle-header button[aria-pressed="true"]{min-width:31px}
+ .brand img{width:34px;height:34px}
+ .brand>span{font-size:15px}
+ .bag-button{padding-inline:8px}
+}
