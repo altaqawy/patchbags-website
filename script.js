@@ -24,6 +24,56 @@ try {const old = JSON.parse(localStorage.getItem('patchbags_enquiry') || '[]'); 
 let currentFilter='all';
 let activeProduct=null;
 let activeImageIndex=0;
+// Optional live catalog — created and edited through the owner's secure backend.
+// Existing editorial images remain in place until the owner activates items.
+function cleanCatalogText(value,max=240){return String(value??'').replace(/[<>"'&]/g,'').slice(0,max)}
+function pricedLine(p){
+ const price=Number(p.priceMinor);
+ if(!Number.isFinite(price)||price<=0)return '<p>Details & pricing on request</p>';
+ const now=(price/100).toFixed(2)+' EGP',was=Number(p.compareAtMinor);
+ return '<p class="patch-live-price">'+now+'</p>'+
+  (was>price?'<p class="patch-compare-price"><del>'+(was/100).toFixed(2)+' EGP</del><span>Save '+Math.round((1-price/was)*100)+'%</span></p>':'');
+}
+function applyOwnerCatalog(data){
+ if(!data||!Array.isArray(data.products))return;
+ for(const row of data.products){
+  const id=String(row.id||'');
+  if(!/^PB-[0-9]{2,4}$/.test(id)||!row.active||Number(row.price_minor)<=0)continue;
+  const name=cleanCatalogText(row.title,200),description=cleanCatalogText(row.description,3000);
+  let cover=String(row.image_url||'');
+  if(!cover.startsWith('https://')&&!cover.startsWith('assets/'))cover='';
+  const photos=(Array.isArray(row.media)?row.media:[])
+   .filter(a=>a?.type==='image'&&typeof a.url==='string'&&a.url.startsWith('https://')).slice(0,12).map(a=>a.url);
+  const image=cover||photos[0]||'assets/new/striped-tote-studio-front.webp';
+  const existing=products.find(p=>p.id===id);
+  const gallery=photos.length?Array.from(new Set([image,...photos])):(existing?.images||[image]);
+  const category=/^[a-z0-9-]{2,50}$/.test(String(row.category_slug||''))?row.category_slug:'bags';
+  const update={
+   id,name,description,category,image,images:gallery,
+   label:cleanCatalogText((data.categories||[]).find(c=>c.slug===category)?.name_en||category,80).toUpperCase(),
+   tag:cleanCatalogText(row.badge||'Handmade',40),
+   priceMinor:Number(row.price_minor),compareAtMinor:row.compare_at_minor?Number(row.compare_at_minor):null,
+   mediaExtras:(Array.isArray(row.media)?row.media:[]).filter(a=>['video','model'].includes(a?.type)&&typeof a.url==='string'&&a.url.startsWith('https://')).slice(0,12)
+  };
+  if(existing)Object.assign(existing,update);
+  else products.push(update);
+ }
+ const filters=document.querySelector('.filters');
+ if(filters&&Array.isArray(data.categories))for(const category of data.categories){
+  const slug=String(category.slug||'');
+  if(!/^[a-z0-9-]{2,50}$/.test(slug)||filters.querySelector('[data-filter="'+slug+'"]'))continue;
+  const btn=document.createElement('button');btn.type='button';btn.className='filter-chip';btn.dataset.filter=slug;
+  btn.setAttribute('aria-pressed','false');btn.textContent=cleanCatalogText(category.name_en||category.name_ar,70);
+  btn.addEventListener('click',()=>{
+   currentFilter=slug;
+   document.querySelectorAll('.filter-chip').forEach(chip=>{const chosen=chip===btn;chip.classList.toggle('active',chosen);chip.setAttribute('aria-pressed',String(chosen))});
+   renderProducts();
+  });filters.append(btn);
+ }
+ if(document.getElementById('productGrid'))renderProducts();
+}
+window.PATCH_APPLY_CATALOG=applyOwnerCatalog;
+
 // Photographed variants share one storefront card but retain distinct original SKUs.
 // These color options map only to real images supplied by the maker.
 const productColorFamilies=[
@@ -138,7 +188,7 @@ function renderProducts(){
     '<button class="product-quick" type="button" aria-label="View '+p.name+'" data-detail="'+p.id+'">↗</button></div>'+
     '<div class="product-info"><div><small>'+p.label+'</small>'+
     '<h3 class="product-name"><button type="button" data-detail="'+p.id+'">'+p.name+'</button></h3>'+
-    '<p>Details & pricing on request</p>'+renderColorPicker(base.id,p.id)+'</div>'+
+    pricedLine(p)+renderColorPicker(base.id,p.id)+'</div>'+
     '<button class="product-add" type="button" data-add="'+p.id+'" aria-label="Add '+p.name+' to your picks">+</button></div>'+
     '</article>';
  }).join('');
@@ -175,10 +225,34 @@ function populateProductModal(id){
  byId('modalTitle').textContent=p.name;
  byId('modalDescription').textContent=p.description;
  byId('modalCode').textContent='PIECE '+p.id;
+ const priceEl=byId('modalPricing');
+ if(priceEl)priceEl.innerHTML=pricedLine(p);
  const root=colorRootById.get(id);
  const picker=byId('modalColorOptions');
  if(picker){picker.hidden=!root;picker.innerHTML=root?renderColorPicker(root,id,true):''}
  setGalleryImage(0);
+ const extras=byId('modalAdditionalMedia');
+ if(extras){
+  extras.replaceChildren();
+  for(const item of p.mediaExtras||[]){
+   if(item.type==='video'){
+    const video=document.createElement('video');
+    video.src=item.url;video.controls=true;video.preload='none';video.playsInline=true;
+    video.className='patch-modal-extra-video';
+    video.setAttribute('aria-label','Product video');
+    extras.appendChild(video);
+   }
+   if(item.type==='model'){
+    const area=document.createElement('div');area.className='patch-modal-model';
+    const label=document.createElement('p');label.textContent='Explore the 3D product model';area.appendChild(label);
+    const model=document.createElement('model-viewer');
+    model.setAttribute('src',item.url);model.setAttribute('camera-controls','');model.setAttribute('auto-rotate','');
+    model.setAttribute('alt','Interactive 3D product model');area.appendChild(model);
+    const link=document.createElement('a');link.href=item.url;link.rel='noopener noreferrer';link.target='_blank';link.textContent='Open original 3D model ↗';
+    area.appendChild(link);extras.appendChild(area);
+   }
+  }
+ }
 }
 function showProduct(id){
  const p=products.find(p=>p.id===id);if(!p)return;
