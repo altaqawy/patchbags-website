@@ -13,7 +13,7 @@ export function error(status:number,message:string){return json({error:message},
 export function originAllowed(req:NextRequest){const origin=req.headers.get('origin');const site=process.env.APP_ORIGIN;if(!site||!origin)return false;try{return new URL(origin).origin===new URL(site).origin}catch{return false}}
 export function unsafeAllowed(req:NextRequest){return originAllowed(req)&&['application/json','application/x-www-form-urlencoded'].some(t=>req.headers.get('content-type')?.startsWith(t))}
 export function publicOriginAllowed(req:NextRequest){const origin=req.headers.get('origin');if(!origin)return true;return origin===process.env.CORS_ALLOWED_ORIGIN||origin===process.env.APP_ORIGIN}
-export function corsHeaders(){return {'Access-Control-Allow-Origin':process.env.CORS_ALLOWED_ORIGIN||'https://altaqawy.github.io','Access-Control-Allow-Headers':'Content-Type, X-Request-ID','Access-Control-Allow-Methods':'POST,OPTIONS,GET','Vary':'Origin','Cache-Control':'no-store'}}
+export function corsHeaders(){return {'Access-Control-Allow-Origin':process.env.CORS_ALLOWED_ORIGIN||'https://altaqawy.github.io','Access-Control-Allow-Headers':'Content-Type, Authorization, X-Request-ID','Access-Control-Allow-Methods':'POST,OPTIONS,GET','Vary':'Origin','Cache-Control':'no-store'}}
 export function publicJson(data:unknown,status=200){return NextResponse.json(data,{status,headers:corsHeaders()})}
 export function publicError(status:number,message:string){return publicJson({error:message},status)}
 export function encKey(){return keyFromEnv(process.env.PAYMOB_ENCRYPTION_KEY_BASE64)}
