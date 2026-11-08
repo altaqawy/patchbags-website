@@ -1059,3 +1059,14 @@ html[lang="ar"] .patch-commerce-form input,
 html[lang="ar"] .patch-commerce-form textarea{
  font-family:"Cairo",var(--sans);
 }
+
+html[lang="ar"] .patch-review-space .patch-depth-card .quote{
+ font-family:"Cairo",var(--sans);
+ font-size:clamp(20px,2.4vw,31px);
+ line-height:1.8;
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-review-byline strong{
+ font-family:"Cairo",var(--sans);
+ letter-spacing:0;
+}
