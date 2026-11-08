@@ -272,7 +272,7 @@ html[lang="ar"] .patch-hero-actions .hero-cta{
  font-family:"Cairo",var(--sans);
 }
 html[lang="ar"] .patch-hero-actions .hero-cta span,
-html[lang="ar"] .patch-hero-secondary,
+html[lang="ar"] .patch-hero-secondary span,
 html[lang="ar"] .text-link span,
 html[lang="ar"] .patch-footer-cta>a span,
 html[lang="ar"] .patch-footer-action span,
@@ -684,7 +684,7 @@ html[lang="ar"] .patch-cart-card>div{
  text-align:right;
 }
 html[lang="ar"] .patch-cart-card{
- grid-template-columns:minmax(0,1fr) 91px;
+ grid-template-columns:91px minmax(0,1fr);
 }
 html[lang="ar"] .patch-cart-adjust{
  direction:rtl;
@@ -947,7 +947,7 @@ html[lang="ar"] input[type="password"]{
   text-align:right;
  }
  html[lang="ar"] .patch-cart-card{
-  grid-template-columns:minmax(0,1fr) 77px;
+  grid-template-columns:77px minmax(0,1fr);
  }
  html[lang="ar"] .patch-commerce-content{
   text-align:right;
@@ -957,4 +957,35 @@ html[lang="ar"] input[type="password"]{
  html[lang="ar"] .brand>span{font-size:15px}
  html[lang="ar"] .nav-actions{direction:ltr}
  html[lang="ar"] .editorial-hero h1{font-size:clamp(40px,10vw,56px)}
+}
+
+/* Directional controls and content-flow details. */
+html[lang="ar"] .patch-scroll-progress>span{transform-origin:right}
+html[lang="ar"] [data-lookbook-direction],
+html[lang="ar"] [data-patch-review-prev],
+html[lang="ar"] [data-patch-review-next],
+html[lang="ar"] .modal-photo-controls button{
+ transform:scaleX(-1);
+}
+html[lang="ar"] .patch-hero-secondary span{
+ display:inline-block;
+}
+html[lang="ar"] .patch-cart-card>img{
+ grid-column:1;
+}
+html[lang="ar"] .patch-cart-card>div{
+ grid-column:2;
+}
+html[lang="ar"] .patch-commerce-form input[type="checkbox"],
+html[lang="ar"] .patch-commerce-form input[type="radio"]{
+ margin-inline:0 9px;
+}
+html[lang="ar"] .patch-words-copy .patch-quote-glyph{
+ align-self:flex-start;
+}
+html[lang="ar"] .patch-review-card-top{
+ direction:rtl;
+}
+html[lang="ar"] .patch-review-sparkles{
+ direction:ltr;
 }
