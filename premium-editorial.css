@@ -989,3 +989,31 @@ html[lang="ar"] .patch-review-card-top{
 html[lang="ar"] .patch-review-sparkles{
  direction:ltr;
 }
+
+/* Keep overlays and floating actions balanced in the RTL composition. */
+html[lang="ar"] .product-close,
+html[lang="ar"] .patch-commerce-close{
+ right:auto;
+ left:18px;
+}
+html[lang="ar"] #patchWhatsappFab{
+ right:auto;
+ left:22px;
+}
+html[lang="ar"] .lookbook-frame-number{
+ direction:ltr;
+ unicode-bidi:isolate;
+}
+html[lang="ar"] .patch-footer-base>span:first-child{
+ direction:rtl;
+}
+html[lang="ar"] .patch-footer-base>span:first-child #year{
+ direction:ltr;
+ unicode-bidi:isolate;
+}
+html[lang="ar"] .patch-review-count{
+ unicode-bidi:isolate;
+}
+html[lang="ar"] .patch-commerce-close{
+ left:16px;
+}
