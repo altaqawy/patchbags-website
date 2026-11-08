@@ -120,3 +120,6 @@
 @media(prefers-reduced-motion:reduce){
   .patch-reactbits-strip .patch-reactbits-loading{transition:none}
 }
+
+/* Existing original scroll cue remains clickable above the 3D canvas. */
+.editorial-hero>.editorial-hero-bottom{z-index:7}
