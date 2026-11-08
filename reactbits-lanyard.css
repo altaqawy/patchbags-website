@@ -89,3 +89,9 @@
     height:7px;
   }
 }
+
+
+/* Preserve legibility even while visitors drag the card across the heading. */
+.editorial-hero>.editorial-hero-content.container{z-index:6}
+html.patch-photo-ready .editorial-hero>.editorial-hero-content.container{z-index:6}
+.editorial-hero>.editorial-hero-bottom{z-index:7}
