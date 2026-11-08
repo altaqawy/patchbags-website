@@ -82,7 +82,7 @@
    if(on)btn.setAttribute("aria-current","page");
    else btn.removeAttribute("aria-current");
   });
-  byId("currentPageName").textContent=panels[name];
+  byId("currentPageName").textContent=ownerLocale==="ar"?panels[name]:panelsEnglish[name];
   sidebar(false);
   if(name==="products")renderProducts();
   if(name==="categories")renderCategories();
@@ -141,23 +141,97 @@
    '<td><button type="button" class="table-edit" data-edit="'+escape(p.id)+'">تعديل</button></td></tr>'
   ).join("");
  }
+ let pendingMedia=[];
+ const objectUrls=[];
+ const fileTypes={
+  "image/jpeg":"image","image/png":"image","image/webp":"image",
+  "video/mp4":"video","video/webm":"video","model/gltf-binary":"model","model/gltf+json":"model"
+ };
+ const mediaType=(name,mime)=>{
+  if(fileTypes[mime])return fileTypes[mime];
+  if(/\.glb$|\.gltf$/i.test(name))return "model";
+  if(/\.mp4$|\.webm$/i.test(name))return "video";
+  if(/\.(png|jpe?g|webp)$/i.test(name))return "image";
+  return null;
+ };
+ function renderMedia(){
+  const el=byId("editorMediaList");
+  el.innerHTML=pendingMedia.map((m,i)=>{
+   const thumb=m.type==="image"?'<img src="'+escape(m.url)+'" alt="'+escape(m.name||"Preview")+'">':
+   m.type==="video"?'<video src="'+escape(m.url)+'" preload="metadata" muted controls playsinline></video>':
+   '<model-viewer class="editor-3d" src="'+escape(m.url)+'" camera-controls auto-rotate interaction-prompt="none" alt="3D model preview"><div slot="poster" class="model-poster">3D</div></model-viewer>';
+   return '<div class="editor-media-item">'+thumb+
+     '<div><span>'+escape(m.type.toUpperCase())+'</span><small>'+escape(m.name||"Media")+'</small></div>'+
+     '<button type="button" data-remove-media="'+i+'" aria-label="Remove media">×</button></div>';
+  }).join("");
+ }
+ function addFiles(event){
+  const files=Array.from(event.target.files||[]);
+  for(const file of files){
+   const type=mediaType(file.name,file.type);
+   const maxSize=type==="image"?10:60;
+   if(!type||file.size>maxSize*1024*1024||pendingMedia.length>=12){
+    notice("راجعي نوع الملف أو حجمه (حد أقصى 12 ملفًا)");continue;
+   }
+   const url=URL.createObjectURL(file);
+   objectUrls.push(url);
+   pendingMedia.push({type,name:file.name,url,localOnly:true});
+  }
+  renderMedia();
+  event.target.value="";
+ }
+ function addMediaLink(){
+  const raw=byId("editorMediaUrl").value.trim();
+  let url;try{url=new URL(raw)}catch(_){notice("أدخلي رابط HTTPS صحيح");return}
+  if(url.protocol!=="https:"||url.username||url.password||pendingMedia.length>=12){
+   notice("الرابط لازم يكون HTTPS بدون بيانات دخول");return;
+  }
+  const type=mediaType(url.pathname,"");
+  if(!type){notice("الرابط لازم ينتهي بصورة أو فيديو أو GLB/GLTF");return}
+  pendingMedia.push({type,url:url.href,name:url.pathname.split("/").pop()||"Media"});
+  byId("editorMediaUrl").value="";
+  renderMedia();
+ }
+ function discountStatus(){
+  const now=Number(byId("editorPrice").value),old=Number(byId("editorComparePrice").value);
+  const el=byId("editorDiscountStatus");
+  if(byId("editorPrice").value&&byId("editorComparePrice").value&&old>now&&now>=0){
+   const pct=Math.round((1-now/old)*100);
+   el.textContent="خصم "+pct+"% · السعر قبل: "+old+" ج.م · السعر الحالي: "+now+" ج.م";
+   el.classList.add("has-discount");
+  }else{
+   el.textContent="لا يظهر خصم إلا لما يكون السعر قبل الخصم أكبر من السعر الحالي.";
+   el.classList.remove("has-discount");
+  }
+ }
  function openEditor(id){
   let product=items.find(p=>p.id===id);
   if(!product){
-   product={id:"DRAFT-"+String(items.length+1).padStart(2,"0"),name:"منتج جديد",category:"bags",color:"New",image:"assets/new/striped-tote-studio-front.webp",price:null,stock:null,active:false};
-   items=[...items,product];
-   id=product.id;
-   renderOverview();renderProducts();
+   const draftIds=items.filter(x=>x.id.startsWith("DRAFT-")).map(x=>Number(x.id.replace("DRAFT-",""))||0);
+   const n=Math.max(items.length+1,...draftIds)+1;
+   product={id:"DRAFT-"+String(n).padStart(2,"0"),name:"منتج جديد",nameEnglish:"",description:"",category:"bags",color:"New",image:"assets/new/striped-tote-studio-front.webp",media:[],price:null,comparePrice:null,stock:0,badge:"New",featured:false,active:false};
+   items=[...items,product];id=product.id;
+   renderOverview();renderCategories();renderProducts();renderCategories();
   }
   editingId=id;lastFocus=document.activeElement;
+  const select=byId("editorCategory");
+  select.innerHTML=Object.entries(collectionNames).map(([slug,c])=>'<option value="'+escape(slug)+'">'+escape(c.ar)+'</option>').join("");
+  select.value=collectionNames[product.category]?product.category:"bags";
   byId("editorTitle").textContent="تعديل "+product.id;
   byId("editorImage").src=product.image;
   byId("editorImage").alt=product.name;
   byId("editorSku").value=product.id;
   byId("editorName").value=product.name;
+  byId("editorEnglish").value=product.nameEnglish||product.name;
+  byId("editorDescription").value=product.description||"";
   byId("editorPrice").value=product.price===null?"":String(product.price);
+  byId("editorComparePrice").value=product.comparePrice===null||product.comparePrice===undefined?"":String(product.comparePrice);
   byId("editorStock").value=product.stock===null?"0":String(product.stock);
-  byId("editorActive").checked=product.active;
+  byId("editorBadge").value=product.badge||"";
+  byId("editorFeatured").checked=Boolean(product.featured);
+  byId("editorActive").checked=Boolean(product.active);
+  pendingMedia=(product.media||[]).filter(m=>typeof m.url==="string"&&(m.url.startsWith("https://")||objectUrls.includes(m.url))).map(m=>({...m}));
+  renderMedia();discountStatus();
   byId("ownerProductEditor").hidden=false;
   byId("ownerEditorBackdrop").hidden=false;
   document.body.style.overflow="hidden";
@@ -167,7 +241,7 @@
   byId("ownerProductEditor").hidden=true;
   byId("ownerEditorBackdrop").hidden=true;
   document.body.style.overflow="";
-  editingId=null;
+  editingId=null;pendingMedia=[];
   if(lastFocus&&document.contains(lastFocus))lastFocus.focus();
   lastFocus=null;
  }
@@ -175,22 +249,36 @@
   event.preventDefault();
   const p=items.find(item=>item.id===editingId);
   if(!p)return;
-  const priceRaw=byId("editorPrice").value.trim();
-  const price=priceRaw===""?null:Number(priceRaw);
-  const stock=Number(byId("editorStock").value);
-  const name=byId("editorName").value.trim();
-  if(!name||price!==null&&(!Number.isFinite(price)||price<0)||!Number.isInteger(stock)||stock<0){
-   notice("راجعي الاسم والسعر والمخزون");return;
+  const raw=byId("editorPrice").value.trim(),rawBefore=byId("editorComparePrice").value.trim();
+  const price=raw===""?null:Number(raw),before=rawBefore===""?null:Number(rawBefore);
+  const stock=Number(byId("editorStock").value),name=byId("editorName").value.trim();
+  if(!name||name.length>200||price!==null&&(!Number.isFinite(price)||price<0)||
+      before!==null&&(!Number.isFinite(before)||before<=0||price===null||before<=price)||
+      !Number.isSafeInteger(stock)||stock<0){
+   notice("راجعي الأسعار: قبل الخصم لازم يكون أكبر من السعر الحالي");return;
   }
-  p.name=name;p.price=price;p.stock=stock;
+  p.name=name;p.nameEnglish=byId("editorEnglish").value.trim();
+  p.category=byId("editorCategory").value;
+  p.description=byId("editorDescription").value.trim();
+  p.price=price;p.comparePrice=before;p.stock=stock;
+  p.badge=byId("editorBadge").value.trim();
+  p.featured=byId("editorFeatured").checked;
   p.active=Boolean(byId("editorActive").checked&&price!==null&&price>0&&stock>0);
-  closeEditor();
-  renderProducts();renderOverview();
-  notice("تم تطبيق التعديل في المعاينة فقط — المتجر الحقيقي لم يتغير");
+  p.media=pendingMedia.map(m=>({...m}));
+  const cover=p.media.find(m=>m.type==="image");
+  if(cover)p.image=cover.url;
+  closeEditor();persistDemo();renderProducts();renderOverview();renderCategories();
+  notice("اتحفظ التعديل في المعاينة على جهازك فقط، مش على المتجر الحقيقي");
  }
  document.addEventListener("click",event=>{
   const navButton=event.target.closest("button[data-view]");
   if(navButton){event.preventDefault();view(navButton.dataset.view);return}
+  const rm=event.target.closest("[data-remove-media]");
+  if(rm){
+   event.preventDefault();
+   pendingMedia.splice(Number(rm.dataset.removeMedia),1);
+   renderMedia();return;
+  }
   const edit=event.target.closest("[data-edit]");
   if(edit){event.preventDefault();openEditor(edit.dataset.edit);return}
   const action=event.target.closest("[data-action]");
@@ -207,6 +295,26 @@
  byId("editorCancel").addEventListener("click",closeEditor);
  byId("ownerEditorBackdrop").addEventListener("click",closeEditor);
  byId("productForm").addEventListener("submit",saveEditor);
+ byId("categoryForm").addEventListener("submit",addCategory);
+ byId("editorMediaFiles").addEventListener("change",addFiles);
+ byId("editorAddMedia").addEventListener("click",addMediaLink);
+ byId("editorPrice").addEventListener("input",discountStatus);
+ byId("editorComparePrice").addEventListener("input",discountStatus);
+ document.querySelectorAll("[data-period]").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll("[data-period]").forEach(b=>b.classList.toggle("is-active",b===btn));
+  byId("analyticsPeriod").textContent="آخر "+btn.dataset.period+" يوم · لا توجد بيانات متصلة";
+ }));
+ byId("ownerLanguage").addEventListener("click",()=>{
+  ownerLocale=ownerLocale==="ar"?"en":"ar";
+  const nameMap=ownerLocale==="ar"?panels:panelsEnglish;
+  byId("currentPageName").textContent=nameMap[location.hash.slice(1)]||nameMap.overview;
+  document.querySelectorAll('.owner-nav button[data-view]').forEach(btn=>{
+   btn.childNodes.forEach(node=>{if(node.nodeType===3&&node.textContent.trim())node.textContent=nameMap[btn.dataset.view]||node.textContent});
+  });
+  byId("ownerLanguage").textContent=ownerLocale==="ar"?"English":"العربية";
+  byId("ownerLanguage").setAttribute("aria-pressed",String(ownerLocale==="en"));
+  notice(ownerLocale==="en"?"Navigation in English · Arabic descriptions are retained":"القائمة بالعربي · الوصف عربي");
+ });
  byId("productSearch").addEventListener("input",renderProducts);
  byId("productCategory").addEventListener("change",renderProducts);
  document.addEventListener("keydown",event=>{
