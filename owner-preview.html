@@ -10,7 +10,7 @@
  <link rel="icon" href="assets/patch-logo.png" type="image/png">
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
- <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+ <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Cairo:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
  <link href="owner-preview.css" rel="stylesheet">
  <script src="owner-preview.js" defer></script>
 </head>
@@ -44,6 +44,7 @@
    <nav id="ownerNav" class="owner-nav">
     <button type="button" class="is-selected" data-view="overview" aria-current="page"><svg><use href="#ico-grid"/></svg>نظرة عامة</button>
     <button type="button" data-view="products"><svg><use href="#ico-box"/></svg>المنتجات <span class="owner-nav-count">12</span></button>
+    <button type="button" data-view="categories"><svg><use href="#ico-grid"/></svg>التصنيفات</button>
     <button type="button" data-view="orders"><svg><use href="#ico-bag"/></svg>الطلبات</button>
     <button type="button" data-view="customers"><svg><use href="#ico-users"/></svg>العملاء</button>
     <button type="button" data-view="payments"><svg><use href="#ico-credit"/></svg>المدفوعات</button>
@@ -59,7 +60,7 @@
      <button class="icon-btn owner-menu" id="openSidebar" aria-label="فتح القائمة" aria-expanded="false" aria-controls="ownerSidebar"><svg><use href="#ico-menu"/></svg></button>
      <span class="owner-topbar-crumb">PatCh.BaGs <span>/</span> <strong id="currentPageName">نظرة عامة</strong></span>
     </div>
-    <div class="owner-topbar-end"><span class="owner-preview-pill"><span class="live-dot"></span> PREVIEW MODE</span><a href="index.html" class="owner-visit-store" target="_blank" rel="noopener noreferrer">عرض المتجر <svg><use href="#ico-external"/></svg></a><div class="owner-top-avatar" aria-label="حساب المالكة التجريبي">P</div></div>
+    <div class="owner-topbar-end"><button type="button" id="ownerLanguage" class="owner-language" aria-label="تغيير لغة لوحة التحكم">English</button><span class="owner-preview-pill"><span class="live-dot"></span> PREVIEW MODE</span><a href="index.html" class="owner-visit-store" target="_blank" rel="noopener noreferrer">عرض المتجر <svg><use href="#ico-external"/></svg></a><div class="owner-top-avatar" aria-label="حساب المالكة التجريبي">P</div></div>
    </header>
    <main class="owner-main" id="ownerMain">
     <div class="demo-notice" role="note"><svg><use href="#ico-alert"/></svg><span><strong>دي معاينة لشكل لوحة المالكة.</strong> الأرقام والطلبات الحقيقية مش متصلة لسه. أي تعديل هنا للتجربة فقط، ولا بيغير الموقع أو بيحفظ مفاتيح الدفع.</span></div>
@@ -71,6 +72,11 @@
       <article class="metric-card"><span>العملاء المسجلون</span><strong>—</strong><small>بيظهروا بعد تفعيل الحسابات</small><svg><use href="#ico-users"/></svg></article>
       <article class="metric-card"><span>المدفوعات المؤكدة</span><strong>—</strong><small>لا توجد بوابة فعالة حاليًا</small><svg><use href="#ico-credit"/></svg></article>
      </div>
+     <div class="owner-panel-card studio-analytics" aria-label="منطقة إحصائيات المبيعات">
+ <div class="analytics-heading"><div><span class="overline">SALES PERFORMANCE</span><h2>أداء المبيعات</h2><p>الأرقام الحقيقية هتظهر هنا أول ما نظام الطلبات يتوصل.</p></div>
+ <div class="analytics-range" role="group" aria-label="فترة الإحصائيات"><button data-period="7" class="is-active" type="button">7 أيام</button><button data-period="30" type="button">30 يوم</button><button data-period="90" type="button">90 يوم</button></div></div>
+ <div class="analytics-chart"><div class="analytics-axis"><span>المبيعات (EGP)</span><span>0</span></div><div class="analytics-empty-chart"><span class="chart-zero-line"></span><div class="chart-empty-note"><svg><use href="#ico-chart"/></svg><strong>في انتظار بيانات البيع الفعلية</strong><small>مش بنعرض أرقام أو مبيعات وهمية</small></div></div><div class="chart-period-label" id="analyticsPeriod">آخر 7 أيام · لا توجد بيانات متصلة</div></div>
+</div>
      <div class="owner-overview-grid">
       <article class="owner-featured">
        <div class="owner-featured-text"><span class="overline">THE PATCH EDIT</span><h2>صناعتك ليها <em>حكاية.</em></h2><p>ممكن تضيفي المنتجات، تحددي أسعار الألوان، وتتابعي كل أوردر لما نظام الإدارة يتفعل.</p><button class="owner-button light" data-view="products">إدارة المنتجات <svg><use href="#ico-arrow"/></svg></button></div>
@@ -89,7 +95,21 @@
         <div id="productEmpty" class="no-results" hidden>مفيش منتجات مطابقة للبحث.</div>
       </div>
     </section>
-    <section data-panel="orders" class="owner-panel" aria-labelledby="ordersTitle" hidden>
+    <section data-panel="categories" class="owner-panel" aria-labelledby="categoriesTitle" hidden>
+ <div class="section-top"><div><p class="overline">COLLECTION MANAGER</p><h1 id="categoriesTitle">التصنيفات <em>بلمستك.</em></h1><p class="section-description">اعملي تصنيف جديد بالعربي والإنجليزي، ونظمي المنتجات في المجموعات اللي تناسب مشروعك.</p></div></div>
+ <div class="owner-overview-grid">
+  <div class="owner-panel-card"><span class="overline">EXISTING COLLECTIONS</span><h2>مجموعات المنتجات</h2><div id="categoryList" class="category-list"></div></div>
+  <form class="owner-panel-card category-form" id="categoryForm">
+   <span class="overline">CREATE COLLECTION</span><h2>إضافة تصنيف</h2>
+   <label>اسم التصنيف بالعربي<input required id="categoryArabic" maxlength="70" placeholder="مثلاً: شنط خروج"></label>
+   <label>English name<input required id="categoryEnglish" maxlength="70" placeholder="Going-out bags" dir="ltr"></label>
+   <label>Slug (English / optional)<input id="categorySlug" maxlength="50" placeholder="going-out-bags" dir="ltr" pattern="[a-z0-9-]*"></label>
+   <button class="owner-button dark" type="submit"><svg><use href="#ico-plus"/></svg>إضافة للمجموعات التجريبية</button>
+   <p class="small-muted">الإضافة هنا محفوظة في المتصفح للتجربة فقط، مش في المتجر العام.</p>
+  </form>
+ </div>
+</section>
+<section data-panel="orders" class="owner-panel" aria-labelledby="ordersTitle" hidden>
      <div class="section-top"><div><p class="overline">ORDER WORKSPACE</p><h1 id="ordersTitle">طلبات <em>واضحة ومنظمة.</em></h1><p class="section-description">كل طلب هيظهر هنا مع العميل والمنتج واللون والعنوان وحالة التجهيز والدفع.</p></div></div>
      <div class="owner-panel-card empty-workspace"><span class="empty-illustration"><svg><use href="#ico-bag"/></svg></span><h2>لسه مفيش طلبات متصلة</h2><p>دي معاينة بس. بعد تشغيل قاعدة البيانات والـ Checkout هتقدري تستقبلي الطلبات وتحددي حالتها من هنا.</p><div class="sample-flow"><span>طلب جديد</span><b>←</b><span>قيد التنفيذ</span><b>←</b><span>جاهز للشحن</span><b>←</b><span>تم التسليم</span></div></div>
     </section>
@@ -123,14 +143,34 @@
  <section id="ownerProductEditor" class="owner-editor" role="dialog" aria-modal="true" aria-labelledby="editorTitle" hidden>
   <div class="editor-head"><div><span class="overline">PRODUCT DETAILS / معاينة</span><h2 id="editorTitle">تعديل المنتج</h2></div><button id="editorClose" class="icon-btn" aria-label="إغلاق التحرير"><svg><use href="#ico-close"/></svg></button></div>
   <form id="productForm">
-   <img id="editorImage" class="editor-image" src="assets/new/striped-tote-studio-front.webp" alt="صورة المنتج">
-   <p class="editor-hint">التعديل للتجربة فقط، ومش بيتحفظ في الموقع العام أو قاعدة البيانات.</p>
-   <input type="hidden" id="editorSku">
-   <label>اسم المنتج<input type="text" id="editorName" required></label>
-   <div class="editor-fields"><label>السعر بالجنيه<input type="number" id="editorPrice" min="0" step=".01" placeholder="لم يتحدد"></label><label>المخزون<input type="number" id="editorStock" min="0" step="1" value="0"></label></div>
-   <label class="toggle-line"><input type="checkbox" id="editorActive"> متاح للطلب بعد التسعير والتجهيز</label>
-   <div class="editor-actions"><button type="button" class="owner-button outline" id="editorCancel">إلغاء</button><button type="submit" class="owner-button dark">تطبيق في المعاينة</button></div>
-  </form>
+ <div class="editor-media-cover"><img id="editorImage" class="editor-image" src="assets/new/striped-tote-studio-front.webp" alt="صورة المنتج"><span class="editor-media-label">PRODUCT MEDIA</span></div>
+ <p class="editor-hint">في المعاينة تقدري تجربي الصور والفيديو و3D على جهازك. ملفات الجهاز مش بتترفع للسيرفر، ومش هتظهر للزبائن غير بعد تفعيل التخزين الآمن.</p>
+ <input type="hidden" id="editorSku">
+ <label>اسم المنتج<input type="text" id="editorName" required maxlength="200" placeholder="اسم القطعة"></label>
+ <label>Product name in English<input type="text" id="editorEnglish" maxlength="200" dir="ltr" placeholder="The Signature Tote"></label>
+ <label>التصنيف<select id="editorCategory" required></select></label>
+ <label>وصف القطعة<textarea id="editorDescription" rows="4" maxlength="3000" placeholder="الخامة، المقاس، تفاصيل الحزام، الاستخدام..."></textarea></label>
+ <div class="editor-fields">
+  <label>السعر بعد الخصم (ج.م)<input type="number" id="editorPrice" min="0" step=".01" placeholder="السعر الحالي"></label>
+  <label>السعر قبل الخصم (ج.م)<input type="number" id="editorComparePrice" min="0" step=".01" placeholder="اختياري"></label>
+ </div>
+ <p id="editorDiscountStatus" class="editor-discount-status">اكتبي السعرين علشان يظهر الخصم تلقائيًا.</p>
+ <div class="editor-fields">
+  <label>المخزون<input type="number" id="editorStock" min="0" step="1" value="0"></label>
+  <label>شارة المنتج<input type="text" id="editorBadge" maxlength="40" placeholder="Handmade / New"></label>
+ </div>
+ <label class="toggle-line"><input type="checkbox" id="editorFeatured"> ظهّري المنتج في المنتجات المميزة</label>
+ <label class="toggle-line"><input type="checkbox" id="editorActive"> متاح للبيع بعد التسعير وتجهيز المخزون</label>
+ <div class="editor-upload">
+  <div class="editor-upload-title"><strong>الصور والفيديو والـ 3D</strong><small>صور JPEG/PNG/WebP · فيديو MP4/WebM · موديل GLB/GLTF</small></div>
+  <label class="editor-dropzone" for="editorMediaFiles"><svg><use href="#ico-plus"/></svg><strong>اختاري ملفات من جهازك</strong><small>الصور والفيديوهات والمجسمات للمعاينة المحلية فقط</small></label>
+  <input type="file" id="editorMediaFiles" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,.glb,.gltf,model/gltf-binary,model/gltf+json" multiple hidden>
+  <label>أو أضيفي رابط وسائط HTTPS<input id="editorMediaUrl" type="url" placeholder="https://example.com/product.glb" dir="ltr"></label>
+  <button type="button" id="editorAddMedia" class="owner-button outline">إضافة الرابط للمعاينة</button>
+  <div id="editorMediaList" class="editor-media-list" aria-live="polite"></div>
+ </div>
+ <div class="editor-actions"><button type="button" class="owner-button outline" id="editorCancel">إلغاء</button><button type="submit" class="owner-button dark">حفظ المعاينة</button></div>
+</form>
  </section>
  <div id="ownerToast" class="owner-toast" role="status" aria-live="polite"></div>
 </body>
