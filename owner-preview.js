@@ -322,6 +322,6 @@
   if(!byId("ownerProductEditor").hidden)closeEditor();else sidebar(false);
  });
  window.addEventListener("hashchange",()=>view(location.hash.slice(1)));
- renderOverview();renderProducts();
+ renderOverview();renderCategories();renderProducts();
  view(location.hash.slice(1)||"overview");
 })();
