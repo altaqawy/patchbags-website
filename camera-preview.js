@@ -67,6 +67,7 @@
  const hand=()=>window.PATCH_HAND_ASSIST;
  const colorKeys=['PB-04','PB-05','PB-06'];
  function setHandState(key){
+  if(key===handState)return;
   handState=key||'';
   const text=q('[data-cp-hand-status]');
   if(text)text.textContent=handState?t(handState):'';
@@ -107,6 +108,16 @@
   const name=q('[data-cp-product]');if(name)name.textContent=productTitle();
   if(viewer)viewer.setAttribute('alt',productTitle());
   if(!layer.hidden)status(statusKey);
+  layer.querySelectorAll('[data-cp-color]').forEach(button=>{
+   const key=button.dataset.cpColor;
+   const x=looks()?.COLORS[key];
+   if(x)button.setAttribute('aria-label',ar()?x.ar:x.en);
+  });
+  layer.querySelectorAll('[data-cp-light]').forEach(button=>{
+   const key=button.dataset.cpLight;
+   const x=looks()?.LIGHTS[key];
+   if(x)button.textContent=ar()?x.ar:x.en;
+  });
   setHandState(handState);
   applyLook();
  }
@@ -124,6 +135,38 @@
   frame.style.setProperty('--cp-y',pos.y+'px');
   frame.style.setProperty('--cp-scale',String(pos.scale));
   const range=q('[data-cp-size]');if(range)range.value=String(Math.round(pos.scale*100));
+ }
+ function preset(key){
+  const w=stage?.clientWidth||360,h=stage?.clientHeight||520;
+  const options={
+   hand:{x:w*.11,y:-h*.09,scale:.79},
+   shoulder:{x:w*.2,y:-h*.16,scale:.83},
+   front:{x:0,y:0,scale:1}
+  };
+  pos={...(options[key]||options.hand)};
+  applyPosition();
+  layer?.querySelectorAll('[data-cp-preset]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.cpPreset===key)));
+ }
+ function setMode(next){
+  mode=next==='hand'?'hand':'scene';
+  if(stage)stage.dataset.mode=mode;
+  stopHand();
+  layer?.querySelectorAll('[data-cp-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.cpMode===mode)));
+  if(mode==='hand'){preset('hand');setHandState('handSearching')}
+  else preset('front');
+ }
+ async function toggleHand(){
+  if(tracking){stopHand();setHandState('handSearching');return}
+  if(mode!=='hand')setMode('hand');
+  if(!stream||stage?.dataset.camera!=='on'){setHandState('handUnavailable');return}
+  if(!hand()){setHandState('handError');return}
+  tracking=true;setHandState('handLoading');
+  const started=await hand().start({
+   video,stage,isFront:()=>facing==='user',
+   onAnchor:point=>{if(!tracking||mode!=='hand')return;pos={...point};applyPosition()},
+   onState:key=>{if(!tracking)return;setHandState(({loading:'handLoading',searching:'handSearching',tracking:'handTracking',noHand:'handMissing',error:'handError'})[key]||'handError')}
+  });
+  if(!started&&tracking){tracking=false;setHandState('handError')}
  }
  function stopCamera(){
   stopHand();
