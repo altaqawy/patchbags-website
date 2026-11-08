@@ -4,9 +4,9 @@ type Method={method:'paymob'|'cod'|'bank'|'wallet',enabled:boolean,instructions:
 type Config={environment:'test'|'live',publicKey:string,integrationIds:number[],hasSecret:boolean,hasHmac:boolean,credentialStatus:string,webhookVerified:boolean,liveActivated:boolean};
 type MediaAsset={type:'image'|'video'|'model',url:string,alt?:string,posterUrl?:string};
 type Category={slug:string,name_ar:string,name_en:string,position:number,active:boolean};
-type Product={id:string,title:string,title_ar?:string,description:string,price_minor:string,compare_at_minor:string|null,
+type Product={id:string,title:string,title_ar?:string,description:string,description_ar?:string,price_minor:string,compare_at_minor:string|null,
  stock:number,active:boolean,image_url:string,category_slug:string,media:MediaAsset[],badge:string,featured:boolean,position:number};
-const newProduct=():Product=>({id:'',title:'',title_ar:'',description:'',price_minor:'0',compare_at_minor:null,stock:0,active:false,image_url:'',category_slug:'bags',media:[],badge:'',featured:false,position:100});
+const newProduct=():Product=>({id:'',title:'',title_ar:'',description:'',description_ar:'',price_minor:'0',compare_at_minor:null,stock:0,active:false,image_url:'',category_slug:'bags',media:[],badge:'',featured:false,position:100});
 type Order={id:string,customer_name:string,email:string,method:string,payment_status:string,status:string,total_minor:string,manual_reference:string,created_at:string};
 const title:Record<string,string>={paymob:'Paymob — المدفوعات الإلكترونية',cod:'الدفع عند الاستلام',bank:'تحويل بنكي / InstaPay',wallet:'تحويل لمحفظة إلكترونية'};
 const currency=(c:number|string)=>`${(Number(c)/100).toFixed(2)} ج.م`;
@@ -39,7 +39,7 @@ export default function Admin(){
   if(!p.title.trim()||price<0||!Number.isSafeInteger(price)||compare!==null&&(!Number.isSafeInteger(compare)||compare<=price)||
     (p.active&&(!price||p.stock<=0))){setMsg('راجعي السعر الحالي والسعر قبل الخصم والمخزون');return}
   const done=await send('/api/admin/products',{
-   id:p.id,title:p.title,titleAr:p.title_ar||'',description:p.description||'',
+   id:p.id,title:p.title,titleAr:p.title_ar||'',description:p.description||'',descriptionAr:p.description_ar||'',
    priceMinor:price,compareAtMinor:compare,stock:p.stock,active:p.active,
    category:p.category_slug||'bags',imageUrl:p.image_url||'',media:p.media||[],
    badge:p.badge||'',featured:Boolean(p.featured),position:p.position||100
@@ -137,7 +137,8 @@ export default function Admin(){
  <label className="field">اسم المنتج بالإنجليزي<input required maxLength={200} value={productEdit.title} onChange={e=>setProductEdit({...productEdit,title:e.target.value})}/></label>
  <label className="field">اسم المنتج بالعربي<input maxLength={200} value={productEdit.title_ar||''} onChange={e=>setProductEdit({...productEdit,title_ar:e.target.value})}/></label>
  <label className="field">التصنيف<select value={productEdit.category_slug||'bags'} onChange={e=>setProductEdit({...productEdit,category_slug:e.target.value})}>{categories.filter(c=>c.active).map(c=><option key={c.slug} value={c.slug}>{c.name_ar} / {c.name_en}</option>)}</select></label>
- <label className="field">وصف المنتج<textarea rows={4} maxLength={3000} value={productEdit.description||''} onChange={e=>setProductEdit({...productEdit,description:e.target.value})}/></label>
+ <label className="field">وصف المنتج بالإنجليزي<textarea rows={4} maxLength={3000} value={productEdit.description||''} onChange={e=>setProductEdit({...productEdit,description:e.target.value})}/></label>
+  <label className="field">وصف المنتج بالعربي<textarea rows={4} maxLength={3000} value={productEdit.description_ar||''} onChange={e=>setProductEdit({...productEdit,description_ar:e.target.value})}/></label>
  <div className="owner-edit-columns">
  <label className="field">السعر بعد الخصم (جنيه)<input type="number" min="0" step=".01" value={Number(productEdit.price_minor)/100} onChange={e=>setProductEdit({...productEdit,price_minor:String(Math.round(Number(e.target.value)*100))})}/></label>
  <label className="field">السعر قبل الخصم (جنيه)<input type="number" min="0" step=".01" value={productEdit.compare_at_minor===null?'':Number(productEdit.compare_at_minor)/100} placeholder="اختياري" onChange={e=>setProductEdit({...productEdit,compare_at_minor:e.target.value===''?null:String(Math.round(Number(e.target.value)*100))})}/></label></div>
