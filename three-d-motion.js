@@ -1,82 +1,73 @@
-/* Original automatic 3D review portal + editorial coverflow.
+/* Original automatic 3D review depth cards + editorial coverflow.
    No Framer runtime or third-party paid component code is copied. */
 (()=>{
+window.PATCH_3D_REVIEWS=true;
 const on=()=>{
+
  const reviews=document.getElementById('patchWords');
- if(reviews&&!reviews.querySelector('.patch-stack3d-reviews')){
-  const parent=reviews.querySelector('.patch-words-copy');
-  if(parent){
-   // These four authors and the substance of their words are grounded in
-   // customer screenshots provided by the store owner. Arabic quotes are translated.
-   // Stars below are decorative sparkles, NOT fabricated star ratings.
-   const messages=[
-    {
-     text:"I bought one of your bags and it's super well made. Great job and keep going.",
-     author:"Habeeba MH",source:"ORIGINAL ENGLISH · CUSTOMER FEEDBACK",
-     image:"assets/new/ivory-tote-portrait-front.webp"
-    },
-    {
-     text:"The bag is gorgeous. I really loved it. Beautiful work!",
-     author:"Marian Imakethis",source:"TRANSLATED FROM ARABIC · CUSTOMER FEEDBACK",
-     image:"assets/new/striped-tote-studio-angle.webp"
-    },
-    {
-     text:"Wonderful material, finishing and sizing — even the white is beautifully bright.",
-     author:"Haidy Elsherief",source:"TRANSLATED FROM ARABIC · CUSTOMER FEEDBACK",
-     image:"assets/new/ivory-tote-lifestyle-carry.webp"
-    },
-    {
-     text:"Such a beautiful piece, lovely material and amazing craftsmanship. Definitely not my last order!",
-     author:"Mariam Ehab",source:"TRANSLATED FROM ARABIC · CUSTOMER FEEDBACK",
-     image:"assets/new/ivory-tote-portrait.webp"
-    }
+ if(reviews && !reviews.querySelector('.patch-depth-reviews')){
+  const oldCopy=reviews.querySelector('.patch-words-copy');
+  if(oldCopy){
+   // Names and paraphrased quotes correspond to the screenshots supplied by
+   // the shop owner. Decorative sparkles are NOT star-rating claims.
+   const feedback=[
+    {name:'Habeeba MH',quote:"I bought one of your bags and it's super well made. Great job and keep going.",source:'ORIGINAL ENGLISH MESSAGE'},
+    {name:'Haidy Elsherief',quote:'The bag is amazing — the material, finishing and bright white color.',source:'TRANSLATED FROM ARABIC'},
+    {name:'Marian Imakethis',quote:'The bag is absolutely gorgeous. I was genuinely so happy with it.',source:'TRANSLATED FROM ARABIC'},
+    {name:'Heba Sabry',quote:'The bag is a masterpiece. The craftsmanship is incredibly delicate.',source:'TRANSLATED FROM ARABIC'},
+    {name:'Mariam Ehab',quote:'A beautiful piece with lovely materials and such thoughtful finishing.',source:'TRANSLATED FROM ARABIC'}
    ];
-   const scene=document.createElement('div');
-   scene.className='patch-stack3d-reviews';
-   scene.setAttribute('aria-label','Real customer testimonials in an automatic three-dimensional card stack');
-   scene.innerHTML='<div class="patch-review-stack">'+messages.map((item,i)=>(
-    '<article class="patch-stack-card" data-review-index="'+i+'" aria-hidden="'+(i===0?'false':'true')+'">'+
-      '<div class="patch-stack-top"><span class="patch-stack-label">KIND WORDS / PATCH.BAGS</span>'+
-        '<span class="patch-review-sparkles" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span></span></div>'+
-      '<blockquote>“'+item.text+'”</blockquote>'+
-      '<footer><span class="patch-stack-author">'+item.author+'</span>'+
-        '<span class="patch-stack-source">'+item.source+'</span></footer>'+
-    '</article>'
-   )).join('')+'</div>'+
-   '<div class="patch-stack-progress" aria-hidden="true"><span></span></div>';
-   parent.replaceWith(scene);
-   const cards=[...scene.querySelectorAll('.patch-stack-card')];
+   const escape=(s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+   const stage=document.createElement('div');
+   stage.className='patch-depth-reviews';
+   stage.setAttribute('aria-label','Automatically rotating customer review cards with 3D depth');
+   stage.innerHTML='<div class="patch-review-space" aria-live="off">'+feedback.map((r,i)=>
+    '<article class="patch-depth-card" style="--index:'+i+'" aria-hidden="'+(i!==0)+'">'+
+      '<div class="patch-review-card-top">'+
+        '<span class="patch-review-card-label">WORDS WE TREASURE</span>'+
+        '<span class="patch-review-sparkles" aria-hidden="true"><i>✦</i><i>✧</i><i>✦</i></span>'+
+      '</div>'+
+      '<blockquote class="quote">“'+escape(r.quote)+'”</blockquote>'+
+      '<div class="patch-review-byline"><span class="patch-review-initial">'+escape(r.name.slice(0,1))+'</span>'+
+        '<div><strong>'+escape(r.name)+'</strong><small>'+escape(r.source)+'</small></div>'+
+      '</div>'+
+    '</article>').join('')+'</div>'+
+    '<p class="patch-review-stage-note">REAL WORDS. HANDMADE WITH HEART.</p>';
+   oldCopy.replaceWith(stage);
+   // Only the current card participates in screen-reader navigation.
+   const cards=Array.from(stage.querySelectorAll('.patch-depth-card'));
    let active=0;
-   const photo=reviews.querySelector('.patch-words-photo img');
-   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-   let visible=true;
-   function render(){
-    cards.forEach((card,i)=>{
-     const delta=(i-active+cards.length)%cards.length;
-     card.classList.toggle('is-front',delta===0);
-     card.classList.toggle('is-next',delta===1);
-     card.classList.toggle('is-next2',delta===2);
-     card.classList.toggle('is-back',delta===cards.length-1);
-     card.setAttribute('aria-hidden',delta===0?'false':'true');
-    });
-    if(photo) {
-     photo.src=messages[active].image;
-     photo.alt='PatCh.BaGs handmade bag pictured beside a customer testimonial';
-    }
+   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   const update=()=>cards.forEach((card,i)=>card.setAttribute('aria-hidden',String(i!==active)));
+   update();
+   if(!reduce){
+    let timer=null,visible=true;
+    const begin=()=>{if(timer||!visible)return;timer=window.setInterval(()=>{active=(active+1)%cards.length;update()},7000)};
+    const halt=()=>{if(timer){clearInterval(timer);timer=null}};
+    // Keep CSS animation and accessibility rotation synchronized when offscreen.
+    const observer=new IntersectionObserver(entries=>{
+      visible=Boolean(entries[0]?.isIntersecting);
+      stage.classList.toggle('patch-stage-paused',!visible);
+      if(visible)begin();else halt();
+    },{threshold:0.06});
+    observer.observe(stage);
+    begin();
    }
-   render();
-   if(!reduced){
-    if('IntersectionObserver' in window){
-     const observer=new IntersectionObserver(entries=>{visible=Boolean(entries[0]?.isIntersecting)}, {threshold:.08});
-     observer.observe(reviews);
+   const photo=reviews.querySelector('.patch-words-photo');
+   if(photo){
+    const img=photo.querySelector('img');
+    if(img){
+     const related=['assets/new/ivory-tote-portrait-front.webp','assets/new/striped-tote-studio-angle.webp','assets/new/ivory-tote-lifestyle-carry.webp','assets/new/monogram-cream-s.webp','assets/new/blush-tote-scarf-closeup.webp'];
+     img.src=related[0];
+     if(!reduce){
+      let idx=0;
+      window.setInterval(()=>{
+       if(!stage.isConnected||stage.classList.contains('patch-stage-paused'))return;
+       idx=(idx+1)%related.length;
+       img.src=related[idx];
+      },7000);
+     }
     }
-    const progress=scene.querySelector('.patch-stack-progress span');
-    setInterval(()=>{
-     if(!visible||document.hidden)return;
-     active=(active+1)%cards.length;
-     render();
-     if(progress){progress.classList.remove('is-restarting');void progress.offsetWidth;progress.classList.add('is-restarting');}
-    },6500);
    }
   }
  }
