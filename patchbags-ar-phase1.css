@@ -14,3 +14,24 @@ html[lang="ar"] .patch-modal-model .patch-ar-launch{
 }
 .patch-modal-model .patch-ar-note{line-height:1.85}
 .patch-modal-model .patch-ar-launch:hover{background:#516f56}
+
+
+/* Fallback camera-compositing action when the phone cannot run native AR. */
+.patch-modal-model .patch-ar-camera{
+ display:flex;align-items:center;justify-content:center;
+ max-width:100%;min-height:41px;
+ margin:13px auto 5px;padding:11px 19px;
+ border:1px solid #758f77;border-radius:100px;
+ background:#f2f6ef;color:#2c5336;
+ font:700 12px/1.55 var(--pb-ui-en,Manrope,system-ui);
+ text-align:center;cursor:pointer;
+}
+.patch-modal-model .patch-ar-camera:hover{background:#e3eee0}
+.patch-modal-model .patch-ar-camera:focus-visible{outline:3px solid #9cbf97;outline-offset:3px}
+html[lang="ar"] .patch-modal-model .patch-ar-camera{
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
+ font-size:12px;letter-spacing:0
+}
+@media(max-width:680px){
+ .patch-modal-model .patch-ar-camera{width:100%;padding:11px 10px}
+}
