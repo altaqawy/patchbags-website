@@ -712,10 +712,7 @@ html[lang="ar"] .modal-thumbnails{
 html[lang="ar"] .product-code,
 html[lang="ar"] .patch-hero-index,
 html[lang="ar"] .patch-review-count,
-html[lang="ar"] .patch-cart-card small{
- direction:ltr;
- unicode-bidi:isolate;
-}
+
 html[lang="ar"] .patch-commerce-form{
  direction:rtl;
  text-align:right;
@@ -1026,3 +1023,39 @@ html[lang="ar"] .drawer{
  box-shadow:15px 0 55px rgba(0,0,0,.07);
 }
 html[lang="ar"] .drawer.open{transform:translateX(0)}
+
+/* Arabic font stack for components that define their own English display font. */
+html[lang="ar"] :is(
+ .bag-button,.button,.filter-chip,.product-name,.product-info small,.product-info p,
+ .product-variant-picker,.product-variant-note,.drawer-eyebrow,.drawer-head h2,
+ .empty-bag h3,.empty-bag p,.bag-item h3,.bag-item-body small,.bag-item-body button,
+ .patch-cart-card h3,.patch-cart-card small,.patch-cart-price,.search-field input,
+ .search-heading>span,.product-modal-info h2,.product-modal-info p,.modal-meta,
+ .patch-kicker,.patch-commerce-content h2,.patch-commerce-intro,.patch-commerce-form,
+ .patch-form-submit,.patch-action-button,.patch-checkout-steps,.patch-auth-notice,
+ .patch-checkout-disclaimer,.patch-pay-option,.patch-review-photo-tag,
+ .patch-review-card-label,.patch-review-stage-note,.patch-review-scroll-label,
+ .patch-whatsapp-label,.patch-footer-eyebrow,.patch-footer-group-label,
+ .patch-footer-group>a,.patch-footer-action
+){
+ font-family:"Cairo",var(--sans);
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-cart-card small,
+html[lang="ar"] .bag-item-body small{
+ direction:rtl;
+ text-align:right;
+ unicode-bidi:plaintext;
+}
+html[lang="ar"] .product-name{
+ line-height:1.55;
+}
+html[lang="ar"] .product-modal-info h2,
+html[lang="ar"] .drawer-head h2,
+html[lang="ar"] .empty-bag h3{
+ line-height:1.5;
+}
+html[lang="ar"] .patch-commerce-form input,
+html[lang="ar"] .patch-commerce-form textarea{
+ font-family:"Cairo",var(--sans);
+}
