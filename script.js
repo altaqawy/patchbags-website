@@ -28,9 +28,9 @@ let activeImageIndex=0;
 // These color options map only to real images supplied by the maker.
 const productColorFamilies=[
  {root:'PB-01',options:[
-  {id:'PB-01',color:'Striped',hex:'#afa99e'},
+  {id:'PB-01',color:'Charcoal Stripe',hex:'#eee9dc',pattern:'repeating-linear-gradient(0deg,#eee9dc 0 5px,#4e4a45 5px 7px)'},
   {id:'PB-02',color:'Ivory',hex:'#eee9dc'},
-  {id:'PB-03',color:'Blush',hex:'#e9c6cd'}
+  {id:'PB-03',color:'Blush Stripe',hex:'#e9c6cd',pattern:'repeating-linear-gradient(0deg,#f6ede7 0 5px,#dcacb9 5px 8px)'}
  ]},
  {root:'PB-04',options:[
   {id:'PB-04',color:'Taupe',hex:'#8e8273'},
@@ -72,7 +72,7 @@ function renderColorPicker(root,selectedId,modal=false){
   family.options.map(option=>'<button type="button" class="product-variant-swatch" '+
    'data-color-family="'+root+'" data-color-option="'+option.id+'" '+
    'aria-label="Show '+option.color+' color" title="'+option.color+'" '+
-   'aria-pressed="'+(option.id===chosen.id)+'" style="--swatch-color:'+option.hex+'">'+
+   'aria-pressed="'+(option.id===chosen.id)+'" style="--swatch-color:'+option.hex+';'+(option.pattern?'--swatch-pattern:'+option.pattern:'')+'">'+
    '<span class="product-variant-dot" aria-hidden="true"></span></button>').join('')+
   '</div>'+
   (modal?'<p class="product-variant-note">Photos show the selected color. Availability is confirmed by the studio.</p>':'')+
