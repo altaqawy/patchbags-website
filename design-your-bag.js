@@ -264,12 +264,28 @@ function mount(){
  body=document.getElementById('patchCustomizerBody');
  layer.addEventListener('click',handleClick);
  layer.addEventListener('input',handleInput);
+ // Touch gestures on photos never intercept the regular editor's scrolling.
+ layer.addEventListener('touchstart',e=>{
+  if(!e.target.closest('.patch-cz-photo'))return;
+  touchX={x:e.changedTouches[0].clientX,y:e.changedTouches[0].clientY};
+ },{passive:true});
+ layer.addEventListener('touchend',e=>{
+  if(!touchX)return;
+  const dx=e.changedTouches[0].clientX-touchX.x,dy=e.changedTouches[0].clientY-touchX.y;
+  touchX=null;
+  if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.5)return;
+  const count=photos(currentProduct()).length;
+  if(count<2)return;
+  photoIndex=(photoIndex+(dx<0?1:-1)+count)%count;
+  render();
+ },{passive:true});
 }
 function open(id){
  mount();
  const productId=product(id)?id:(typeof activeProduct!=='undefined'&&product(activeProduct)?activeProduct:cat()[0]?.id);
  if(!productId){notify(T('noBag'));return}
  state=base();state.productId=productId;
+ photoIndex=0;editingId=null;
  prevFocus=document.activeElement;prevOverflow=document.body.style.overflow;
  layer.hidden=false;document.body.style.overflow='hidden';
  render();layer.querySelector('.patch-cz-dialog').focus({preventScroll:true});
@@ -279,6 +295,16 @@ function close(){
  layer.hidden=true;document.body.style.overflow=prevOverflow;
  if(prevFocus?.isConnected)prevFocus.focus({preventScroll:true});
 }
+function edit(id){
+ const draft=saved.find(d=>d.id===id);
+ if(!draft)return;
+ if(!layer||layer.hidden)open(draft.productId);
+ editingId=draft.id;state={...draft};photoIndex=0;
+ render();
+ const editor=body?.querySelector('.patch-cz-editor');
+ if(editor)editor.scrollTop=0;
+ body?.querySelector('[data-cz-product]')?.focus({preventScroll:true});
+}
 function handleInput(e){
  const key=e.target.dataset.czInput;if(!key||!(key in state))return;
  state[key]=clean(e.target.value,key==='notes'?240:key==='monogram'?14:48);
@@ -287,9 +313,10 @@ function handleInput(e){
   if(!photo)return;
   const previous=photo.querySelector('.patch-cz-monogram');
   if(state.monogram){if(previous)previous.textContent=state.monogram;
-   else{const badge=document.createElement('span');badge.className='patch-cz-monogram';badge.textContent=state.monogram;photo.appendChild(badge);}
+   else{const badge=document.createElement('span');badge.className='patch-cz-monogram patch-cz-monogram--'+state.letterStyle+' patch-cz-monogram--'+state.letterPosition;badge.textContent=state.monogram;photo.appendChild(badge);}
   }else previous?.remove();
  }
+ redrawSummary();
 }
 function handleClick(e){
  const target=e.target.closest('button,[data-cz-close]');if(!target)return;
