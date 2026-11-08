@@ -46,7 +46,7 @@ export async function POST(req:NextRequest){
    const sku=id||'PB-'+String((await client.query("SELECT nextval('product_sku_seq')::int AS n")).rows[0].n).padStart(3,'0');
    const query=[
     'INSERT INTO products(id,title,title_ar,description,description_ar,price_minor,compare_at_minor,stock,active,image_url,category_slug,media,badge,featured,position)',
-    'VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13,$14,$15,$16)',
+    'VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13,$14,$15)',
     'ON CONFLICT(id) DO UPDATE SET title=EXCLUDED.title,title_ar=EXCLUDED.title_ar,description=EXCLUDED.description,description_ar=EXCLUDED.description_ar,',
     'price_minor=EXCLUDED.price_minor,compare_at_minor=EXCLUDED.compare_at_minor,stock=EXCLUDED.stock,active=EXCLUDED.active,',
     'image_url=EXCLUDED.image_url,category_slug=EXCLUDED.category_slug,media=EXCLUDED.media,badge=EXCLUDED.badge,',
