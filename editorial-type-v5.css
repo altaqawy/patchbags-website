@@ -305,6 +305,13 @@ html.patch-photo-ready[lang="ar"] .editorial-hero-image{
   -webkit-mask-image:linear-gradient(to left,transparent 0%,rgba(0,0,0,.55) 10%,#000 23%,#000 100%);
   mask-image:linear-gradient(to left,transparent 0%,rgba(0,0,0,.55) 10%,#000 23%,#000 100%);
 }
+@keyframes pbHeroPortraitRtl{
+  from{opacity:.52;transform:translateX(-18px)}
+  to{opacity:1;transform:translateX(0)}
+}
+html.patch-photo-ready[lang="ar"] .editorial-hero-image{
+  animation:pbHeroPortraitRtl .95s cubic-bezier(.25,.8,.25,1) both;
+}
 html.patch-photo-ready[lang="ar"] .editorial-hero-vignette{
   background:
     linear-gradient(270deg,rgba(18,22,20,.81),rgba(24,28,25,.51) 29%,transparent 68%),
@@ -545,5 +552,5 @@ html[lang="ar"] .patch-footer-action{white-space:normal}
   html[lang="ar"] .social-heading h2{font-size:clamp(28px,7.9vw,33px)}
 }
 @media(prefers-reduced-motion:reduce){
-  *{text-wrap:wrap}
+  html.patch-photo-ready[lang="ar"] .editorial-hero-image{animation:none}
 }
