@@ -237,7 +237,29 @@
       '<p class="patch-cp-status" data-cp-status role="status" aria-live="polite"></p>'+
     '</div>'+
     '<div class="patch-cp-toolbar">'+
+      '<div class="patch-cp-modes" role="group"><button type="button" data-cp-mode="scene" aria-pressed="true" data-cp-i18n="modeScene"></button><button type="button" data-cp-mode="hand" aria-pressed="false" data-cp-i18n="modeHand"></button></div>'+
+      '<div class="patch-cp-hand-panel">'+
+       '<div class="patch-cp-presets" role="group">'+
+        '<button type="button" data-cp-preset="hand" aria-pressed="true" data-cp-i18n="presetHand"></button>'+
+        '<button type="button" data-cp-preset="shoulder" aria-pressed="false" data-cp-i18n="presetShoulder"></button>'+
+        '<button type="button" data-cp-preset="front" aria-pressed="false" data-cp-i18n="presetFront"></button></div>'+
+       '<button type="button" data-cp-hand-toggle class="patch-cp-hand-toggle"></button>'+
+       '<span class="patch-cp-hand-message" data-cp-hand-status role="status"></span>'+
+       '<small data-cp-i18n="presetHint"></small>'+
+      '</div>'+
       '<p class="patch-cp-guide" data-cp-i18n="guide"></p>'+
+      '<div class="patch-cp-looks"><div class="patch-cp-looks-row"><div class="patch-cp-looks-group">'+
+       '<span data-cp-i18n="shade"></span><div class="patch-cp-swatches" role="group">'+
+        '<button type="button" data-cp-color="PB-04" aria-pressed="true" style="--cp-swatch:#9d8a7b"></button>'+
+        '<button type="button" data-cp-color="PB-05" aria-pressed="false" style="--cp-swatch:#fff8ef"></button>'+
+        '<button type="button" data-cp-color="PB-06" aria-pressed="false" style="--cp-swatch:#ab273c"></button></div>'+
+        '<strong data-cp-color-name></strong></div>'+
+       '<div class="patch-cp-looks-group"><span data-cp-i18n="light"></span><div class="patch-cp-lights" role="group">'+
+        '<button type="button" data-cp-light="studio" aria-pressed="true"></button>'+
+        '<button type="button" data-cp-light="daylight" aria-pressed="false"></button>'+
+        '<button type="button" data-cp-light="soft" aria-pressed="false"></button>'+
+       '</div></div></div>'+
+       '<p class="patch-cp-sample" data-cp-i18n="sample"></p></div>'+
       '<div class="patch-cp-controls"><div class="patch-cp-direction" role="group">'+
         '<button type="button" data-cp-nudge="up" data-cp-label="up">↑</button>'+
         '<button type="button" data-cp-nudge="down" data-cp-label="down">↓</button>'+
@@ -256,18 +278,29 @@
    '</section>';
   document.body.appendChild(layer);
   video=q('video');viewer=q('model-viewer');stage=q('.patch-cp-stage');frame=q('.patch-cp-model-frame');
+  viewer.addEventListener('load',applyLook);
   viewer.addEventListener('error',()=>{const info=q('[data-cp-status]');if(info)info.textContent=t('missing3d')});
   layer.addEventListener('click',event=>{
    if(event.target.closest('[data-cp-close]')){close();return}
    if(event.target.closest('[data-cp-flip]')){facing=facing==='environment'?'user':'environment';startCamera();return}
    if(event.target.closest('[data-cp-retry]')){startCamera();return}
-   if(event.target.closest('[data-cp-reset]')){pos={x:0,y:0,scale:1};applyPosition();return}
+   if(event.target.closest('[data-cp-reset]')){stopHand();setMode(mode);return}
+   const modeChoice=event.target.closest('[data-cp-mode]');
+   if(modeChoice){setMode(modeChoice.dataset.cpMode);return}
+   const presetChoice=event.target.closest('[data-cp-preset]');
+   if(presetChoice){stopHand();preset(presetChoice.dataset.cpPreset);setHandState('handSearching');return}
+   if(event.target.closest('[data-cp-hand-toggle]')){toggleHand();return}
+   const colorChoice=event.target.closest('[data-cp-color]');
+   if(colorChoice){previewSku=colorChoice.dataset.cpColor;applyLook();return}
+   const lightChoice=event.target.closest('[data-cp-light]');
+   if(lightChoice){light=lightChoice.dataset.cpLight;applyLook();return}
    const nudge=event.target.closest('[data-cp-nudge]');
    if(nudge){const delta={up:[0,-25],down:[0,25],left:[-25,0],right:[25,0]}[nudge.dataset.cpNudge];pos.x+=delta[0];pos.y+=delta[1];applyPosition()}
   });
   q('[data-cp-size]').addEventListener('input',event=>{pos.scale=limit(Number(event.target.value)/100,.55,1.85);applyPosition()});
   const handle=q('[data-cp-handle]');
   handle.addEventListener('pointerdown',event=>{
+   if(tracking){stopHand();setHandState('handSearching')}
    if(event.button!==0)return;
    event.preventDefault();
    drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:pos.x,top:pos.y};
@@ -291,8 +324,11 @@
   build();if(!layer.hidden)close();
   prevFocus=document.activeElement;scrollLock=document.body.style.overflow;
   current={productId:params.productId||'',name:params.name||''};pos={x:0,y:0,scale:1};facing='environment';
+  previewSku=looks()?.COLORS[params.productId]?params.productId:'PB-04';
+  light='studio';tracking=false;handState='';
   statusKey='loading';stage.dataset.camera='off';layer.hidden=false;document.body.style.overflow='hidden';
   viewer.src=url;viewer.setAttribute('poster',params.poster||'');
+  setMode(params.mode||'scene');
   translate();applyPosition();q('.patch-cp-dialog').focus({preventScroll:true});
   startCamera(); // Requests permission only after a user clicks Camera Preview.
   return true;
