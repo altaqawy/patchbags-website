@@ -305,6 +305,7 @@ function close(){
  if(!layer||layer.hidden)return;
  layer.hidden=true;document.body.style.overflow=prevOverflow;
  if(prevFocus?.isConnected)prevFocus.focus({preventScroll:true});
+ else document.querySelector('#bagDrawer.open, #productModal.open, .patch-cz-entry, #productGrid [data-cz-open]')?.focus({preventScroll:true});
 }
 function edit(id){
  const draft=saved.find(d=>d.id===id);
@@ -351,6 +352,7 @@ function handleClick(e){
  if(target.dataset.czQty){state.qty=Math.min(5,Math.max(1,state.qty+Number(target.dataset.czQty)));render();return}
  if(target.hasAttribute('data-cz-save')){
   if(state.colorMode==='custom'&&!state.customColor.trim()){notify(T('errors'));layer.querySelector('[data-cz-input="customColor"]')?.focus();return}
+  if(editingId&&!saved.some(d=>d.id===editingId)){editingId=null;notify(T('offline'));return}
   if(!editingId&&saved.length>=LIMIT){notify(T('max'));return}
   const id=editingId||'cz-'+(window.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.floor(Math.random()*1e5));
   const record=safeDesign({...state,id});
