@@ -48,3 +48,27 @@
  .product-modal-info{overflow:visible}
 }
 #modalColorOptions[hidden]{display:none}
+
+/* In the product-detail sheet, colors form a clear part of the product identity.
+   Keep them immediately below the title, matching the existing Ivory/Olive UI. */
+#modalColorOptions:not([hidden]){
+  display:block;
+  padding:14px 17px 15px;
+  margin:0 0 20px;
+  border:1px solid #dadfd4;
+  border-radius:10px;
+  background:rgba(255,255,255,.48);
+}
+#modalColorOptions .product-variant-picker{
+  margin:0!important;
+  gap:8px;
+}
+#modalColorOptions .product-variant-options{gap:10px}
+#modalColorOptions .product-variant-swatch{width:35px;height:35px}
+#modalColorOptions .product-variant-note{margin:2px 0 0;color:#818a7e;font-size:10px;line-height:1.45}
+@media(max-width:680px){
+  #modalColorOptions:not([hidden]){padding:12px 14px;margin:3px 0 16px}
+  #modalColorOptions .product-variant-options{gap:8px}
+  #modalColorOptions .product-variant-swatch{width:34px;height:34px}
+  #modalColorOptions .product-variant-note{font-size:10px}
+}
