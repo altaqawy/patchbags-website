@@ -91,7 +91,7 @@ function updateColorCard(root){
  const tag=$('.product-image-label',card);if(tag)tag.textContent=p.tag;
  const label=$('.product-info small',card);if(label)label.textContent=p.label;
  const name=$('.product-name [data-detail]',card);if(name)name.textContent=p.name;
- $('[data-detail]',card).forEach(button=>{
+ $$('[data-detail]',card).forEach(button=>{
   button.dataset.detail=p.id;
   if(button.classList.contains('product-quick'))button.setAttribute('aria-label','View '+p.name);
  });
@@ -99,7 +99,7 @@ function updateColorCard(root){
  if(add){add.dataset.add=p.id;add.setAttribute('aria-label','Add '+p.name+' to your picks')}
  const color=$('.product-variant-color',card);
  if(color)color.textContent=family.options.find(o=>o.id===p.id)?.color||'';
- $('[data-color-option]',card).forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.colorOption===p.id)));
+ $$('[data-color-option]',card).forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.colorOption===p.id)));
  card.dispatchEvent(new CustomEvent('patch:variant-changed',{bubbles:true,detail:{root,productId:p.id}}));
 }
 function selectProductColor(root,id){
