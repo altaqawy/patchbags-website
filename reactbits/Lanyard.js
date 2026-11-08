@@ -13,7 +13,7 @@ const CARD_SIZES = {
   portrait: [1.6, 2.25],
   landscape: [2.25, 1.6]
 };
-const ANCHORS = { left: 0.27, center: 0.5, right: 0.73 };
+const ANCHORS = { left: 0.27, center: 0.5, right: 0.73, 'patch-right': 0.65 };
 const THICKNESS = 0.018;
 const BEVEL = 0.007;
 const JOINTS = 4;
