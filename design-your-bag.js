@@ -210,15 +210,18 @@ function render(){
  body.innerHTML=
  '<div class="patch-cz-gallery"><div class="patch-cz-gallery-inner">'+
   '<p class="patch-cz-overline">'+E(T('preview'))+' <span>✳</span></p>'+
-  '<div class="patch-cz-photo" aria-label="'+E(T('previewOnly'))+'"><img src="'+image+'" alt="'+E(productLabel(p)+' · '+(photoIndex+1)+' / '+imageList.length)+'" decoding="async">'+
-  (state.monogram?'<span class="patch-cz-monogram patch-cz-monogram--'+E(state.letterStyle)+' patch-cz-monogram--'+E(state.letterPosition)+'">'+E(state.monogram)+'</span>':'')+
-  '<span class="patch-cz-photo-tag">'+E(T('previewOnly'))+'</span>'+
-  (imageList.length>1?'<div class="patch-cz-photo-arrows"><button type="button" data-cz-photo="-1" aria-label="'+E(T('prevImage'))+'">←</button><span aria-live="polite">'+(photoIndex+1)+' / '+imageList.length+'</span><button type="button" data-cz-photo="1" aria-label="'+E(T('nextImage'))+'">→</button></div>':'')+'</div>'+
-  (imageList.length>1?'<div class="patch-cz-thumbs" role="group" aria-label="'+E(T('imageViews'))+'">'+imageList.map((src,i)=>
+  (model?'<div class="patch-cz-view-modes" role="group"><button type="button" data-cz-view="photo" aria-pressed="'+(viewMode==='photo')+'">'+E(T('photosTab'))+'</button><button type="button" data-cz-view="model" aria-pressed="'+(viewMode==='model')+'">'+E(T('modelTab'))+'</button></div>':'')+
+  '<div class="patch-cz-photo'+(viewMode==='model'?' patch-cz-photo-model':'')+'" aria-label="'+E(viewMode==='model'?T('modelPreview'):T('previewOnly'))+'">'+
+  (viewMode==='model'&&model?'<model-viewer src="'+E(model)+'" alt="'+E(productLabel(p))+'" camera-controls shadow-intensity="0.7" exposure="1.05" loading="lazy"></model-viewer>':
+   '<img src="'+image+'" alt="'+E(productLabel(p)+' · '+(photoIndex+1)+' / '+imageList.length)+'" decoding="async">')+
+  (viewMode==='photo'&&state.monogram?'<span class="patch-cz-monogram patch-cz-monogram--'+E(state.letterStyle)+' patch-cz-monogram--'+E(state.letterPosition)+'">'+E(state.monogram)+'</span>':'')+
+  '<span class="patch-cz-photo-tag">'+E(viewMode==='model'?T('modelPreview'):T('previewOnly'))+'</span>'+
+  (viewMode==='photo'&&imageList.length>1?'<div class="patch-cz-photo-arrows"><button type="button" data-cz-photo="-1" aria-label="'+E(T('prevImage'))+'">←</button><span aria-live="polite">'+(photoIndex+1)+' / '+imageList.length+'</span><button type="button" data-cz-photo="1" aria-label="'+E(T('nextImage'))+'">→</button></div>':'')+'</div>'+
+  (viewMode==='photo'&&imageList.length>1?'<div class="patch-cz-thumbs" role="group" aria-label="'+E(T('imageViews'))+'">'+imageList.map((src,i)=>
    '<button type="button" data-cz-thumb="'+i+'" class="'+(i===photoIndex?'active':'')+'" aria-label="'+E(T('viewImage')+' '+(i+1))+'" aria-pressed="'+(i===photoIndex)+'"><img src="'+E(src)+'" alt="" loading="lazy"></button>'
   ).join('')+'</div>':'')+
   '<div class="patch-cz-preview-bottom"><p>'+E(productLabel(p))+'</p><span>'+E(T('previewCaption'))+'</span></div>'+
-  '<p class="patch-cz-preview-note">'+E(T('previewNotice'))+'</p>'+
+  '<p class="patch-cz-preview-note">'+E(viewMode==='model'?T('modelHelp'):T('previewNotice'))+'</p>'+
   '<div class="patch-cz-summary"><p class="patch-cz-summary-title">'+E(T('summary'))+'</p><dl class="patch-cz-summary-values" aria-live="polite">'+summaryMarkup()+'</dl><p>'+E(T('previewSummary'))+'</p></div></div></div>'+
  '<div class="patch-cz-editor"><div class="patch-cz-top">'+
   '<p class="patch-cz-kicker">'+E(T('kicker'))+'</p>'+
@@ -293,7 +296,7 @@ function open(id){
  const productId=product(id)?id:(typeof activeProduct!=='undefined'&&product(activeProduct)?activeProduct:cat()[0]?.id);
  if(!productId){notify(T('noBag'));return}
  state=base();state.productId=productId;
- photoIndex=0;editingId=null;
+ photoIndex=0;editingId=null;viewMode='photo';
  prevFocus=document.activeElement;prevOverflow=document.body.style.overflow;
  layer.hidden=false;document.body.style.overflow='hidden';
  render();layer.querySelector('.patch-cz-dialog').focus({preventScroll:true});
@@ -307,7 +310,7 @@ function edit(id){
  const draft=saved.find(d=>d.id===id);
  if(!draft)return;
  if(!layer||layer.hidden)open(draft.productId);
- editingId=draft.id;state={...draft};photoIndex=0;
+ editingId=draft.id;state={...draft};photoIndex=0;viewMode='photo';
  render();
  const editor=body?.querySelector('.patch-cz-editor');
  if(editor)editor.scrollTop=0;
@@ -329,14 +332,15 @@ function handleInput(e){
 function handleClick(e){
  const target=e.target.closest('button,[data-cz-close]');if(!target)return;
  if(target.hasAttribute('data-cz-close')){close();return}
+ if(target.dataset.czView){viewMode=target.dataset.czView==='model'&&availableModel(currentProduct())?'model':'photo';render();return}
  if(target.dataset.czPhoto){
   const count=photos(currentProduct()).length;
   if(count>1){photoIndex=(photoIndex+Number(target.dataset.czPhoto)+count)%count;render();}
   return;
  }
  if(target.hasAttribute('data-cz-thumb')){photoIndex=Number(target.dataset.czThumb)||0;render();return}
- if(target.dataset.czProduct){state.productId=target.dataset.czProduct;state.colorMode='photo';state.customColor='';photoIndex=0;render();return}
- if(target.dataset.czColor){state.productId=target.dataset.czColor;state.colorMode='photo';state.customColor='';photoIndex=0;render();return}
+ if(target.dataset.czProduct){state.productId=target.dataset.czProduct;state.colorMode='photo';state.customColor='';photoIndex=0;viewMode='photo';render();return}
+ if(target.dataset.czColor){state.productId=target.dataset.czColor;state.colorMode='photo';state.customColor='';photoIndex=0;viewMode='photo';render();return}
  if(target.hasAttribute('data-cz-custom-color')){state.colorMode='custom';render();layer.querySelector('[data-cz-input="customColor"]')?.focus();return}
  if(target.dataset.czMaterial){state.material=target.dataset.czMaterial;render();return}
  if(target.dataset.czSize){state.size=target.dataset.czSize;render();return}
