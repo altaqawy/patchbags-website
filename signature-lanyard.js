@@ -13,6 +13,7 @@
     const rope=stage.querySelectorAll('.patch-lanyard-strap path');
     const svg=stage.querySelector('.patch-lanyard-strap');
     const flip=stage.querySelector('[data-patch-lanyard-flip]');
+    const backLink=stage.querySelector('.patch-lanyard-back-link');
     if(!rig||!front||!svg||rope.length===0)return;
     const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let x=0,y=0,vx=0,vy=0,dragging=false,moved=false,flipped=false;
@@ -61,6 +62,7 @@
       flipped=!flipped;
       rig.classList.toggle('is-flipped',flipped);
       flip?.setAttribute('aria-pressed',String(flipped));
+      if(backLink)backLink.tabIndex=flipped?0:-1;
       rig.setAttribute('aria-label',flipped?'PatCh.BaGs tag, back side. Activate to see the front.':'PatCh.BaGs hanging tag. Activate to see the back.');
     }
     rig.addEventListener('pointerdown',event=>{
