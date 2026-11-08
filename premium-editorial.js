@@ -615,7 +615,18 @@ Object.assign(translations,{
  'A red gingham book sleeve with the Just One More Chapter motif.':'حافظة كتب بنقشة المربعات الحمراء وعبارة Just One More Chapter.',
  'A striped cotton-rope tote with a sculptural flap and distinctive clasp. Explore the weave, finishing and inner space through the photo gallery.':'حقيبة توت مخططة من حبال القطن، بغطاء مميز وقفل أنيق. اكتشفي تفاصيل النسيج والتشطيب والمساحة الداخلية في الصور.',
  'An ivory-toned woven tote with a sculptural front flap. The gallery shows close-up texture and different ways to wear or hold it.':'حقيبة توت منسوجة باللون العاجي، مع غطاء أمامي بتصميم مميز. تعرض الصور تفاصيل الخامة وطرق حمل الحقيبة.',
- 'A soft pink-and-ivory striped tote with textured cotton-rope detailing. See the decorative scarf and the handmade brand tag in close-up.':'حقيبة توت مخططة بالوردي والعاجي، بتفاصيل من حبال القطن ووشاح تزييني. شاهدي التشطيب وعلامة البراند عن قرب.'
+ 'A soft pink-and-ivory striped tote with textured cotton-rope detailing. See the decorative scarf and the handmade brand tag in close-up.':'حقيبة توت مخططة بالوردي والعاجي، بتفاصيل من حبال القطن ووشاح تزييني. شاهدي التشطيب وعلامة البراند عن قرب.',
+ 'Signed out':'تم تسجيل الخروج.',
+ 'The payment link was not secure.':'رابط الدفع غير آمن، لذلك لم نتابع.',
+ 'Online checkout is unavailable.':'الدفع الإلكتروني غير متاح حاليًا.',
+ 'Order received. Payment status:':'تم استلام الطلب. حالة الدفع:',
+ 'Your bag is ready to explore.':'حقيبتك جاهزة لاستكشاف اختياراتك.',
+ 'No order or payment has been placed.':'لم يتم تسجيل طلب أو تحصيل أي مبلغ.',
+ 'Your bag is saved.':'حقيبة التسوق محفوظة.',
+ 'Please confirm current prices, delivery cost, available colors and payment options.':'يرجى تأكيد الأسعار الحالية وتكلفة التوصيل والألوان المتاحة وطرق الدفع.',
+ '“The bag is absolutely gorgeous. I was genuinely so happy with it.”':'“الحقيبة جميلة جدًا، وقد أسعدتني فعلًا.”',
+ '“The bag is a masterpiece. The craftsmanship is incredibly delicate.”':'“الحقيبة تحفة فنية، والتفاصيل اليدوية متقنة وغاية في الرقة.”',
+ '“A beautiful piece with lovely materials and such thoughtful finishing.”':'“قطعة جميلة بخامات رائعة واهتمام واضح بأدق التفاصيل.”'
 });
 let locale='en';
 try{locale=localStorage.getItem('patchbags_locale_v1')==='ar'?'ar':'en'}catch(_){}
