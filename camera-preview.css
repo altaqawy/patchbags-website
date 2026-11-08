@@ -176,3 +176,18 @@ html[lang="ar"] .patch-cp-status{direction:rtl}
 @media(prefers-reduced-motion:reduce){
  .patch-cp-video,.patch-cp-model-frame,.patch-cp-actions button{transition:none}
 }
+
+
+/* Short landscape mobile viewports: preserve camera and close controls. */
+@media(max-height:570px) and (orientation:landscape){
+ .patch-cp-header{padding-block:7px}
+ .patch-cp-identity h2{font-size:24px}
+ html[lang="ar"] .patch-cp-identity h2{font-size:23px}
+ .patch-cp-stage{min-height:110px}
+ .patch-cp-model-frame{height:86%;max-height:86%;width:min(260px,47%)}
+ .patch-cp-toolbar{padding:7px 12px 8px;gap:4px}
+ .patch-cp-guide{display:none}
+ .patch-cp-privacy{display:none}
+ .patch-cp-actions button{min-height:28px;padding:5px 9px}
+ .patch-cp-disclaimer{font-size:9px}
+}
