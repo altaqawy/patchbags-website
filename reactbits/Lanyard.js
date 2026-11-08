@@ -964,7 +964,10 @@ const Lanyard = ({
         if (!placed) {
           placeHanging(sim, layout, s.intro && !reducedMotion);
           placed = true;
-        } else if (layoutKey !== applied.layoutKey) {
+        } else if (layoutKey !== applied.layoutKey || s.anchor !== applied.anchor) {
+          // Instantly move to the opposite safe margin when EN↔AR changes.
+          // Do not animate the card through the product photo and headline.
+          sim.grab = null;
           placeHanging(sim, layout, false);
         }
       }
@@ -1015,7 +1018,7 @@ const Lanyard = ({
       }
       canvas.style.touchAction = s.interactive ? 'pan-y' : 'auto';
 
-      applied = { layoutKey, framingKey, imageKey, faceKey, strapColor: s.strapColor, strapScale };
+      applied = { layoutKey, framingKey, imageKey, faceKey, strapColor: s.strapColor, strapScale, anchor: s.anchor };
       start();
     };
 
