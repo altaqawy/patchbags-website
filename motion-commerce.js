@@ -182,7 +182,12 @@ function renderCart(){
        '<button type="button" data-cz-bag-remove="'+escaped(d.id)+'">'+customText('Remove','إزالة')+'</button></div></div></article>';
     }).join('');
  }
- const checkout=byId('patchStartCheckout');if(checkout)checkout.disabled=!total;
+ const checkout=byId('patchStartCheckout');
+ if(checkout){
+  checkout.disabled=!total;
+  const onlyCustom=requests.length>0&&!cartList().length;
+  checkout.innerHTML=mini('bag')+' '+(onlyCustom?customText('Discuss design requests','تواصلي بخصوص التصميمات'):commerceTranslate('Continue to checkout'))+' <span>↗</span>';
+ }
 }
 function upgradeBag(){
  const drawer=byId('bagDrawer');if(!drawer)return;
@@ -314,6 +319,13 @@ function checkoutBody(){
 }
 function openCheckout(){
  if(!cartCount()){announce('Add a handmade piece to your bag first');return;}
+ // Custom-only baskets are a non-purchasable studio enquiry, not a checkout.
+ // They must never be blocked by an unconfigured sign-in/payment gateway.
+ if(customDesigns().length&&!cartList().length){
+  const message=window.PATCH_CUSTOMIZER?.formatRequests?.(customDesigns());
+  if(message)window.open('https://wa.me/201141693208?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+  return;
+ }
  if(!authSession?.user){
   checkoutAfterAuth=true;
   saveCart();
@@ -486,7 +498,9 @@ function setupCommerce(){
  document.addEventListener('patch:language-changed',()=>{
   renderCart();upgradeBag();updateAccountCopy();
   const lines=$('.patch-checkout-line strong');
-  cartList().forEach((item,index)=>{if(lines[index])lines[index].textContent=commerceProductName(item.product)});
+  const shop=cartList();
+  shop.forEach((item,index)=>{if(lines[index])lines[index].textContent=commerceProductName(item.product)});
+  customDesigns().forEach((d,index)=>{const p=customProduct(d);if(p&&lines[shop.length+index])lines[shop.length+index].textContent=commerceProductName(p)+' · '+customText('Custom design request','طلب تصميم مخصص')});
  });
  document.addEventListener('click',e=>{
   const target=e.target instanceof Element?e.target:null;if(!target)return;
