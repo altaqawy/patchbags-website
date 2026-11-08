@@ -348,7 +348,7 @@ function handleClick(e){
  if(target.dataset.czLetterStyle){state.letterStyle=target.dataset.czLetterStyle;render();return}
  if(target.dataset.czLetterPosition){state.letterPosition=target.dataset.czLetterPosition;render();return}
  if(target.dataset.czEdit){edit(target.dataset.czEdit);return}
- if(target.hasAttribute('data-cz-cancel')){editingId=null;state={...state,id:''};render();return}
+ if(target.hasAttribute('data-cz-cancel')){const original=saved.find(d=>d.id===editingId);editingId=null;state=original?{...original,id:''}:base();photoIndex=0;viewMode='photo';render();return}
  if(target.dataset.czQty){state.qty=Math.min(5,Math.max(1,state.qty+Number(target.dataset.czQty)));render();return}
  if(target.hasAttribute('data-cz-save')){
   if(state.colorMode==='custom'&&!state.customColor.trim()){notify(T('errors'));layer.querySelector('[data-cz-input="customColor"]')?.focus();return}
