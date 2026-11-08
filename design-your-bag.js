@@ -171,7 +171,8 @@ function render(){
   (saved.length?'<div class="patch-cz-saved-list">'+saved.map((d)=>
     '<div class="patch-cz-saved-card" data-cz-draft="'+E(d.id)+'"><img src="'+E(imageSrc(product(d.productId)))+'" alt="">'+
     '<div><strong>'+E(productLabel(product(d.productId)))+'</strong><small>'+E(T('draftLabel'))+' · ×'+d.qty+'</small>'+
-    '<div class="patch-cz-saved-actions"><button type="button" data-cz-copy="'+E(d.id)+'">'+E(T('copy'))+'</button><button type="button" data-cz-remove="'+E(d.id)+'">'+E(T('remove'))+'</button></div></div></div>'
+    '<div class="patch-cz-saved-actions"><button type="button" data-cz-copy="'+E(d.id)+'">'+E(T('copy'))+'</button><button type="button" data-cz-remove="'+E(d.id)+'">'+E(T('remove'))+'</button></div>'+
+    '<a class="patch-cz-contact-link" href="https://wa.me/201141693208?text='+encodeURIComponent(formatRequests([d]))+'" target="_blank" rel="noopener noreferrer">'+E(T('whatsapp'))+' ↗</a></div></div>'
    ).join('')+'</div><button type="button" class="patch-cz-share-all" data-cz-copy-all>'+E(T('share'))+' ↗</button>'
    :'<p class="patch-cz-empty">'+E(T('savedNone'))+'</p>')+
   '<p class="patch-cz-fineprint">'+E(T('savedDevice'))+'</p></div></div>';
