@@ -45,7 +45,7 @@
   transform-style:preserve-3d;
   opacity:0;
   animation:patchDepthTravel 35s cubic-bezier(.44,.09,.56,.93) infinite;
-  animation-delay:calc(-1.3s + var(--delay));
+  animation-delay:calc(-1.3s - var(--delay));
   will-change:transform,opacity;
 }
 .patch-review-space .patch-depth-card .quote{
