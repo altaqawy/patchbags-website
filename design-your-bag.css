@@ -241,3 +241,43 @@ html[lang="ar"] .patch-cz-monogram{direction:auto}
  .patch-cz-dialog{animation:none}
  .patch-cz-close,.patch-cz-save-btn{transition:none}
 }
+
+
+/* Saved requests are separate from paid SKUs and clearly marked in the bag. */
+.patch-cart-custom{background:#eef1e8;border:1px solid #d5ded3;border-radius:5px;padding:10px}
+.patch-cart-custom .patch-cart-design-details{
+ margin:8px 0 7px;white-space:pre-line;line-height:1.68;
+ color:#516454;font-size:11px;font-family:var(--pb-ui-en,Manrope,system-ui)
+}
+.patch-cart-custom .patch-cart-design-disclaimer{
+ font-size:10px;line-height:1.7;color:#758673;margin:4px 0 8px
+}
+.patch-cart-custom .patch-cart-custom-actions{
+ display:flex;gap:17px;align-items:center;flex-wrap:wrap;margin-top:7px
+}
+.patch-cart-custom .patch-cart-custom-actions button{
+ border:0;border-bottom:1px solid #a4b3a3;padding:3px 0;
+ font:700 10px/1.5 var(--pb-ui-en,Manrope,sans-serif);
+ color:#46644e;background:none;cursor:pointer
+}
+.patch-cart-custom .patch-cart-custom-actions button:last-child{color:#9b6c66;border-color:#cdb5b0}
+.patch-checkout-custom{background:#f3f2ed;border-radius:4px}
+html[lang="ar"] .patch-cart-custom .patch-cart-design-details,
+html[lang="ar"] .patch-cart-custom .patch-cart-design-disclaimer,
+html[lang="ar"] .patch-cart-custom .patch-cart-custom-actions button{
+ font-family:var(--pb-ui-ar,Alexandria,sans-serif);letter-spacing:0;text-align:right
+}
+html[lang="ar"] .patch-cart-custom .patch-cart-design-details{direction:rtl;unicode-bidi:plaintext}
+.patch-cz-contact-link{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ background:#f4f6f0;border:1px solid #aec0ad;border-radius:3px;
+ font:700 10px/1.45 var(--pb-ui-en,Manrope,system-ui);
+ color:#32573a;padding:10px 12px;text-decoration:none;
+ transition:background .2s
+}
+.patch-cz-contact-link:hover{background:#e4ece1}
+html[lang="ar"] .patch-cz-contact-link{font-family:var(--pb-ui-ar);letter-spacing:0}
+@media(max-width:690px){
+ .patch-cart-custom .patch-cart-design-details{font-size:10px}
+ .patch-cart-custom .patch-cart-design-disclaimer{font-size:9px}
+}
