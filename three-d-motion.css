@@ -1,86 +1,72 @@
-/* PatCh.BaGs — auto-playing 3D customer reviews.
-   No portals. Star sparkles are ornamental, not customer ratings.
-   The editorial type, hero and navigation are preserved. */
+/* Automatic perspective depth testimonial stack.
+   Portal rings/side glows removed; no fabricated star rating. */
 .patch-stack3d-reviews{
- position:relative;min-height:410px;perspective:1100px;
- display:grid;place-items:center;overflow:hidden;isolation:isolate;
- background:linear-gradient(140deg,#f4f2ec 0%,#f8f7f3 58%,#eeefe9 100%);
+ position:relative;min-height:334px;padding:11px 12px 47px;
+ display:grid;place-items:center;isolation:isolate;overflow:hidden;
+ background:linear-gradient(140deg,#f8f7f2,#f3f1ea);
 }
-.patch-review-stack{width:min(80%,510px);height:290px;position:relative;transform-style:preserve-3d}
+.patch-review-stack{
+ position:relative;width:100%;height:285px;
+ perspective:1100px;transform-style:preserve-3d;
+}
 .patch-stack-card{
- position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;
- background:#fffefa;border:1px solid #e0e5dd;border-radius:12px;padding:29px 31px 25px;
- box-shadow:0 22px 50px rgba(48,64,51,.14),0 3px 12px rgba(48,64,51,.08);
- backface-visibility:hidden;transform-style:preserve-3d;
- transition:transform 1100ms cubic-bezier(.22,1,.36,1),opacity 850ms ease,filter 850ms ease;
- opacity:0;transform:translate3d(0,24px,-340px) rotateY(11deg) scale(.77);
- pointer-events:none;z-index:0;overflow:hidden;will-change:transform,opacity;
+ position:absolute;left:50%;top:50%;box-sizing:border-box;
+ width:min(78%,475px);height:238px;
+ display:flex;flex-direction:column;justify-content:space-between;
+ padding:26px 29px 23px;border-radius:14px;
+ background:linear-gradient(145deg,#fffefa,#f5f4ef);
+ border:1px solid #e0e4dc;
+ box-shadow:0 20px 54px rgba(28,46,32,.12);
+ transform:translate(-50%,-50%) translate3d(0,0,-400px) rotateY(24deg) scale(.8);
+ opacity:0;pointer-events:none;backface-visibility:hidden;
+ transition:transform 1.1s cubic-bezier(.2,.85,.25,1),opacity .8s ease,filter .8s ease;
+ will-change:transform,opacity;
 }
 .patch-stack-card.is-front{
- transform:translate3d(-8px,0,55px) rotateY(-2deg) rotateX(.5deg) scale(1);
- opacity:1;filter:brightness(1);z-index:5;pointer-events:auto;
+ transform:translate(-50%,-50%) translate3d(0,0,75px) rotateY(0deg) scale(1);
+ opacity:1;z-index:4;filter:brightness(1);
+ box-shadow:0 23px 52px rgba(28,46,32,.2);
 }
 .patch-stack-card.is-next{
- transform:translate3d(33px,-9px,-110px) rotateY(-9deg) rotateX(3deg) scale(.95);
- opacity:.5;filter:brightness(.96);z-index:3;
+ transform:translate(-50%,-50%) translate3d(36%,0,-105px) rotateY(-24deg) scale(.85);
+ opacity:.78;z-index:3;filter:brightness(.96);
 }
 .patch-stack-card.is-next2{
- transform:translate3d(59px,-19px,-220px) rotateY(-14deg) rotateX(5deg) scale(.9);
- opacity:.23;filter:brightness(.93);z-index:2;
+ transform:translate(-50%,-50%) translate3d(62%,0,-260px) rotateY(-34deg) scale(.73);
+ opacity:.3;z-index:1;filter:brightness(.95);
 }
 .patch-stack-card.is-back{
- transform:translate3d(-41px,16px,-180px) rotateY(12deg) rotateX(-4deg) scale(.88);
- opacity:0;filter:brightness(.95);z-index:1;
+ transform:translate(-50%,-50%) translate3d(-39%,0,-130px) rotateY(26deg) scale(.84);
+ opacity:.58;z-index:2;filter:brightness(.96);
 }
-.patch-stack-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.patch-stack-label{font:700 9px/1.5 var(--sans);letter-spacing:.13em;color:#7b8779}
-.patch-review-sparkles{display:inline-flex;align-items:center;gap:5px;color:#b7a57b;white-space:nowrap}
-.patch-review-sparkles span{display:inline-block;line-height:1;animation:patchStarGlint 2.8s ease-in-out infinite;font-size:18px}
-.patch-review-sparkles span:nth-child(2){font-size:15px;animation-delay:.7s}
-.patch-review-sparkles span:nth-child(3){font-size:12px;animation-delay:1.3s}
-@keyframes patchStarGlint{
- 0%,100%{opacity:.48;transform:scale(.76) rotate(-15deg);filter:brightness(.9)}
- 40%,54%{opacity:1;transform:scale(1.14) rotate(14deg);filter:brightness(1.25) drop-shadow(0 0 6px #c4ac64)}
+.patch-stack-top{display:flex;gap:13px;align-items:center;justify-content:space-between}
+.patch-stack-label{font:700 9px/1.5 var(--sans);letter-spacing:.14em;color:#758375}
+.patch-review-sparkles{display:flex;gap:8px;color:#9aab8e;user-select:none}
+.patch-review-sparkles>span{
+ display:block;line-height:1;font-size:17px;
+ animation:patchGentleShimmer 2.9s ease-in-out infinite;
+}
+.patch-review-sparkles>span:nth-child(2){font-size:12px;animation-delay:.65s}
+.patch-review-sparkles>span:nth-child(3){font-size:14px;animation-delay:1.3s}
+@keyframes patchGentleShimmer{
+ 0%,100%{opacity:.4;transform:scale(.8) rotate(-8deg);filter:brightness(1)}
+ 52%{opacity:1;transform:scale(1.23) rotate(12deg);filter:brightness(1.35)}
 }
 .patch-stack-card blockquote{
- font:400 clamp(21px,2.15vw,32px)/1.38 var(--serif);letter-spacing:-.045em;
- color:#334035;margin:15px 0;text-wrap:balance;
+ font:500 clamp(21px,2.4vw,30px)/1.31 var(--serif);
+ letter-spacing:-.037em;color:#303d32;margin:13px 0;
+ text-wrap:balance;
 }
-.patch-stack-card footer{border-top:1px solid #e9e9e1;padding-top:14px;display:grid;gap:5px}
-.patch-stack-author{color:#354638;font:700 13px/1.3 var(--sans)}
-.patch-stack-source{color:#879084;font:700 9px/1.4 var(--sans);letter-spacing:.07em}
-.patch-stack-progress{
- position:absolute;bottom:21px;left:50%;width:124px;height:2px;
- transform:translateX(-50%);background:#d5ded0;border-radius:10px;overflow:hidden;
+.patch-stack-card footer{
+ display:flex;align-items:flex-end;justify-content:space-between;gap:10px;
+ border-top:1px solid #dfe3da;padding-top:14px;
 }
-.patch-stack-progress span{display:block;height:100%;width:100%;transform-origin:left;background:#7a8e78;animation:patchReviewCycle 6.5s linear infinite}
-.patch-stack-progress span.is-restarting{animation:none;animation:patchReviewCycle 6.5s linear infinite}
-@keyframes patchReviewCycle{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@media(max-width:900px){
- .patch-stack3d-reviews{min-height:375px}
- .patch-review-stack{width:min(84%,470px);height:275px}
- .patch-stack-card{padding:25px 24px}
- .patch-stack-card blockquote{font-size:clamp(20px,2.65vw,27px)}
-}
-@media(max-width:767px){
- .patch-stack3d-reviews{min-height:330px}
- .patch-review-stack{width:83%;height:250px}
- .patch-stack-card{padding:21px 19px 17px;border-radius:10px}
- .patch-stack-card blockquote{font-size:clamp(18px,4.75vw,25px);line-height:1.33;margin:9px 0}
- .patch-stack-label{font-size:8px;letter-spacing:.05em}
- .patch-stack-author{font-size:12px}
- .patch-stack-source{font-size:8px}
- .patch-review-sparkles{gap:2px}
- .patch-review-sparkles span{font-size:14px}
- .patch-review-sparkles span:nth-child(2){font-size:12px}
- .patch-review-sparkles span:nth-child(3){font-size:10px}
- .patch-stack-progress{bottom:12px}
-}
-@media(prefers-reduced-motion:reduce){
- .patch-stack-card{transition:none;will-change:auto}
- .patch-stack-card:not(.is-front){opacity:0}
- .patch-review-sparkles span,.patch-stack-progress span{animation:none}
-}
+.patch-stack-author{font:700 12px var(--sans);color:#334232;letter-spacing:.015em}
+.patch-stack-source{font:600 8px/1.4 var(--sans);letter-spacing:.09em;color:#7f8c7d;text-align:right;max-width:52%}
+.patch-stack-progress{width:158px;height:3px;position:absolute;bottom:18px;left:50%;transform:translateX(-50%);border-radius:9px;background:#dce2d8;overflow:hidden}
+.patch-stack-progress span{display:block;width:100%;height:100%;background:#879c83;animation:patchStackTimeline 6.5s linear infinite;transform-origin:left}
+.patch-stack-progress span.is-restarting{animation:none}
+@keyframes patchStackTimeline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* Automatic coverflow / 3D CMS-style product photography strip. */
 .patch-cms3d{padding:66px 0 86px;background:#f8f7f2;overflow:hidden}
@@ -94,6 +80,40 @@
 .patch-cms3d-progress{height:3px;background:#d5ddd1;width:160px;margin:20px auto 0;border-radius:10px;overflow:hidden}
 .patch-cms3d-progress:after{content:"";display:block;width:100%;height:100%;background:#758b72;animation:patchCmsProgress 4.6s linear infinite;transform-origin:left}
 @keyframes patchCmsProgress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@media(max-width:900px){.patch-cms3d-stage{height:320px}.patch-cms3d-card{height:280px;width:240px;margin-left:-120px}}
-@media(max-width:680px){.patch-cms3d{padding:49px 0 57px}.patch-cms3d-stage{height:280px}.patch-cms3d-card{width:190px;height:245px;margin-left:-95px}}
-@media(prefers-reduced-motion:reduce){.patch-cms3d-progress:after{animation:none}.patch-cms3d-card{transition:none}}
+
+
+@media(max-width:900px){
+ .patch-cms3d-stage{height:320px}
+ .patch-cms3d-card{height:280px;width:240px;margin-left:-120px}
+ .patch-stack3d-reviews{min-height:321px}
+ .patch-review-stack{height:272px}
+ .patch-stack-card{height:230px;padding:23px 24px 20px}
+ .patch-stack-card blockquote{font-size:clamp(21px,3.4vw,27px)}
+}
+@media(max-width:767px){
+ .patch-stack3d-reviews{min-height:309px;padding:0 6px 40px}
+ .patch-review-stack{height:265px}
+ .patch-stack-card{width:82%;height:224px;padding:20px 19px 18px}
+ .patch-stack-card blockquote{font-size:clamp(20px,5.3vw,25px);line-height:1.31}
+ .patch-stack-card.is-next{transform:translate(-50%,-50%) translate3d(23%,0,-155px) rotateY(-21deg) scale(.8);opacity:.45}
+ .patch-stack-card.is-back{transform:translate(-50%,-50%) translate3d(-23%,0,-150px) rotateY(22deg) scale(.8);opacity:.39}
+ .patch-stack-card.is-next2{opacity:.08}
+ .patch-stack-author{font-size:11px}
+ .patch-stack-source{font-size:7.5px}
+}
+@media(max-width:680px){
+ .patch-cms3d{padding:49px 0 57px}
+ .patch-cms3d-stage{height:280px}
+ .patch-cms3d-card{width:190px;height:245px;margin-left:-95px}
+}
+@media(max-width:380px){
+ .patch-stack-card{width:84%;height:236px}
+ .patch-stack-card blockquote{font-size:20px}
+}
+@media(prefers-reduced-motion:reduce){
+ .patch-stack-card{transition:none!important;will-change:auto}
+ .patch-review-sparkles>span{animation:none!important;opacity:.7}
+ .patch-stack-progress span{animation:none}
+ .patch-cms3d-progress:after{animation:none}
+ .patch-cms3d-card{transition:none}
+}
