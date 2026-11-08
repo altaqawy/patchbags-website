@@ -3,8 +3,8 @@
    scroll hijacking, an automatic timer, fake star ratings, or portal effects.
    Keep product imagery on desktop/tablet and hide it on phones. */
 .patch-words-section.patch-scroll-reviews{
-  height:calc(100svh + var(--review-steps,4)*53svh);
-  min-height:calc(640px + var(--review-steps,4)*350px);
+  height:312svh;
+  min-height:2040px;
   padding:0!important;
   overflow:visible!important;
   background:#f0eee8;
@@ -111,8 +111,8 @@
 }
 @media(max-width:767px){
  .patch-words-section.patch-scroll-reviews{
-   height:calc(100svh + var(--review-steps,4)*52svh);
-   min-height:calc(570px + var(--review-steps,4)*300px);
+   height:308svh;
+   min-height:1770px;
  }
  .patch-scroll-reviews>.patch-words-inner{
    top:72px;
