@@ -42,7 +42,7 @@ const on=()=>{
    update();
    if(!reduce){
     let timer=null,visible=true;
-    const begin=()=>{if(timer||!visible)return;timer=window.setInterval(()=>{active=(active+1)%cards.length;update()},7000)};
+    const begin=()=>{if(timer||!visible)return;timer=window.setInterval(()=>{active=(active+cards.length-1)%cards.length;update()},7000)};
     const halt=()=>{if(timer){clearInterval(timer);timer=null}};
     // Keep CSS animation and accessibility rotation synchronized when offscreen.
     const observer=new IntersectionObserver(entries=>{
