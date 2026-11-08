@@ -1,0 +1,30 @@
+/* Social icon links, intentionally limited to contact and footer areas.
+   Existing header and hero remain unchanged. */
+.patch-social-icons{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.patch-social-icon{
+ width:48px;height:48px;border-radius:50%;border:1px solid #bcc7b8;
+ display:inline-flex;align-items:center;justify-content:center;
+ color:#364836;background:#f7f7f2;text-decoration:none;
+ box-shadow:0 3px 9px rgba(45,65,45,.045);
+ transition:transform .25s cubic-bezier(.22,1,.36,1),background .25s,box-shadow .25s,border-color .25s;
+}
+.patch-social-icon svg{display:block;width:21px;height:21px;flex:none;fill:currentColor}
+.patch-social-icon:hover,.patch-social-icon:focus-visible{
+ transform:translateY(-4px);background:#e7ede3;
+ box-shadow:0 9px 23px rgba(34,54,38,.13);border-color:#8fa387;color:#263d2a
+}
+.patch-social-icon:focus-visible{outline:2px solid #7e9a77;outline-offset:3px}
+.patch-social-icon.is-pending{
+ opacity:.55;background:#f4f4ee;cursor:not-allowed;pointer-events:none;
+}
+.social-heading .patch-social-icons{justify-content:flex-end}
+.site-footer .patch-social-icons{gap:9px;margin:10px 0 13px}
+.site-footer .patch-social-icon{height:42px;width:42px;background:transparent;color:inherit;border-color:currentColor;opacity:.82}
+.site-footer .patch-social-icon:hover{color:#fff;background:#63735f;opacity:1;border-color:#63735f}
+.site-footer .patch-social-icon.is-pending{opacity:.32}
+.site-footer .patch-social-icon svg{width:20px;height:20px}
+@media(max-width:680px){
+ .social-heading .patch-social-icons{justify-content:flex-start;margin-top:13px}
+ .patch-social-icon{width:46px;height:46px}
+}
+@media(prefers-reduced-motion:reduce){.patch-social-icon{transition:none}}
