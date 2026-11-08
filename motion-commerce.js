@@ -287,6 +287,8 @@ function enhanceMotion(){
  if(grid)new MutationObserver(apply).observe(grid,{childList:true});
 }
 function setupReviews(){
+ // The 3D review component now owns the review rotation and photo timing.
+ if(window.PATCH_3D_REVIEWS) return;
  const quotes=[
   {text:"I bought one of your bags and it's super well made. Great job and keep going.",source:"Customer feedback · Original English",image:"assets/new/ivory-tote-portrait-front.webp"},
   {text:"Thank you — amazing quality.",source:"Customer feedback · Original English",image:"assets/new/crescent-crossbody-taupe.webp"},
