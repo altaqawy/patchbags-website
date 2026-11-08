@@ -1,5 +1,8 @@
 # PatCh.BaGs — independent secure commerce backend (Next.js App Router)
 
+**2026 CMS/customer update:** See [OWNER_CMS_AND_CUSTOMER_SETUP.md](../OWNER_CMS_AND_CUSTOMER_SETUP.md) for owner-managed categories, images/videos/GLB uploads, Cairo dashboard, before/after pricing, sales chart, Supabase Auth and mandatory login before checkout. Apply `db/003_product_cms.sql` to the commerce PostgreSQL database and `db/004_supabase_customer_cart.sql` separately in the Supabase SQL editor before activating these features. The code is not a live deployment.
+
+
 **Architecture verified:** the existing public GitHub Pages storefront is STATIC HTML/CSS/JS, not Next.js. To preserve every existing design and header choice, this project adds a separate Next.js App Router service in `commerce/`, and a small opt-in static `shop-checkout-bridge.js` in the repository root.
 
 ## What this includes
@@ -21,7 +24,7 @@ No production checkout is deployed or enabled. **No payments were initiated**, a
 
 1. Owner creates the Paymob merchant account at https://egypt.paymob.com/portal/en/register and completes onboarding in their own name.
 2. Host the `commerce/` Next.js service on an HTTPS platform supporting Node runtime and PostgreSQL (e.g. Vercel plus a compatible hosted PostgreSQL service).
-3. Create PostgreSQL, run `db/001_init.sql`, then `db/002_seed_catalog.sql`.
+3. Create PostgreSQL, run `db/001_init.sql`, `db/002_seed_catalog.sql`, then `db/003_product_cms.sql`.
 4. Put server-only `DATABASE_URL`, `APP_ORIGIN`, `CORS_ALLOWED_ORIGIN`, `COOKIE_SIGNING_KEY_BASE64`, and `PAYMOB_ENCRYPTION_KEY_BASE64` in the host's secret manager, never GitHub.
 5. Generate two **different** random 32-byte keys on the owner/server side. Do not copy them into public JavaScript.
 6. Create an owner password hash privately with `npm run owner:hash`, then insert an admin user using a privileged database console:
