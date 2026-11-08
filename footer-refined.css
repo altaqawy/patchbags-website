@@ -1,0 +1,174 @@
+/* PatCh.BaGs footer refinement — compact editorial grid.
+   Scoped to footer only. Does not alter the hero or navbar. */
+.patch-footer-refined{
+ background:#f1f0eb;
+ padding:0!important;
+ border-top:1px solid #d8ddd3;
+ color:#29352b;
+}
+.patch-footer-refined .patch-footer-opening{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(275px,.42fr);
+ align-items:end;
+ gap:clamp(25px,6vw,90px);
+ padding:clamp(44px,6.2vw,86px) 0 clamp(30px,4.5vw,56px);
+ border-bottom:1px solid #d4dcd1;
+}
+.patch-footer-refined .patch-footer-eyebrow,
+.patch-footer-refined .patch-footer-group-label{
+ font:700 10px/1.5 var(--sans,system-ui);
+ letter-spacing:.18em;
+ color:#819080;
+}
+.patch-footer-refined .patch-footer-eyebrow{margin:0 0 14px}
+.patch-footer-refined .footer-brand{
+ display:inline-block;
+ font:500 clamp(49px,6.1vw,86px)/1.05 var(--serif,Georgia);
+ letter-spacing:-.079em;
+ color:#273328;
+}
+.patch-footer-refined .footer-brand span{color:#8c9e88}
+.patch-footer-refined .patch-footer-about>p:last-child{
+ max-width:400px;
+ font:400 13px/1.85 var(--sans,system-ui);
+ margin:20px 0 0;
+ color:#798078;
+}
+.patch-footer-refined .patch-footer-cta{
+ align-self:center;
+ padding:18px 0 8px 32px;
+ border-left:1px solid #d1d9ce;
+}
+.patch-footer-refined .patch-footer-cta p{
+ font:400 clamp(26px,3vw,39px)/1.2 var(--serif,Georgia);
+ letter-spacing:-.05em;
+ margin:2px 0 22px;
+ color:#344436;
+}
+.patch-footer-refined .patch-footer-cta p em{color:#849783}
+.patch-footer-refined .patch-footer-cta>a{
+ display:inline-flex;align-items:center;justify-content:space-between;gap:26px;
+ border-bottom:1px solid #7f8c7d;
+ padding:0 0 10px;
+ font:700 12px/1.4 var(--sans,system-ui);
+ color:#354637;
+ transition:gap .3s,border-color .3s;
+}
+.patch-footer-refined .patch-footer-cta>a:hover{gap:38px;border-color:#344d38}
+.patch-footer-refined .patch-footer-nav{
+ display:grid;
+ grid-template-columns:1fr 1.2fr 1fr 1.4fr;
+ gap:clamp(19px,3.7vw,70px);
+ padding:clamp(35px,4.5vw,55px) 0 clamp(36px,4.8vw,60px);
+}
+.patch-footer-refined .patch-footer-group{
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ gap:13px;
+ min-width:0;
+}
+.patch-footer-refined .patch-footer-group-label{margin:0 0 13px}
+.patch-footer-refined .patch-footer-group>a,
+.patch-footer-refined .patch-footer-action{
+ display:inline-block;
+ border:0;
+ padding:0;
+ margin:0;
+ background:none;
+ text-align:start;
+ font:600 12px/1.6 var(--sans,system-ui);
+ letter-spacing:0;
+ text-decoration:none;
+ color:#414c40;
+ cursor:pointer;
+ transition:color .2s,transform .2s;
+}
+.patch-footer-refined .patch-footer-group>a:hover,
+.patch-footer-refined .patch-footer-group>a:focus-visible,
+.patch-footer-refined .patch-footer-action:hover,
+.patch-footer-refined .patch-footer-action:focus-visible{
+ color:#769275;
+ transform:translateX(3px);
+ text-decoration:none;
+}
+.patch-footer-refined .patch-footer-group a:focus-visible,
+.patch-footer-refined .patch-footer-action:focus-visible{
+ outline:2px solid #7c997b;outline-offset:5px;
+}
+.patch-footer-refined .patch-footer-follow .patch-social-icons{
+ display:flex;flex-wrap:nowrap;gap:9px;margin:0;
+}
+.patch-footer-refined .patch-footer-follow .patch-social-icon{
+ width:45px;height:45px;min-width:45px;
+ padding:0;
+ display:grid;place-items:center;
+ color:#384b3b;
+ border:1px solid #9cae9b;
+ border-radius:50%;
+ opacity:1;
+ background:transparent;
+ transition:background .2s,color .2s,transform .2s;
+}
+.patch-footer-refined .patch-footer-follow .patch-social-icon:hover{
+ transform:translateY(-3px);
+ color:#fff;background:#385640;border-color:#385640;
+}
+.patch-footer-refined .patch-footer-follow .patch-social-icon svg{
+ width:21px;height:21px;display:block;fill:currentColor;
+}
+.patch-footer-refined .patch-footer-follow .patch-social-icon[aria-label*="Instagram"] svg{
+ fill:none!important;stroke:currentColor!important;
+}
+.patch-footer-refined .patch-footer-follow>p{
+ font:400 11px/1.8 var(--sans,system-ui);
+ color:#859083;max-width:205px;margin:3px 0 0;
+}
+.patch-footer-refined .patch-footer-base{
+ padding:20px 0 24px;
+ color:#8a9588;
+ font:600 9px/1.5 var(--sans,system-ui);
+ letter-spacing:.06em;
+ gap:15px;
+}
+.patch-footer-refined .patch-footer-base a{
+ font-size:10px;color:#4a5f4b;
+ text-decoration:none;
+}
+@media(max-width:900px){
+ .patch-footer-refined .patch-footer-opening{grid-template-columns:1fr 1fr}
+ .patch-footer-refined .patch-footer-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:37px 25px}
+}
+@media(max-width:680px){
+ .patch-footer-refined .patch-footer-opening{
+  grid-template-columns:1fr;gap:22px;padding:38px 0 30px;
+ }
+ .patch-footer-refined .footer-brand{font-size:clamp(49px,11.1vw,65px);letter-spacing:-.075em}
+ .patch-footer-refined .patch-footer-about>p:last-child{margin:14px 0 0;font-size:12px;line-height:1.8}
+ .patch-footer-refined .patch-footer-cta{
+  padding:18px 0 0;border-left:0;border-top:1px solid #d4dcd1;
+ }
+ .patch-footer-refined .patch-footer-cta p{font-size:28px;margin:0 0 12px}
+ .patch-footer-refined .patch-footer-eyebrow{font-size:8px;margin-bottom:8px}
+ .patch-footer-refined .patch-footer-nav{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  padding:32px 0 34px;gap:29px 14px;
+ }
+ .patch-footer-refined .patch-footer-group{gap:11px}
+ .patch-footer-refined .patch-footer-group-label{font-size:9px;letter-spacing:.13em;margin-bottom:6px}
+ .patch-footer-refined .patch-footer-group>a,
+ .patch-footer-refined .patch-footer-action{font-size:12px;line-height:1.55}
+ .patch-footer-refined .patch-footer-follow .patch-social-icon{width:39px;height:39px;min-width:39px}
+ .patch-footer-refined .patch-footer-follow .patch-social-icons{gap:7px}
+ .patch-footer-refined .patch-footer-follow>p{font-size:10px}
+ .patch-footer-refined .patch-footer-base{
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:7px 16px;padding:18px 0 22px;
+ }
+ .patch-footer-refined .patch-footer-base>span:nth-child(2){display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .patch-footer-refined .patch-footer-cta>a,
+ .patch-footer-refined .patch-footer-group>a,
+ .patch-footer-refined .patch-footer-action,
+ .patch-footer-refined .patch-social-icon{transition:none}
+}
