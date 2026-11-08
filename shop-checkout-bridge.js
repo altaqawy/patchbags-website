@@ -5,15 +5,38 @@
  if(!/^https:\/\/[^/]+/.test(endpoint))return;
  const accepted=new Set(['paymob','cod','bank','wallet']);
  let catalogMap=new Map();
+ function updatePrice(card){
+  const id=card.dataset.selectedProduct||card.querySelector('[data-detail]')?.dataset.detail;
+  const product=catalogMap.get(id);
+  const label=card.querySelector('.product-info p');
+  if(!label)return;
+  const price=Number(product?.price_minor);
+  label.textContent=product?.active && Number.isFinite(price) && price>0
+   ?(price/100).toFixed(2)+' EGP'
+   :'Details & pricing on request';
+ }
+ function refreshVisiblePrices(){
+  document.querySelectorAll('.product-card').forEach(updatePrice);
+ }
  let methods=new Set(),cart={};
  async function reload(){
   const r=await fetch(endpoint+'/api/catalog',{cache:'no-store'});
   if(!r.ok)throw Error('Could not load payment availability');
   const data=await r.json();methods=new Set((data.methods||[]).filter(x=>x.enabled).map(x=>x.method));catalogMap=new Map((data.products||[]).map(x=>[x.id,x]));
   document.querySelectorAll('#patchCheckoutForm input[name=payment]').forEach(radio=>{if(accepted.has(radio.value)){radio.disabled=!methods.has(radio.value);radio.closest('label')?.classList.toggle('disabled',radio.disabled)}});
- document.querySelectorAll('.product-card').forEach(card=>{const id=card.querySelector('[data-detail]')?.dataset.detail;const p=catalogMap.get(id);if(!p)return;const el=card.querySelector('.product-info p');if(el)el.textContent=(Number(p.price_minor)/100).toFixed(2)+' EGP';});
+ refreshVisiblePrices();
  }
  reload().catch(()=>{});
+ // Swatches retain a distinct original SKU; repaint any backend-supplied price
+ // after the photo/color changes rather than leaving the previous shade's price.
+ document.addEventListener('patch:variant-changed',event=>{
+  const card=event.target.closest?.('.product-card');
+  if(card)updatePrice(card);
+ });
+ const productGrid=document.getElementById('productGrid');
+ if(productGrid && 'MutationObserver' in window){
+  new MutationObserver(refreshVisiblePrices).observe(productGrid,{childList:true});
+ }
  function enrich(){
   const form=document.getElementById('patchCheckoutForm');if(!form||form.dataset.patchReady)return;
   form.dataset.patchReady='1';
