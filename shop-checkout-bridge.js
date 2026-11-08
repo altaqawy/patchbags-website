@@ -74,7 +74,9 @@
    cart=JSON.parse(localStorage.getItem('patchbags_cart_v2')||'{}');
    const items=Object.entries(cart).filter(([,q])=>Number.isInteger(q)&&q>0).map(([id,quantity])=>({id,quantity}));
    if(!items.length)throw Error('The bag is empty');
-   const result=await fetch(endpoint+'/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({requestId:crypto.randomUUID()+'-'+Date.now(),cart:items,method,customer:{name:String(data.get('name')||''),email:String(data.get('email')||''),phone:String(data.get('phone')||''),city:String(data.get('city')||''),address:String(data.get('address')||''),notes:String(data.get('notes')||'')}})});
+   const token=await window.PATCH_AUTH?.getAccessToken?.();
+   if(!token||!window.PATCH_AUTH?.isSignedIn?.())throw Error('Sign in to your account before continuing. Your bag is saved.');
+   const result=await fetch(endpoint+'/api/checkout',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({requestId:crypto.randomUUID()+'-'+Date.now(),cart:items,method,customer:{name:String(data.get('name')||''),email:String(data.get('email')||''),phone:String(data.get('phone')||''),city:String(data.get('city')||''),address:String(data.get('address')||''),notes:String(data.get('notes')||'')}})});
    const response=await result.json();if(!result.ok)throw Error(response.error||'Checkout unavailable');
    if(response.trackingToken&&response.orderId)sessionStorage.setItem('patch_order_'+response.orderId,response.trackingToken);
    if(response.checkoutUrl){const url=new URL(response.checkoutUrl);if(url.protocol!=='https:'||!url.hostname.endsWith('paymob.com'))throw Error('Unexpected payment domain');location.assign(url.href);return;}
