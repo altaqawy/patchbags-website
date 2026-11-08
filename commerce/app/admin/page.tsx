@@ -4,9 +4,9 @@ type Method={method:'paymob'|'cod'|'bank'|'wallet',enabled:boolean,instructions:
 type Config={environment:'test'|'live',publicKey:string,integrationIds:number[],hasSecret:boolean,hasHmac:boolean,credentialStatus:string,webhookVerified:boolean,liveActivated:boolean};
 type MediaAsset={type:'image'|'video'|'model',url:string,alt?:string,posterUrl?:string};
 type Category={slug:string,name_ar:string,name_en:string,position:number,active:boolean};
-type Product={id:string,title:string,title_ar?:string,description:string,description_ar?:string,price_minor:string,compare_at_minor:string|null,
+type Product={id:string,title:string,title_ar?:string,description:string,description_ar?:string,badge_ar?:string,price_minor:string,compare_at_minor:string|null,
  stock:number,active:boolean,image_url:string,category_slug:string,media:MediaAsset[],badge:string,featured:boolean,position:number};
-const newProduct=():Product=>({id:'',title:'',title_ar:'',description:'',description_ar:'',price_minor:'0',compare_at_minor:null,stock:0,active:false,image_url:'',category_slug:'bags',media:[],badge:'',featured:false,position:100});
+const newProduct=():Product=>({id:'',title:'',title_ar:'',description:'',description_ar:'',badge_ar:'',price_minor:'0',compare_at_minor:null,stock:0,active:false,image_url:'',category_slug:'bags',media:[],badge:'',featured:false,position:100});
 type Order={id:string,customer_name:string,email:string,method:string,payment_status:string,status:string,total_minor:string,manual_reference:string,created_at:string};
 const title:Record<string,string>={paymob:'Paymob — المدفوعات الإلكترونية',cod:'الدفع عند الاستلام',bank:'تحويل بنكي / InstaPay',wallet:'تحويل لمحفظة إلكترونية'};
 const currency=(c:number|string)=>`${(Number(c)/100).toFixed(2)} ج.م`;
@@ -39,7 +39,7 @@ export default function Admin(){
   if(!p.title.trim()||price<0||!Number.isSafeInteger(price)||compare!==null&&(!Number.isSafeInteger(compare)||compare<=price)||
     (p.active&&(!price||p.stock<=0))){setMsg('راجعي السعر الحالي والسعر قبل الخصم والمخزون');return}
   const done=await send('/api/admin/products',{
-   id:p.id,title:p.title,titleAr:p.title_ar||'',description:p.description||'',descriptionAr:p.description_ar||'',
+   id:p.id,title:p.title,titleAr:p.title_ar||'',description:p.description||'',descriptionAr:p.description_ar||'',badgeAr:p.badge_ar||'',
    priceMinor:price,compareAtMinor:compare,stock:p.stock,active:p.active,
    category:p.category_slug||'bags',imageUrl:p.image_url||'',media:p.media||[],
    badge:p.badge||'',featured:Boolean(p.featured),position:p.position||100
@@ -145,7 +145,8 @@ export default function Admin(){
  {Boolean(productEdit.compare_at_minor)&&<p className="owner-discount-explainer">السعر قبل الخصم لازم يكون أعلى من السعر الحالي. الخصم الحالي: {saleSavings(productEdit)}%</p>}
  <div className="owner-edit-columns">
  <label className="field">المخزون<input type="number" min="0" step="1" value={productEdit.stock} onChange={e=>setProductEdit({...productEdit,stock:Number(e.target.value)})}/></label>
- <label className="field">شارة المنتج<input maxLength={40} value={productEdit.badge||''} onChange={e=>setProductEdit({...productEdit,badge:e.target.value})} placeholder="Handmade / New"/></label></div>
+ <label className="field">شارة المنتج بالإنجليزي<input maxLength={40} value={productEdit.badge||''} onChange={e=>setProductEdit({...productEdit,badge:e.target.value})} placeholder="Handmade / New"/></label>
+  <label className="field">شارة المنتج بالعربي<input maxLength={40} value={productEdit.badge_ar||''} onChange={e=>setProductEdit({...productEdit,badge_ar:e.target.value})} placeholder="صناعة يدوية / جديد"/></label></div>
  <label className="owner-check"><input type="checkbox" checked={Boolean(productEdit.featured)} onChange={e=>setProductEdit({...productEdit,featured:e.target.checked})}/> عرض في المنتجات المميزة</label>
  <label className="owner-check"><input type="checkbox" checked={productEdit.active} onChange={e=>setProductEdit({...productEdit,active:e.target.checked})}/> نشر المنتج للبيع (سعر ومخزون مطلوبان)</label>
  </div>
