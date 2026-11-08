@@ -97,19 +97,85 @@ const on=()=>{
    ['assets/new/phone-pouch-mustard.webp','Little essentials'],
    ['assets/new/blush-tote-scarf-closeup.webp','Soft details']
   ];
-  const srcs=(typeof products!=='undefined' && Array.isArray(products) && products.length) ? products.slice(0,8).map(p=>[p.images?.[1]||p.image, p.name]) : fallbackSrcs;
-  const section=document.createElement('section');section.className='patch-cms3d';section.id='patchCms3d';section.setAttribute('aria-label','Automatic 3D collection photo carousel');
-  section.innerHTML='<p class="patch-cms-eyebrow">THE PATCH COLLECTION</p><h2>In every <em>detail.</em></h2><div class="patch-cms3d-stage">'+srcs.map(([src,title],i)=>'<figure class="patch-cms3d-card"><img src="'+src+'" alt="'+title+'" loading="lazy"><figcaption>'+title+'</figcaption></figure>').join('')+'</div><div class="patch-cms3d-progress" aria-hidden="true"></div>';
+  const srcs=(typeof products!=='undefined' && Array.isArray(products) && products.length)
+   ?products.slice(0,8).map(p=>[p.images?.[1]||p.image,p.name,p.nameAr||''])
+   :fallbackSrcs.map(([src,title])=>[src,title,'']);
+  const section=document.createElement('section');
+  section.className='patch-cms3d';
+  section.id='patchCms3d';
+  // Dynamic i18n belongs to this component; the global translator should
+  // leave these text nodes alone so EN↔AR never creates stale captions.
+  section.dataset.patchTranslate='off';
+  section.innerHTML=
+   '<p class="patch-cms-eyebrow">THE PATCH COLLECTION</p>'+
+   '<h2><span class="patch-cms-title-main">In every</span> <em class="patch-cms-title-accent">detail.</em></h2>'+
+   '<div class="patch-cms3d-stage">'+srcs.map(([src,title],i)=>
+    '<figure class="patch-cms3d-card"><img src="'+escape(src)+'" alt="'+escape(title)+'" loading="lazy">'+
+    '<figcaption>'+escape(title)+'</figcaption></figure>').join('')+'</div>'+
+   '<div class="patch-cms3d-progress" aria-hidden="true"></div>';
   lookbook.after(section);
-  const cards=[...section.querySelectorAll('.patch-cms3d-card')];let index=0;const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  const render=()=>cards.forEach((card,i)=>{
-    let delta=((i-index+cards.length+Math.floor(cards.length/2))%cards.length)-Math.floor(cards.length/2);
+  const cards=[...section.querySelectorAll('.patch-cms3d-card')];
+  let index=0;
+  const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const isArabic=()=>document.documentElement.lang==='ar';
+  const translations={
+   'Everyday carry':'حقيبة لكل يوم',
+   'The handmade edit':'من مختاراتنا اليدوية',
+   'A pop of color':'لمسة لون مميزة',
+   'Made personal':'تفاصيل على ذوقك',
+   'Little essentials':'قطع صغيرة ومميزة',
+   'Soft details':'تفاصيل ناعمة'
+  };
+  const titleFor=([,en,ar])=>{
+   if(!isArabic())return en;
+   if(ar)return ar;
+   const curated=window.PATCH_LANGUAGE?.translate?.(en);
+   return curated&&curated!==en?curated:translations[en]||en;
+  };
+  const localize=()=>{
+   const arabic=isArabic();
+   section.dir=arabic?'rtl':'ltr';
+   section.lang=arabic?'ar':'en';
+   section.setAttribute('aria-label',arabic?'معرض تفاعلي ثلاثي الأبعاد من مجموعة باتش باجز':'Automatic 3D collection photo carousel');
+   section.querySelector('.patch-cms-eyebrow').textContent=arabic?'من مجموعة باتش باجز':'THE PATCH COLLECTION';
+   section.querySelector('.patch-cms-title-main').textContent=arabic?'تفاصيل':'In every';
+   section.querySelector('.patch-cms-title-accent').textContent=arabic?'بتحكي حكاية.':'detail.';
+   cards.forEach((card,i)=>{
+    const caption=titleFor(srcs[i]);
+    card.querySelector('figcaption').textContent=caption;
+    card.querySelector('img').alt=caption;
+   });
+  };
+  const render=()=>{
+   const direction=isArabic()?-1:1;
+   cards.forEach((card,i)=>{
+    const delta=((i-index+cards.length+Math.floor(cards.length/2))%cards.length)-Math.floor(cards.length/2);
+    const offset=direction*delta;
     const abs=Math.abs(delta);
-    card.style.transform='translateX('+(delta*Math.min(window.innerWidth*.3,265))+'px) translateZ('+(-abs*100)+'px) rotateY('+(-delta*19)+'deg) scale('+(1-abs*.12)+')';
-    card.style.opacity=abs<=2?'1':'0';card.style.filter=abs?'brightness(.87)':'brightness(1)';card.style.zIndex=String(20-abs);
-  });
-  render();if(!reduced){let visible=true;const observer=new IntersectionObserver(entries=>{visible=entries[0]?.isIntersecting??false},{threshold:.05});observer.observe(section);
-   setInterval(()=>{if(visible){index=(index+1)%cards.length;render()}},4600);}
+    card.style.transform='translateX('+(offset*Math.min(window.innerWidth*.3,265))+'px) translateZ('+(-abs*100)+'px) rotateY('+(-offset*19)+'deg) scale('+(1-abs*.12)+')';
+    card.style.opacity=abs<=2?'1':'0';
+    card.style.filter=abs?'brightness(.87)':'brightness(1)';
+    card.style.zIndex=String(20-abs);
+   });
+  };
+  const onLanguage=()=>{localize();render()};
+  document.addEventListener('patch:language-changed',onLanguage);
+  window.addEventListener('resize',render,{passive:true});
+  localize();
+  render();
+  if(!reduced){
+   let visible=true;
+   const observer=new IntersectionObserver(entries=>{visible=entries[0]?.isIntersecting??false},{threshold:.05});
+   observer.observe(section);
+   const timer=setInterval(()=>{if(visible&&!document.hidden){index=(index+1)%cards.length;render()}},4600);
+   window.addEventListener('pagehide',()=>{
+    clearInterval(timer);
+    observer.disconnect();
+    document.removeEventListener('patch:language-changed',onLanguage);
+    window.removeEventListener('resize',render);
+   },{once:true});
+  }
+
  }
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',on);else on();
