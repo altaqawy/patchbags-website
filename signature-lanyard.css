@@ -49,7 +49,7 @@
 }
 .patch-lanyard-rig{
   position:absolute;left:50%;top:56%;width:clamp(168px,19vw,226px);height:clamp(204px,23vw,262px);
-  z-index:4;transform-style:preserve-3d;
+  z-index:4;transform-style:preserve-3d;transform:translate3d(-50%,-50%,0);
   cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
   will-change:transform;
 }
@@ -148,3 +148,12 @@
  .patch-lanyard-rig{will-change:auto}
  .patch-lanyard-card,.patch-lanyard-link,.patch-lanyard-tools button{transition:none}
 }
+
+.patch-lanyard-back-link{
+ display:inline-flex;align-items:center;justify-content:center;color:#fffefa;
+ font:700 10px/1.4 var(--sans,system-ui);text-decoration:none;letter-spacing:.04em;
+ padding:9px 13px;border:1px solid #e3ede18a;border-radius:100px;margin:12px auto 0;
+ transition:background .2s,color .2s;
+}
+.patch-lanyard-back-link:hover,.patch-lanyard-back-link:focus-visible{background:#fffefa;color:#334a37}
+@media(prefers-reduced-motion:reduce){.patch-lanyard-back-link{transition:none}}
