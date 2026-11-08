@@ -237,9 +237,9 @@ async function submitAuth(form){
    :await client.auth.signInWithPassword({email,password});
   if(response.error)throw response.error;
   if(response.data.session?.user){
+   closeModal();
    await activateCustomerSession(response.data.session);
-   closeModal();announce('Signed in — your saved bag is ready');
-   if(checkoutAfterAuth){checkoutAfterAuth=false;openCheckout();}
+   announce('Signed in — your saved bag is ready');
   }else if(mode==='signup'){
    message.style.color='#3d633e';
    message.textContent='Check your email to verify your account. Your bag stays saved on this device.';
