@@ -5,6 +5,8 @@
 (() => {
   "use strict";
   const REFERENCE_MODEL = "assets/models/crescent-reference-ar.glb";
+  const PREVIOUS_IVORY_PHOTO = "assets/new/ivory-spiral-real-photo.webp";
+  let ivoryPhotoReady = false;
   const SKUS = new Set(["PB-04", "PB-05", "PB-06"]);
   let verified = false;
   const say = (ar, en) => document.documentElement.lang === "ar" ? ar : en;
@@ -18,7 +20,16 @@
     );
   }
 
+  function restorePreviousOptionalPhoto() {
+    if (!ivoryPhotoReady || typeof products === "undefined") return;
+    const ivory = products.find(p => p.id === "PB-05");
+    if (!ivory) return;
+    if (!Array.isArray(ivory.images)) ivory.images = [ivory.image].filter(Boolean);
+    if (!ivory.images.includes(PREVIOUS_IVORY_PHOTO)) ivory.images.push(PREVIOUS_IVORY_PHOTO);
+  }
+
   function linkReferenceModels() {
+    restorePreviousOptionalPhoto();
     if (!verified || typeof products === "undefined" || !Array.isArray(products)) return;
     for (const p of products) {
       if (!SKUS.has(p.id) || hasOwnModel(p)) continue;
@@ -38,15 +49,20 @@
 
   async function verifyReference() {
     // Avoid displaying an empty 3D/AR tab before the binary is actually hosted.
-    try {
-      const reply = await fetch(REFERENCE_MODEL, { method: "HEAD", cache: "no-store" });
-      const type = String(reply.headers.get("content-type") || "").toLowerCase();
-      const size = Number(reply.headers.get("content-length") || 0);
-      verified = reply.ok && !type.includes("text/html") && (!size || size > 100_000);
-    } catch (_error) {
-      verified = false;
+    async function assetOk(url, minSize) {
+      try {
+        const reply = await fetch(url, { method: "HEAD", cache: "no-store" });
+        const type = String(reply.headers.get("content-type") || "").toLowerCase();
+        const size = Number(reply.headers.get("content-length") || 0);
+        return reply.ok && !type.includes("text/html") && (!size || size > minSize);
+      } catch (_error) { return false }
     }
-    if (verified) {
+    [verified, ivoryPhotoReady] = await Promise.all([
+      assetOk(REFERENCE_MODEL, 100_000),
+      assetOk(PREVIOUS_IVORY_PHOTO, 2000)
+    ]);
+    restorePreviousOptionalPhoto();
+    if (verified || ivoryPhotoReady) {
       linkReferenceModels();
       if (typeof renderProducts === "function") renderProducts();
       const shownId = typeof activeProduct !== "undefined" ? activeProduct : null;
