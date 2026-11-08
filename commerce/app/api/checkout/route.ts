@@ -2,11 +2,14 @@ import {NextRequest} from 'next/server';import {randomUUID} from 'node:crypto';
 import {db,transaction,error,publicJson,publicError,publicOriginAllowed,corsHeaders,secret,settings} from '../../../lib/server';
 import {newToken,sha256} from '../../../lib/security.mjs';import {normalizeCart,priceCart} from '../../../lib/commerce-core.mjs';
 import {createIntention,intentionPayload,unifiedCheckoutUrl} from '../../../lib/paymob.mjs';
+import {verifiedCustomer} from '../../../lib/customer-auth';
 export const runtime='nodejs';
 export async function OPTIONS(){return new Response(null,{status:204,headers:corsHeaders()})}
 export async function POST(req:NextRequest){
  if(!publicOriginAllowed(req))return publicError(403,'Origin not allowed');
  if(!req.headers.get('content-type')?.startsWith('application/json'))return publicError(415,'JSON required');
+ const identity=await verifiedCustomer(req);
+ if(!identity)return publicError(401,'Please sign in to your verified account before checkout');
  const ipHash=sha256(req.headers.get('x-forwarded-for')?.split(',')[0]||'unknown');
  const attempts=await db().query("SELECT COUNT(*)::int n FROM api_attempts WHERE ip_hash=$1 AND attempt_at>now()-interval '1 hour'",[ipHash]);
  if(attempts.rows[0].n>=40)return publicError(429,'Too many checkout attempts. Try again later.');
@@ -15,7 +18,7 @@ export async function POST(req:NextRequest){
  try{cart=normalizeCart(b.cart)}catch(e){return publicError(400,e instanceof Error?e.message:'Invalid cart')}
  const method=String(b.method||''),customer=b.customer||{},ref=String(b.requestId||'');
  if(!['paymob','cod','bank','wallet'].includes(method)||!/^[-\w]{20,120}$/.test(ref))return publicError(400,'Invalid method or request identifier');
- const name=String(customer.name||'').trim(),email=String(customer.email||'').trim().toLowerCase(),phone=String(customer.phone||'').trim(),city=String(customer.city||'').trim(),address=String(customer.address||'').trim(),notes=String(customer.notes||'').trim();
+ const name=String(customer.name||identity.fullName||'').trim(),email=identity.email,phone=String(customer.phone||'').trim(),city=String(customer.city||'').trim(),address=String(customer.address||'').trim(),notes=String(customer.notes||'').trim();
  if(name.length<2||name.length>100||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)||phone.length<7||phone.length>25||city.length<2||city.length>100||address.length<4||address.length>300||notes.length>400)return publicError(400,'Please complete valid customer and delivery fields');
  // Do not create an orphan payment order if no merchant integration is configured.
  const liveGateway=method==='paymob'?await settings('live'):null;
