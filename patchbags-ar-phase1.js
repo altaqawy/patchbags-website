@@ -90,12 +90,27 @@
     button.type = "button";
     button.slot = "ar-button";
     button.className = "patch-ar-launch";
+    const cameraButton=document.createElement("button");
+    cameraButton.type="button";
+    cameraButton.className="patch-ar-camera";
+    cameraButton.addEventListener("click",()=>{
+      const item=typeof products!=="undefined"&&typeof activeProduct!=="undefined"
+        ?products.find(p=>p.id===activeProduct):null;
+      const src=model.getAttribute("src");
+      if(src)window.PATCH_CAMERA_PREVIEW?.open({
+        src,poster:item?.image||"",
+        name:item?.name||document.getElementById("modalTitle")?.textContent||"",
+        productId:item?.id||""
+      });
+    });
     const note = document.createElement("p");
     note.className = "patch-ar-note";
     note.setAttribute("role", "status");
     const localize = () => {
       button.textContent = say("شوفي الشنطة في مكانك", "View in your space");
       button.setAttribute("aria-label", say("عرض الشنطة بتقنية الواقع المعزز", "View bag in augmented reality"));
+      cameraButton.textContent=say("عاينيها بالكاميرا حتى من غير AR","Camera preview · no AR device needed");
+      cameraButton.setAttribute("aria-label",say("معاينة الشنطة بالكاميرا مع تحكم يدوي","Preview the bag over your camera with manual placement"));
       note.textContent = say(
         "مجسم توضيحي لشكل الحقيبة. الحجم تقريبي، واللون والخامة النهائية بعد تأكيد الاستوديو.",
         "Illustrative bag shape. Size is approximate; final colors and materials require studio confirmation."
@@ -104,6 +119,7 @@
     localize();
     model.appendChild(button);
     model.insertAdjacentElement("afterend", note);
+    model.insertAdjacentElement("afterend", cameraButton);
     model.addEventListener("error", () => {
       note.textContent = say("تعذر تحميل المجسم. صور المنتج ما زالت متاحة.", "Could not load the model. Product photos remain available.");
     });

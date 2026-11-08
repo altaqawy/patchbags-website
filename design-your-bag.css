@@ -539,3 +539,26 @@ html[lang="ar"] .patch-cz-photo-model model-viewer .patch-cz-ar-button{
   padding:9px 11px;font-size:10px
  }
 }
+
+
+/* Camera mode is available even without native AR sensors. */
+.patch-cz-camera-entry{
+ position:absolute;z-index:9;bottom:13px;inset-inline-end:13px;
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ max-width:66%;padding:10px 13px;border:1px solid #a8c5ae;
+ border-radius:100px;background:rgba(248,251,242,.96);
+ color:#2b5036;box-shadow:0 8px 20px rgba(19,38,24,.18);
+ font:750 10px/1.4 var(--pb-ui-en,Manrope,system-ui);cursor:pointer;
+}
+.patch-cz-camera-entry span{font-size:17px}
+.patch-cz-camera-entry:hover{background:#e2efe3}
+html[lang="ar"] .patch-cz-camera-entry{
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
+ letter-spacing:0;font-size:11px
+}
+@media(max-width:690px){
+ .patch-cz-camera-entry{
+  bottom:5px;inset-inline-end:5px;padding:7px 9px;font-size:9px;max-width:82%
+ }
+ .patch-cz-camera-entry span{font-size:15px}
+}
