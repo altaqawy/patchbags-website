@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1440" viewBox="0 0 1024 1440">
+<rect width="1024" height="1440" fill="#304435"/>
+<rect x="36" y="40" width="952" height="1360" rx="76" fill="none" stroke="#789277" stroke-width="4"/>
+<rect x="61" y="65" width="902" height="1310" rx="63" fill="none" stroke="#A3B39F" stroke-width="2" opacity=".32"/>
+<text x="512" y="202" font-family="Arial,sans-serif" font-weight="600" font-size="26" letter-spacing="9" text-anchor="middle" fill="#CFDEC9">A LITTLE NOTE</text>
+<path d="M380 480 H644" stroke="#89A182" stroke-width="3"/>
+<text x="512" y="646" font-family="Georgia,'Times New Roman',serif" font-size="86" font-style="italic" text-anchor="middle" fill="#FCF9F2">Made with heart.</text>
+<text x="512" y="784" font-family="Georgia,'Times New Roman',serif" font-size="80" font-style="italic" text-anchor="middle" fill="#FCF9F2">Carried with love.</text>
+<path d="M380 900 H644" stroke="#89A182" stroke-width="3"/>
+<text x="512" y="1098" font-family="Georgia,'Times New Roman',serif" font-size="53" text-anchor="middle" fill="#F1F1E8">PatCh.BaGs</text>
+<text x="512" y="1164" font-family="Arial,sans-serif" font-size="22" letter-spacing="8" text-anchor="middle" fill="#BFCEB9">HANDMADE STUDIO</text>
+<text x="512" y="1317" font-family="Arial,sans-serif" font-size="19" letter-spacing="6" text-anchor="middle" fill="#A6B7A1">MADE SLOWLY · LOVED ENDLESSLY</text>
+</svg>
