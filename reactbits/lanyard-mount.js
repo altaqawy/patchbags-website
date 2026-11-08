@@ -24,7 +24,8 @@
       size:window.matchMedia('(max-width: 680px)').matches?0.37:0.53,
       anchor:'patch-hero-right',
       // A shorter mobile strap keeps the badge above the Hero heading and CTA.
-      strapLength:window.matchMedia('(max-width: 680px)').matches?0.21:0.44,
+      // Position the resting badge above the mobile heading; the original drag physics remain unchanged.
+      strapLength:window.matchMedia('(max-width: 680px)').matches?0.05:0.44,
       strapColor:'#7f9879',
       strapWidth:0.6,
       metal:'gold',
