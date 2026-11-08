@@ -1,3 +1,107 @@
+
+/* PATCh.BAGS — editorial owner CMS UI, inspired by Framer dashboard patterns.
+   Cairo for Arabic administration; Playfair Display for logo/editorial accents. */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap');
+:root{font-family:"Cairo",system-ui,sans-serif;background:#f6f6f2}
+body{font-family:"Cairo",system-ui,sans-serif;line-height:1.7}
+h1,h2,h3,p,button,label,th,td,input,select,textarea{font-family:"Cairo",system-ui,sans-serif}
+.brand{font:500 30px/1.2 "Playfair Display",Georgia,serif;letter-spacing:-.06em}
+.brand small{font:600 10px/1.6 "Cairo",sans-serif;letter-spacing:0}
+.top{background:#fffdfa;border:1px solid #e4e9e0;border-radius:15px;padding:20px 25px;margin-bottom:30px}
+.shell{max-width:1380px}
+.tabs{padding:6px;background:#e9eee6;border:1px solid #dbe5d8;border-radius:15px;gap:6px}
+.tabs button{background:transparent;border:0;border-radius:10px;font-size:12px;padding:11px 18px}
+.tabs button.selected{background:#314a36!important;color:#fff!important}
+.panel{background:#fffefa;box-shadow:0 16px 40px rgba(50,74,50,.035);border-color:#e3e9e1}
+.btn.primary{border-radius:10px}
+.owner-overline{color:#91a08e;font:800 9px "Manrope",sans-serif;letter-spacing:.15em}
+.owner-dashboard-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0 25px}
+.owner-metric{
+ min-height:132px;padding:22px;background:#fffefa;border:1px solid #e1e9df;border-radius:12px;
+ display:flex;flex-direction:column;gap:9px;
+ transition:transform .2s,box-shadow .2s
+}
+.owner-metric:hover{transform:translateY(-2px);box-shadow:0 14px 25px #263d2d10}
+.owner-metric span{font-size:11px;color:#8b9b89}
+.owner-metric strong{font:700 clamp(17px,2.8vw,31px) "Manrope","Cairo",sans-serif;letter-spacing:-.025em;color:#34523b;overflow-wrap:anywhere}
+.owner-metric small{color:#99a998;font-size:10px}
+.owner-feature-panel{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:0;overflow:hidden;background:#dfeadf;min-height:250px}
+.owner-feature-panel>div{padding:30px 34px}
+.owner-feature-panel small{font:800 10px "Manrope";letter-spacing:.16em;color:#67856b}
+.owner-feature-panel h2{font-size:clamp(26px,4vw,43px);color:#36583f;margin:12px 0}
+.owner-feature-panel p{font-size:12px;color:#718472;max-width:420px}
+.owner-feature-panel>img{width:33%;min-height:260px;max-height:345px;object-fit:cover;object-position:center}
+.owner-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:18px 0 24px}
+.owner-category-card{border:1px solid #dfe6dc;background:#f6f8f3;padding:23px;border-radius:12px;display:flex;flex-direction:column;align-items:flex-start}
+.owner-category-card small{font:700 10px "Manrope";color:#91a191}
+.owner-category-card h3{margin:12px 0 0;font-size:21px;color:#344b36}
+.owner-category-card p{font-size:12px;margin:4px 0 14px}
+.owner-category-card span{font-size:11px;color:#78917b;flex:1;margin-bottom:15px}
+.owner-product-row{display:flex;align-items:center;gap:11px;min-width:225px}
+.owner-product-row img{width:56px;height:64px;object-fit:cover;border-radius:7px;background:#e7e9e0}
+.owner-product-row strong{display:block;font-weight:700;font-size:11px;line-height:1.65}
+.owner-product-row small{font:600 10px "Manrope";color:#9ba998}
+.owner-discount{display:inline-block;margin:5px 7px;border-radius:100px;padding:3px 7px;background:#e0f0dc;color:#54785b;font-size:10px;font-weight:700}
+.owner-state{display:inline-block;border-radius:100px;padding:5px 9px;color:#8b968a;background:#edf0e9;font-size:10px}
+.owner-state.enabled{color:#4d7850;background:#e3f0e1}
+.owner-product-edit{scroll-margin-top:110px}
+.owner-edit-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:23px}
+.owner-edit-columns{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.owner-check{display:flex;align-items:center;gap:10px;cursor:pointer;color:#506e54;font-size:12px}
+.owner-check input{width:18px;height:18px;min-height:18px;accent-color:#456e4c}
+.owner-discount-explainer{color:#507b52;font-size:11px;background:#edf6ea;padding:10px 13px;border-radius:9px;margin:0}
+.owner-edit-actions{justify-content:flex-end;margin-top:24px;border-top:1px solid #e5ebe3;padding-top:20px}
+.owner-media-manager{align-content:start;padding:22px;border:1px solid #e1e8de;background:#f9fbf6;border-radius:12px}
+.owner-media-head h3{font-size:20px;margin:0}
+.owner-media-head p{font-size:11px;color:#8a9d89;margin:2px 0 14px}
+.owner-dropzone{
+ position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:7px;border:1px dashed #9fb69e;background:#eef5e9;color:#517854;min-height:155px;
+ padding:17px;text-align:center;border-radius:10px;cursor:pointer;overflow:hidden
+}
+.owner-dropzone>span{font-size:28px;line-height:1}
+.owner-dropzone strong{font-size:12px}
+.owner-dropzone small{font-size:10px}
+.owner-dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.owner-media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.owner-media-tile{border:1px solid #dfe8dc;border-radius:9px;overflow:hidden;position:relative;min-width:0}
+.owner-media-tile img,.owner-media-tile video,.owner-model-preview{display:grid;place-items:center;width:100%;height:118px;object-fit:cover;background:#e5ebe0}
+.owner-model-preview{color:#55795a;gap:4px}
+.owner-model-preview span{font:700 22px "Manrope"}
+.owner-model-preview a{font-size:9px}
+.owner-media-tile small{font-size:9px;color:#788d7a;padding:5px 8px;display:block}
+.owner-media-tile>button{position:absolute;top:6px;left:6px;border:0;border-radius:50%;background:#fffdf9ee;width:25px;height:25px;font-size:18px;color:#3f5744}
+.owner-analytics .owner-dashboard-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+.owner-chart-toolbar{margin:30px 0 20px}
+.owner-chart-toolbar h3{font-size:18px;margin:0}
+.owner-chart-period{display:flex;gap:5px;background:#f0f4ed;padding:4px;border-radius:9px}
+.owner-chart-period button{border:0;border-radius:7px;padding:8px 13px;background:none;color:#8a9a87;font-size:11px}
+.owner-chart-period button.selected{background:#fff;color:#3c5b42;box-shadow:0 2px 7px #2b422c14}
+.owner-chart-empty{min-height:270px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:13px;background:repeating-linear-gradient(0deg,#f8faf6,#f8faf6 55px,#ebefea 56px);border-radius:12px;border:1px solid #e3eae0;text-align:center}
+.owner-chart-empty span{font-size:35px;color:#829983}
+.owner-chart-empty strong{font-size:16px;color:#3d5a42}
+.owner-chart-empty p{font-size:11px;margin:0}
+.owner-sales-chart{display:flex;align-items:end;gap:9px;min-height:255px;padding:10px 12px 27px;border-bottom:1px solid #dbe5d9;background:repeating-linear-gradient(0deg,#fafbf9,#fafbf9 50px,#e7ebe5 51px);overflow-x:auto}
+.owner-chart-col{flex:1 0 18px;max-width:44px;min-width:18px;height:200px;display:flex;align-items:center;justify-content:flex-end;flex-direction:column;gap:8px}
+.owner-chart-bar{display:block;width:100%;border-radius:6px 6px 0 0;background:linear-gradient(0deg,#42674a,#9db49b);min-height:2px;transition:height .35s}
+.owner-chart-col small{font:700 9px "Manrope";color:#98a595;white-space:nowrap}
+@media(max-width:980px){.owner-dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.owner-edit-grid{grid-template-columns:1fr}}
+@media(max-width:680px){
+ .top{gap:10px;flex-direction:row;align-items:center;padding:13px}
+ .brand{font-size:22px}
+ .owner-dashboard-metrics,.owner-analytics .owner-dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .owner-metric{min-height:118px;padding:15px}
+ .owner-metric strong{font-size:22px}
+ .owner-category-grid{grid-template-columns:1fr}
+ .owner-edit-columns{grid-template-columns:1fr 1fr}
+ .owner-media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .owner-feature-panel{min-height:210px}
+ .owner-feature-panel>div{padding:18px}
+ .owner-feature-panel>img{min-height:240px;width:38%}
+ .owner-chart-period button{padding:7px 9px}
+}
+@media(prefers-reduced-motion:reduce){.owner-metric,.owner-chart-bar{transition:none}}
+
 :root{color-scheme:light;font-family:system-ui,'Segoe UI',Tahoma,sans-serif;background:#f8f7f2;color:#27352c}
 *{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
 .shell{max-width:1260px;margin:auto;padding:32px 22px 75px}.top{display:flex;align-items:center;justify-content:space-between;gap:24px;border-bottom:1px solid #dde1da;padding-bottom:23px;margin-bottom:30px}.brand{font:600 27px Georgia,serif;letter-spacing:-1px}.brand small{font:500 11px sans-serif;letter-spacing:.03em;color:#778376;display:block}
