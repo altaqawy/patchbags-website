@@ -308,14 +308,23 @@ async function copyText(s){
 }
 function enquiryText(details){
  const fields=details||{};
- let rows=cartList().map(({product,quantity})=>'• '+product.name+' ('+product.id+') × '+quantity).join('\n');
- let msg='Hello PatCh.BaGs ♡\nI would like to ask about these handmade pieces:\n'+rows;
- if(fields.name)msg+='\n\nName: '+fields.name;
- if(fields.email)msg+='\nEmail: '+fields.email;
- if(fields.phone)msg+='\nPhone: '+fields.phone;
- if(fields.city)msg+='\nCity: '+fields.city;
- if(fields.notes)msg+='\nNotes: '+fields.notes;
- return msg+'\n\nCould you please confirm current prices, delivery cost, available colors and payment options? Thank you!';
+ const rows=cartList().map(({product,quantity})=>'• '+commerceProductName(product)+' ('+product.id+') × '+quantity).join('\\n');
+ if(commerceLanguage()==='ar'){
+  let msg='مرحبًا PatCh.BaGs ♡\\nأرغب في الاستفسار عن القطع التالية:\\n'+rows;
+  if(fields.name)msg+='\\n\\nالاسم: '+fields.name;
+  if(fields.email)msg+='\\nالبريد الإلكتروني: '+fields.email;
+  if(fields.phone)msg+='\\nرقم الهاتف: '+fields.phone;
+  if(fields.city)msg+='\\nالمدينة: '+fields.city;
+  if(fields.notes)msg+='\\nملاحظات: '+fields.notes;
+  return msg+'\\n\\nيرجى تأكيد الأسعار الحالية وتكلفة التوصيل والألوان المتاحة وطرق الدفع. شكرًا لكم!';
+ }
+ let msg='Hello PatCh.BaGs ♡\\nI would like to ask about these handmade pieces:\\n'+rows;
+ if(fields.name)msg+='\\n\\nName: '+fields.name;
+ if(fields.email)msg+='\\nEmail: '+fields.email;
+ if(fields.phone)msg+='\\nPhone: '+fields.phone;
+ if(fields.city)msg+='\\nCity: '+fields.city;
+ if(fields.notes)msg+='\\nNotes: '+fields.notes;
+ return msg+'\\n\\nCould you please confirm current prices, delivery cost, available colors and payment options? Thank you!';
 }
 async function copyRequest(details){
  const content=enquiryText(details),ok=await copyText(content);
