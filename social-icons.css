@@ -28,3 +28,23 @@
  .patch-social-icon{width:46px;height:46px}
 }
 @media(prefers-reduced-motion:reduce){.patch-social-icon{transition:none}}
+
+
+/* Instagram outline must not inherit the generic filled-SVG icon rule.
+   The solid square in the Arabic social header came from fill:currentColor. */
+.patch-social-icon[aria-label*="Instagram"] svg{
+  fill:none!important;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.patch-social-icon[aria-label*="Instagram"] svg rect,
+.patch-social-icon[aria-label*="Instagram"] svg circle:first-of-type{
+  fill:none!important;
+  stroke:currentColor;
+}
+.patch-social-icon[aria-label*="Instagram"] svg circle:last-of-type{
+  fill:currentColor!important;
+  stroke:none!important;
+}

@@ -711,6 +711,9 @@ function initLocalization(){
  document.querySelectorAll('[data-patch-lang]').forEach(btn=>{
   btn.addEventListener('click',()=>{const compact=window.matchMedia('(max-width:400px)').matches&&btn.closest('.patch-lang-toggle-header');setLocale(compact?(locale==='ar'?'en':'ar'):btn.dataset.patchLang)});
  });
+ // Publish the translation API before notifying independently mounted
+ // galleries about the user's saved language on first page load.
+ window.PATCH_LANGUAGE={get:()=>locale,set:setLocale,translate:translated};
  setLocale(locale,false);
  const obs=new MutationObserver(mutations=>{
   if(mutations.some(m=>m.addedNodes.length))scheduleLocalization();
@@ -725,7 +728,6 @@ function initLocalization(){
   }
  });
  late.observe(document.body,{childList:true});
- window.PATCH_LANGUAGE={get:()=>locale,set:setLocale,translate:translated};
 }
 function initHero(){
  const hero=document.querySelector('.editorial-hero');

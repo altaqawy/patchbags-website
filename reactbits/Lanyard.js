@@ -13,7 +13,7 @@ const CARD_SIZES = {
   portrait: [1.6, 2.25],
   landscape: [2.25, 1.6]
 };
-const ANCHORS = { left: 0.27, center: 0.5, right: 0.73, 'patch-right': 0.65, 'patch-hero-right': 0.76 };
+const ANCHORS = { left: 0.27, center: 0.5, right: 0.73, 'patch-right': 0.65, 'patch-hero-right': 0.76, 'patch-hero-safe-left': 0.13, 'patch-hero-safe-right': 0.87, 'patch-hero-safe-left-tablet': 0.17, 'patch-hero-safe-right-tablet': 0.83, 'patch-hero-safe-left-mobile': 0.24, 'patch-hero-safe-right-mobile': 0.76 };
 const THICKNESS = 0.018;
 const BEVEL = 0.007;
 const JOINTS = 4;
@@ -964,7 +964,10 @@ const Lanyard = ({
         if (!placed) {
           placeHanging(sim, layout, s.intro && !reducedMotion);
           placed = true;
-        } else if (layoutKey !== applied.layoutKey) {
+        } else if (layoutKey !== applied.layoutKey || s.anchor !== applied.anchor) {
+          // Instantly move to the opposite safe margin when EN↔AR changes.
+          // Do not animate the card through the product photo and headline.
+          sim.grab = null;
           placeHanging(sim, layout, false);
         }
       }
@@ -1015,7 +1018,7 @@ const Lanyard = ({
       }
       canvas.style.touchAction = s.interactive ? 'pan-y' : 'auto';
 
-      applied = { layoutKey, framingKey, imageKey, faceKey, strapColor: s.strapColor, strapScale };
+      applied = { layoutKey, framingKey, imageKey, faceKey, strapColor: s.strapColor, strapScale, anchor: s.anchor };
       start();
     };
 
