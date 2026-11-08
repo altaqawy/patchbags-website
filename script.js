@@ -24,6 +24,90 @@ try {const old = JSON.parse(localStorage.getItem('patchbags_enquiry') || '[]'); 
 let currentFilter='all';
 let activeProduct=null;
 let activeImageIndex=0;
+// Photographed variants share one storefront card but retain distinct original SKUs.
+// These color options map only to real images supplied by the maker.
+const productColorFamilies=[
+ {root:'PB-02',options:[
+  {id:'PB-02',color:'Ivory',hex:'#eee9dc'},
+  {id:'PB-03',color:'Blush',hex:'#e9c6cd'}
+ ]},
+ {root:'PB-04',options:[
+  {id:'PB-04',color:'Taupe',hex:'#8e8273'},
+  {id:'PB-05',color:'Ivory',hex:'#e9e2d1'},
+  {id:'PB-06',color:'Ruby',hex:'#a6172c'}
+ ]},
+ {root:'PB-08',options:[
+  {id:'PB-08',color:'Mustard',hex:'#caa13f'},
+  {id:'PB-09',color:'Natural',hex:'#c0b5a3'}
+ ]}
+];
+const colorFamilyByRoot=new Map(productColorFamilies.map(f=>[f.root,f]));
+const colorRootById=new Map(productColorFamilies.flatMap(f=>f.options.map(option=>[option.id,f.root])));
+const selectedColorVariant={};
+try{
+ const previous=JSON.parse(localStorage.getItem('patchbags_color_choices_v1')||'{}');
+ if(previous&&typeof previous==='object'&&!Array.isArray(previous))
+  for(const family of productColorFamilies)
+   if(family.options.some(option=>option.id===previous[family.root]))
+    selectedColorVariant[family.root]=previous[family.root];
+}catch(_){}
+function persistColorChoices(){try{localStorage.setItem('patchbags_color_choices_v1',JSON.stringify(selectedColorVariant))}catch(_){}}
+function collectionProducts(){return products.filter(p=>!colorRootById.has(p.id)||colorRootById.get(p.id)===p.id)}
+function getDisplayedVariant(root){
+ const family=colorFamilyByRoot.get(root);
+ return products.find(p=>p.id===(family?(selectedColorVariant[root]||root):root));
+}
+function renderColorPicker(root,selectedId,modal=false){
+ const family=colorFamilyByRoot.get(root);
+ if(!family)return '';
+ const chosen=family.options.find(option=>option.id===selectedId)||family.options[0];
+ const name=(products.find(p=>p.id===root)||{}).name||'product';
+ return '<div class="product-variant-picker'+(modal?' is-modal':'')+'" data-color-group="'+root+'">'+
+  '<div class="product-variant-heading"><span class="product-variant-kicker">COLOR</span>'+
+  '<strong class="product-variant-color">'+chosen.color+'</strong></div>'+
+  '<div class="product-variant-options" role="group" aria-label="Choose color for '+name+'">'+
+  family.options.map(option=>'<button type="button" class="product-variant-swatch" '+
+   'data-color-family="'+root+'" data-color-option="'+option.id+'" '+
+   'aria-label="Show '+option.color+' color" title="'+option.color+'" '+
+   'aria-pressed="'+(option.id===chosen.id)+'" style="--swatch-color:'+option.hex+'">'+
+   '<span class="product-variant-dot" aria-hidden="true"></span></button>').join('')+
+  '</div>'+
+  (modal?'<p class="product-variant-note">Photos show the selected color. Availability is confirmed by the studio.</p>':'')+
+  '</div>';
+}
+function updateColorCard(root){
+ const card=byId('productGrid')?.querySelector('[data-color-card="'+root+'"]');
+ const p=getDisplayedVariant(root);
+ const family=colorFamilyByRoot.get(root);
+ if(!card||!p||!family)return;
+ card.dataset.selectedProduct=p.id;
+ const main=$('.primary-photo',card),hover=$('.hover-photo',card),count=$('.photo-count',card);
+ if(main){main.src=p.image;main.alt=p.name;main.classList.remove('product-variant-fade');void main.offsetWidth;main.classList.add('product-variant-fade')}
+ if(hover){hover.src=p.images[1]||p.image;hover.hidden=p.images.length<2}
+ if(count){count.hidden=p.images.length<2;count.textContent=p.images.length+' photos'}
+ const tag=$('.product-image-label',card);if(tag)tag.textContent=p.tag;
+ const label=$('.product-info small',card);if(label)label.textContent=p.label;
+ const name=$('.product-name [data-detail]',card);if(name)name.textContent=p.name;
+ $('[data-detail]',card).forEach(button=>{
+  button.dataset.detail=p.id;
+  if(button.classList.contains('product-quick'))button.setAttribute('aria-label','View '+p.name);
+ });
+ const add=$('[data-add]',card);
+ if(add){add.dataset.add=p.id;add.setAttribute('aria-label','Add '+p.name+' to your picks')}
+ const color=$('.product-variant-color',card);
+ if(color)color.textContent=family.options.find(o=>o.id===p.id)?.color||'';
+ $('[data-color-option]',card).forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.colorOption===p.id)));
+ card.dispatchEvent(new CustomEvent('patch:variant-changed',{bubbles:true,detail:{root,productId:p.id}}));
+}
+function selectProductColor(root,id){
+ const family=colorFamilyByRoot.get(root);
+ if(!family||!family.options.some(option=>option.id===id))return;
+ selectedColorVariant[root]=id;
+ persistColorChoices();
+ updateColorCard(root);
+ if(activeDialog==='product'&&colorRootById.get(activeProduct)===root)populateProductModal(id);
+}
+
 let activeDialog=null;
 let returnFocus=null;
 let toastTimer=null;
@@ -37,19 +121,34 @@ function updatePicks(){byId('bagCount').textContent=picks.length;byId('drawerCou
 }
 function addPick(id){if(!picks.includes(id)){picks.push(id);persist();toast('Added to your enquiry list ♡')}else{toast('Already in your picks ♡')}}
 function removePick(id){picks=picks.filter(p=>p!==id);persist();toast('Removed from your picks');}
-function renderProducts(){const list=currentFilter==='all'?products:products.filter(p=>p.category===currentFilter);const grid=byId('productGrid');grid.innerHTML=list.map((p,i)=>`
-  <article class="product-card" style="animation-delay:${Math.min(i,5)*55}ms">
-  <div class="product-photo">
-  <img class="primary-photo" src="${p.image}" alt="${p.name}" loading="lazy" decoding="async">
-  ${p.images.length>1?`<img class="hover-photo" src="${p.images[1]}" alt="" loading="lazy" decoding="async">`:''}
-  ${p.images.length>1?`<span class="photo-count">${p.images.length} photos</span>`:''}
-  <span class="product-image-label">${p.tag}</span>
-  <button class="product-quick" type="button" aria-label="View ${p.name}" data-detail="${p.id}">↗</button>
-  </div>
-  <div class="product-info"><div><small>${p.label}</small><h3 class="product-name"><button type="button" data-detail="${p.id}">${p.name}</button></h3><p>Details & pricing on request</p></div><button class="product-add" type="button" data-add="${p.id}" aria-label="Add ${p.name} to your picks">+</button></div>
-  </article>`).join('');
+function renderProducts(){
+ const list=collectionProducts().filter(p=>currentFilter==='all'||p.category===currentFilter);
+ const grid=byId('productGrid');
+ grid.innerHTML=list.map((base,i)=>{
+  const p=getDisplayedVariant(base.id)||base;
+  return '<article class="product-card" data-color-card="'+base.id+'" data-selected-product="'+p.id+'" style="animation-delay:'+Math.min(i,5)*55+'ms">'+
+    '<div class="product-photo">'+
+    '<img class="primary-photo" src="'+p.image+'" alt="'+p.name+'" loading="lazy" decoding="async">'+
+    '<img class="hover-photo" src="'+(p.images[1]||p.image)+'" alt="" loading="lazy" decoding="async" '+(p.images.length>1?'':'hidden')+'>'+
+    '<span class="photo-count" '+(p.images.length>1?'':'hidden')+'>'+p.images.length+' photos</span>'+
+    '<span class="product-image-label">'+p.tag+'</span>'+
+    '<button class="product-quick" type="button" aria-label="View '+p.name+'" data-detail="'+p.id+'">↗</button></div>'+
+    '<div class="product-info"><div><small>'+p.label+'</small>'+
+    '<h3 class="product-name"><button type="button" data-detail="'+p.id+'">'+p.name+'</button></h3>'+
+    '<p>Details & pricing on request</p>'+renderColorPicker(base.id,p.id)+'</div>'+
+    '<button class="product-add" type="button" data-add="'+p.id+'" aria-label="Add '+p.name+' to your picks">+</button></div>'+
+    '</article>';
+ }).join('');
  $$('[data-detail]',grid).forEach(button=>button.addEventListener('click',()=>showProduct(button.dataset.detail)));
  $$('[data-add]',grid).forEach(button=>button.addEventListener('click',()=>addPick(button.dataset.add)));
+ if(!grid.dataset.colorEventsBound){
+  grid.addEventListener('click',event=>{
+   const swatch=event.target.closest('[data-color-family][data-color-option]');
+   if(!swatch||!grid.contains(swatch))return;
+   event.preventDefault();selectProductColor(swatch.dataset.colorFamily,swatch.dataset.colorOption);
+  });
+  grid.dataset.colorEventsBound='true';
+ }
 }
 function openDialog(name){closeMobileMenu();if(activeDialog){closeDialog(true)}returnFocus=document.activeElement;activeDialog=name;document.body.classList.add('no-scroll');const overlay=byId('overlay');overlay.hidden=false;requestAnimationFrame(()=>overlay.classList.add('show'));
  const el=byId(name==='bag'?'bagDrawer':name==='search'?'searchModal':'productModal');el.classList.add('open');el.setAttribute('aria-hidden','false');setTimeout(()=>{if(name==='search')byId('searchInput').focus();else el.focus()},120);
@@ -66,9 +165,25 @@ function setGalleryImage(index){
  byId('modalPrevPhoto').hidden=p.images.length<2;byId('modalNextPhoto').hidden=p.images.length<2;
  thumbWrap.hidden=p.images.length<2;
 }
-function showProduct(id){const p=products.find(p=>p.id===id);if(!p)return;activeProduct=id;
- byId('modalTitle').textContent=p.name;byId('modalDescription').textContent=p.description;byId('modalCode').textContent=`PIECE ${p.id}`;
- setGalleryImage(0);openDialog('product');}
+function populateProductModal(id){
+ const p=products.find(p=>p.id===id);
+ if(!p)return;
+ activeProduct=p.id;
+ byId('modalTitle').textContent=p.name;
+ byId('modalDescription').textContent=p.description;
+ byId('modalCode').textContent='PIECE '+p.id;
+ const root=colorRootById.get(id);
+ const picker=byId('modalColorOptions');
+ if(picker){picker.hidden=!root;picker.innerHTML=root?renderColorPicker(root,id,true):''}
+ setGalleryImage(0);
+}
+function showProduct(id){
+ const p=products.find(p=>p.id===id);if(!p)return;
+ const root=colorRootById.get(id);
+ if(root){selectedColorVariant[root]=id;persistColorChoices();updateColorCard(root)}
+ populateProductModal(id);
+ if(activeDialog!=='product')openDialog('product');
+}
 
 function renderSearch(term=''){const words=term.trim().toLocaleLowerCase();const found=products.filter(p=>(p.name+' '+p.label+' '+p.description).toLocaleLowerCase().includes(words));byId('searchResults').innerHTML=found.length?found.map(p=>`<button class="search-result" type="button" data-search-product="${p.id}"><img src="${p.image}" alt=""><span><strong>${p.name}</strong><small>${p.label}</small></span></button>`).join(''):'<p class="search-empty">No matches yet. Try “bag”, “book” or “pouch”.</p>';$$('[data-search-product]',byId('searchResults')).forEach(el=>el.addEventListener('click',()=>showProduct(el.dataset.searchProduct)));}
 async function copyEnquiry(){if(!picks.length){toast('Choose a piece from the collection first');return;}const details=picks.map(id=>{const p=products.find(p=>p.id===id);return `• ${p.name} (${p.id})`;}).join('\n');const message=`Hello PatCh.BaGs! ♡\nI'm interested in these handmade pieces:\n${details}\nCould you please share the prices, available colors, and order details? Thank you!`;
@@ -76,9 +191,14 @@ async function copyEnquiry(){if(!picks.length){toast('Choose a piece from the co
  if(success)toast('Enquiry copied — paste it into your Instagram message');else{window.prompt('Copy this enquiry and send it on Instagram:',message)}
 }
 function setup(){byId('year').textContent=new Date().getFullYear();renderProducts();updatePicks();
- const count=byId('allPiecesCount');if(count)count.textContent=String(products.length).padStart(2,'0');
+ const count=byId('allPiecesCount');if(count)count.textContent=String(collectionProducts().length).padStart(2,'0');
  byId('modalPrevPhoto').addEventListener('click',()=>setGalleryImage(activeImageIndex-1));
  byId('modalNextPhoto').addEventListener('click',()=>setGalleryImage(activeImageIndex+1));
+ const modalColors=byId('modalColorOptions');
+ if(modalColors)modalColors.addEventListener('click',event=>{
+  const swatch=event.target.closest('[data-color-family][data-color-option]');
+  if(swatch)selectProductColor(swatch.dataset.colorFamily,swatch.dataset.colorOption);
+ });
  let touchX=null;byId('modalPhoto').addEventListener('touchstart',e=>{touchX=e.changedTouches[0].screenX},{passive:true});
  byId('modalPhoto').addEventListener('touchend',e=>{if(touchX===null)return;const d=e.changedTouches[0].screenX-touchX;touchX=null;if(Math.abs(d)>45)setGalleryImage(activeImageIndex+(d<0?1:-1))},{passive:true});
  $$('.filter-chip').forEach(btn=>btn.addEventListener('click',()=>{currentFilter=btn.dataset.filter;$$('.filter-chip').forEach(chip=>{const pressed=chip===btn;chip.classList.toggle('active',pressed);chip.setAttribute('aria-pressed',String(pressed));});renderProducts();}));
