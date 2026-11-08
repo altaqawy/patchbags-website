@@ -38,7 +38,7 @@
  const q=(sel,root=layer)=>root?.querySelector(sel);
  const limit=(n,min,max)=>Math.max(min,Math.min(max,n));
  let layer=null,video=null,viewer=null,stage=null,frame=null,stream=null,prevFocus=null,scrollLock='';
- let serial=0,facing='environment',pos={x:0,y:0,scale:1},drag=null,current=null;
+ let serial=0,facing='environment',pos={x:0,y:0,scale:1},drag=null,current=null,statusKey='loading';
  const safeURL=input=>{
   try{
    const url=new URL(String(input||''),document.baseURI);
@@ -59,9 +59,10 @@
   layer.querySelectorAll('[data-cp-label]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.cpLabel)));
   const name=q('[data-cp-product]');if(name)name.textContent=productTitle();
   if(viewer)viewer.setAttribute('alt',productTitle());
-  if(stage?.dataset.camera==='on')status('ready');
+  if(!layer.hidden)status(statusKey);
  }
  function status(key){
+  statusKey=key;
   const text=q('[data-cp-status]');if(text)text.textContent=t(key);
   if(stage)stage.dataset.camera=key==='ready'?'on':'off';
  }
@@ -85,13 +86,21 @@
   if(!navigator.mediaDevices?.getUserMedia||!window.isSecureContext){status('noHTTPS');return}
   status('loading');
   try{
-   const next=await navigator.mediaDevices.getUserMedia({
-    audio:false,video:{
-     facingMode:{ideal:facing},
-     width:{ideal:1280},height:{ideal:720},
-     frameRate:{ideal:24,max:30}
-    }
-   });
+   let next;
+   try{
+    next=await navigator.mediaDevices.getUserMedia({
+     audio:false,video:{
+      facingMode:{ideal:facing},
+      width:{ideal:1280},height:{ideal:720},
+      frameRate:{ideal:24,max:30}
+     }
+    });
+   }catch(firstError){
+    // Low-end or older browsers can reject advanced video constraints.
+    // Only retry automatically for constraint problems, not permission denials.
+    if(!['OverconstrainedError','TypeError'].includes(firstError?.name))throw firstError;
+    next=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing}},audio:false});
+   }
    if(ticket!==serial||!layer||layer.hidden){
     next.getTracks().forEach(track=>track.stop());return;
    }
