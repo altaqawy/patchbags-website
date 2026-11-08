@@ -181,6 +181,7 @@ function mount(){
  layer=document.createElement('div');
  layer.className='patch-cz-layer';
  layer.id='patchCustomizerLayer';
+ layer.dataset.patchTranslate='off';
  layer.hidden=true;
  layer.innerHTML='<div class="patch-cz-backdrop" data-cz-close></div>'+
   '<section class="patch-cz-dialog" role="dialog" aria-modal="true" aria-labelledby="patchCustomizerTitle" tabindex="-1">'+
@@ -229,7 +230,7 @@ function handleClick(e){
  if(target.hasAttribute('data-cz-save')){
   if(state.colorMode==='custom'&&!state.customColor.trim()){notify(T('errors'));layer.querySelector('[data-cz-input="customColor"]')?.focus();return}
   if(saved.length>=LIMIT){notify(T('max'));return}
-  const id='cz-'+(crypto?.randomUUID?.()||String(Date.now())+'-'+Math.floor(Math.random()*1e5));
+  const id='cz-'+(window.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.floor(Math.random()*1e5));
   const record=safeDesign({...state,id});
   if(!record)return;
   saved=[...saved,record];
