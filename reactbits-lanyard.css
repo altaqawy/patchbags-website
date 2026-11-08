@@ -24,21 +24,11 @@
   color:inherit;
   pointer-events:none;
 }
-/* The strap hangs under the existing navbar, with its anchor on the right.
-   It stays in the normal physics frame, not in a cropped side-column. */
+/* Keep the woven 3D strap, but remove the fake mint-colored cap at the
+   navbar/hero seam. The original Three.js rope remains fully visible. */
 .editorial-hero>.patch-reactbits-strip::before{
-  content:"";
-  position:absolute;
-  z-index:3;
-  top:0;
-  left:76%;
-  transform:translateX(-50%);
-  width:42px;
-  height:8px;
-  border-radius:0 0 8px 8px;
-  pointer-events:none;
-  background:linear-gradient(90deg,#748b73,#d5e0d0 48%,#6f8a6d);
-  box-shadow:0 3px 8px rgba(0,0,0,.18);
+  content:none;
+  display:none;
 }
 .patch-reactbits-strip .patch-reactbits-lanyard-mount,
 .patch-reactbits-strip .patch-reactbits-lanyard-mount .lanyard{
@@ -82,11 +72,6 @@
     height:100%;
     min-height:0;
     max-height:none;
-  }
-  .editorial-hero>.patch-reactbits-strip::before{
-    left:76%;
-    width:36px;
-    height:7px;
   }
 }
 
