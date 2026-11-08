@@ -1,4 +1,4 @@
-/* Patch Bags V4.1 — Design Your Bag.
+/* Patch Bags V4.2 — Design Your Bag Studio.
    Requests only. Existing product photography is NEVER AI-recolored, and selected
    materials/sizes/custom colors are not advertised as confirmed inventory.
    Client-only drafts are deliberately separate from chargeable SKU cart items. */
@@ -12,6 +12,9 @@ const phrase=(en,arabic)=>ar()?arabic:en;
 const cat=()=>typeof products!=='undefined'&&Array.isArray(products)?products.filter(p=>p.category==='bags'):[];
 const product=id=>cat().find(p=>p.id===id)||null;
 const currentProduct=()=>product(state.productId)||cat()[0]||null;
+const roots=()=>cat().filter(p=>typeof colorRootById==='undefined'||!colorRootById.has(p.id)||colorRootById.get(p.id)===p.id);
+const rootId=id=>(typeof colorRootById!=='undefined'&&colorRootById.get(id))||id;
+const photos=p=>Array.isArray(p?.images)&&p.images.length?p.images.slice(0,12):[p?.image].filter(Boolean);
 const families=()=>typeof productColorFamilies!=='undefined'?productColorFamilies:[];
 const choices=id=>{
  const family=families().find(f=>f.options.some(option=>option.id===id));
@@ -23,8 +26,10 @@ const safeDesign=d=>{
  const material=['as_shown','cotton_rope_request','fabric_request'].includes(d.material)?d.material:'as_shown';
  const size=['as_shown','compact_request','roomy_request'].includes(d.size)?d.size:'as_shown';
  const colorMode=d.colorMode==='custom'?'custom':'photo';
+ const letterStyle=['classic','modern','signature'].includes(d.letterStyle)?d.letterStyle:'classic';
+ const letterPosition=['center','lower'].includes(d.letterPosition)?d.letterPosition:'lower';
  return {id:clean(d.id,48)||'draft-'+Date.now(),productId:d.productId,
-  material,size,colorMode,customColor:clean(d.customColor,48),
+  material,size,colorMode,letterStyle,letterPosition,customColor:clean(d.customColor,48),
   monogram:clean(d.monogram,14),notes:clean(d.notes,240),
   qty:Math.max(1,Math.min(5,Math.round(Number(d.qty)||1)))};
 };
@@ -41,9 +46,10 @@ const write=()=>{
  document.dispatchEvent(new CustomEvent('patch:custom-designs-changed',{detail:{count:saved.reduce((n,d)=>n+d.qty,0)}}));
  return true;
 };
-const base=()=>({id:'',productId:cat()[0]?.id||'PB-01',material:'as_shown',size:'as_shown',colorMode:'photo',customColor:'',monogram:'',notes:'',qty:1});
+const base=()=>({id:'',productId:cat()[0]?.id||'PB-01',material:'as_shown',size:'as_shown',colorMode:'photo',customColor:'',monogram:'',letterStyle:'classic',letterPosition:'lower',notes:'',qty:1});
 let state=base();
 let layer=null,body=null,prevFocus=null,prevOverflow='';
+let photoIndex=0,editingId=null,touchX=null;
 const tr={
  kicker:['DESIGN YOUR BAG / PATCH STUDIO','صمّمي حقيبتك / استوديو باتش'],
  title:['Made yours.','قطعة على ذوقك.'],
@@ -88,11 +94,37 @@ const tr={
  open:['Design your bag','صمّمي شنطتك'],
  manage:['Manage saved designs','إدارة التصميمات المحفوظة'],
  noBag:['Choose a bag first','اختاري شنطة الأول'],
- previewOnly:['Preview uses the original photograph','المعاينة بتستخدم صورة المنتج الأصلية']
+ previewOnly:['Preview uses the original photograph','المعاينة بتستخدم صورة المنتج الأصلية'],
+ imageViews:['REAL PRODUCT PHOTOS','صور حقيقية للمنتج'],
+ prevImage:['Previous product photo','صورة المنتج السابقة'],
+ nextImage:['Next product photo','صورة المنتج التالية'],
+ viewImage:['View product photo','عرض صورة المنتج'],
+ edit:['Edit design','تعديل التصميم'],
+ update:['UPDATE SAVED DESIGN','احفظي التعديلات'],
+ cancelEdit:['Cancel editing','إلغاء التعديل'],
+ editingTitle:['EDITING YOUR DESIGN','بتعدّلي تصميمك المحفوظ'],
+ updateDone:['Your saved design has been updated.','تم حفظ تعديلات التصميم.'],
+ summary:['YOUR DESIGN DETAILS','تفاصيل تصميمك'],
+ summaryMaterial:['Material','الخامة'],
+ summarySize:['Size','الحجم'],
+ summaryColor:['Color','اللون'],
+ summaryName:['Lettering','الكتابة'],
+ summaryQty:['Quantity','العدد'],
+ notSet:['Not selected','بدون إضافة'],
+ letterStyle:['LETTERING STYLE · PREVIEW ONLY','شكل الخط · للتوضيح فقط'],
+ letterPosition:['LETTER POSITION · PREVIEW ONLY','مكان الحرف · للتوضيح فقط'],
+ letterStyles:[['classic','Classic serif','كلاسيكي'],['modern','Modern minimal','مودرن بسيط'],['signature','Soft signature','توقيع ناعم']],
+ letterPositions:[['lower','Lower area','أسفل المعاينة'],['center','Center area','منتصف المعاينة']],
+ explorePhotos:['Tap the thumbnails to see real angles of this piece.','اضغطي على الصور المصغرة وشوفي الشنطة من زوايا مختلفة.'],
+ chooseStyle:['CHOOSE A SHAPE','اختاري شكل الشنطة'],
+ previewSummary:['Your choices are updated as you design. Availability and final execution require confirmation.','اختياراتك بتتحدث مع التصميم. إمكانية التنفيذ والسعر النهائي بعد التأكيد.'],
+ reviewSaved:['Review saved requests','راجعي تصميماتك المحفوظة']
 };
 const T=k=>{const v=tr[k];return v? v[ar()?1:0]:k};
 const materialLabel=v=>tr.materialOptions.find(x=>x[0]===v)?.[ar()?2:1]||v;
 const sizeLabel=v=>tr.sizeOptions.find(x=>x[0]===v)?.[ar()?2:1]||v;
+const letterLabel=v=>tr.letterStyles.find(x=>x[0]===v)?.[ar()?2:1]||v;
+const positionLabel=v=>tr.letterPositions.find(x=>x[0]===v)?.[ar()?2:1]||v;
 const productLabel=p=>ar()?(p.nameAr||window.PATCH_LANGUAGE?.translate?.(p.name)||p.name):p.name;
 const referenceColor=(id)=>{const opt=families().flatMap(f=>f.options).find(x=>x.id===id);
  return opt?ar()?(window.PATCH_LANGUAGE?.translate?.(opt.color)||opt.color):opt.color:phrase('As photographed','مثل الصورة');};
@@ -103,7 +135,11 @@ const description=d=>{
   phrase('Photo color','اللون المصوّر')+': '+(d.colorMode==='custom'?T('colorLabel')+': '+d.customColor:referenceColor(d.productId)),
   phrase('Material','الخامة')+': '+materialLabel(d.material),
   phrase('Size','الحجم')+': '+sizeLabel(d.size),
-  ...(d.monogram?[phrase('Initials/name','الحرف أو الاسم')+': '+d.monogram]:[]),
+  ...(d.monogram?[
+    phrase('Initials/name','الحرف أو الاسم')+': '+d.monogram,
+    phrase('Requested letter style (illustrative)','نوع الخط المطلوب (توضيحي)')+': '+letterLabel(d.letterStyle),
+    phrase('Requested placement (illustrative)','مكان الكتابة المطلوب (توضيحي)')+': '+positionLabel(d.letterPosition)
+   ]:[]),
   ...(d.notes?[phrase('Notes','ملاحظات')+': '+d.notes]:[]),
   phrase('Quantity','الكمية')+': '+d.qty
  ].join('\n');
