@@ -57,3 +57,13 @@
  .patch-whatsapp-fab,.patch-whatsapp-fab::before,.patch-whatsapp-fab .patch-whatsapp-sparks i{animation:none;transition:none}
  .patch-whatsapp-fab .patch-whatsapp-sparks{display:none}
 }
+
+/* Clearer recognizable WhatsApp glyph, stronger contrast, and thumb-sized tap target. */
+.patch-whatsapp-fab{background:#168653;box-shadow:0 13px 30px rgba(20,46,38,.28),0 0 0 5px rgba(184,223,194,.12);}
+.patch-whatsapp-fab .patch-whatsapp-icon{width:34px;height:34px;display:grid;place-items:center}
+.patch-whatsapp-fab .patch-whatsapp-icon svg,
+.patch-whatsapp-fab .patch-whatsapp-icon svg path{width:100%;height:100%;stroke:none!important;fill:currentColor!important;}
+@media(max-width:680px){
+ .patch-whatsapp-fab{width:62px;height:62px;min-height:62px;background:#168653}
+ .patch-whatsapp-fab .patch-whatsapp-icon{width:35px;height:35px}
+}
