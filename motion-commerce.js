@@ -18,9 +18,17 @@ const escaped=(value)=>String(value).replace(/[&<>"']/g,chr=>({'&':'&amp;','<':'
 const byId=(id)=>document.getElementById(id);
 const config=window.PATCH_STORE_CONFIG||{};
 const authReady=()=>/^https:\/\/[^/]+/i.test(config.supabaseUrl||'') && String(config.supabasePublishableKey||'').length>12;
+const authClient=()=>authReady()&&window.supabase?.createClient?window.PATCH_SUPABASE_CLIENT||(window.PATCH_SUPABASE_CLIENT=window.supabase.createClient(config.supabaseUrl,config.supabasePublishableKey,{
+ auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+})):null;
 const paymentReady=()=>/^https:\/\/[^/]+/i.test(config.paymentApiEndpoint||'');
 let authSession=null;
 let cart={};
+let checkoutAfterAuth=false;
+let activeUserId=null;
+let suppressCloud=false;
+let cartCloudReady=false;
+let cloudWrite=Promise.resolve();
 let commerceOpen=false;
 let focusBefore=null;
 const cartStorageKey='patchbags_cart_v2';
@@ -39,17 +47,91 @@ function loadCart(){
 }
 function saveCart(){
  try{
-  localStorage.setItem(cartStorageKey,JSON.stringify(cart));
+  if(activeUserId)localStorage.setItem('patchbags_user_cart_v1_'+activeUserId,JSON.stringify(cart));
+  else localStorage.setItem(cartStorageKey,JSON.stringify(cart));
+  // Keep the old enquiry list compatible with the original storefront.
   localStorage.setItem('patchbags_enquiry',JSON.stringify(Object.keys(cart)));
  }catch(_){}
- // Preserve compatibility with the existing "Copy my enquiry" feature.
  if(typeof picks!=='undefined')picks=Object.keys(cart);
  renderCart();
 }
+function updateCloudItem(id,qty){
+ if(!authSession||!authClient()||!cartCloudReady||suppressCloud)return;
+ const uid=authSession.user.id,client=authClient();
+ cloudWrite=cloudWrite.then(async()=>{
+  if(qty<=0)await client.from('customer_cart_items').delete().eq('user_id',uid).eq('product_id',id);
+  else await client.from('customer_cart_items').upsert({user_id:uid,product_id:id,quantity:qty},{onConflict:'user_id,product_id'});
+ }).catch(()=>announce('Your bag is saved on this device; cloud sync needs setup.'));
+}
+async function activateCustomerSession(session){
+ if(!session?.user?.id)return;
+ const client=authClient(),uid=session.user.id;
+ const same=activeUserId===uid;
+ authSession=session;
+ if(same&&cartCloudReady){updateAccountCopy();return}
+ activeUserId=uid;
+ const guest={...cart};
+ try{
+  const local=JSON.parse(localStorage.getItem('patchbags_user_cart_v1_'+uid)||'{}');
+  if(local&&typeof local==='object')for(const [id,q] of Object.entries(local))
+    if(products.some(p=>p.id===id)&&Number.isInteger(q)&&q>0)
+     guest[id]=Math.max(guest[id]||0,Math.min(q,20));
+ }catch(_){}
+ suppressCloud=true;
+ cart=guest;
+ let cloudRows=[];
+ try{
+  const {data,error}=await client.from('customer_cart_items').select('product_id,quantity').eq('user_id',uid);
+  if(error)throw error;
+  cloudRows=Array.isArray(data)?data:[];
+  for(const row of cloudRows)if(products.some(p=>p.id===row.product_id)&&Number.isInteger(row.quantity))
+   cart[row.product_id]=Math.max(cart[row.product_id]||0,Math.min(20,row.quantity));
+  cartCloudReady=true;
+ }catch(_){cartCloudReady=false}
+ suppressCloud=false;saveCart();
+ // Merge saved guest picks into account cart, without ever trusting product prices.
+ if(cartCloudReady){
+  const remoteIds=new Set(cloudRows.map(x=>x.product_id));
+  for(const [id,qty] of Object.entries(cart))
+   if(!remoteIds.has(id)||cloudRows.find(x=>x.product_id===id)?.quantity!==qty)updateCloudItem(id,qty);
+  try{localStorage.removeItem(cartStorageKey)}catch(_){}
+ }
+ updateAccountCopy();
+ if(checkoutAfterAuth){checkoutAfterAuth=false;openCheckout();}
+}
+async function initializeCustomerAuth(){
+ const client=authClient();
+ if(!client)return;
+ try{
+  const {data:{session}}=await client.auth.getSession();
+  if(session?.user)await activateCustomerSession(session);
+  client.auth.onAuthStateChange((event,nextSession)=>{
+   // Avoid waiting on Supabase client network calls inside the auth callback.
+   setTimeout(()=>{
+    if(nextSession?.user)activateCustomerSession(nextSession).catch(()=>{});
+    else if(event==='SIGNED_OUT'){
+     activeUserId=null;authSession=null;cartCloudReady=false;cart={};
+     loadCart();renderCart();updateAccountCopy();
+    }
+   },0);
+  });
+ }catch(_){}
+}
+window.PATCH_AUTH={
+ isSignedIn:()=>Boolean(authSession?.user),
+ getUser:()=>authSession?.user||null,
+ getAccessToken:async()=>{
+  const c=authClient();if(!c)return null;
+  const {data}=await c.auth.getSession();
+  return data.session?.access_token||null;
+ },
+ startCheckout:()=>openCheckout()
+};
+
 function cartCount(){return Object.values(cart).reduce((n,q)=>n+q,0)}
 function cartList(){return Object.entries(cart).map(([id,q])=>({product:products.find(p=>p.id===id),quantity:q})).filter(x=>x.product)}
-function addToCart(id){if(!products.some(p=>p.id===id))return;cart[id]=Math.min((cart[id]||0)+1,20);saveCart();announce('Added to your bag');}
-function setQuantity(id,n){if(!products.some(p=>p.id===id))return;if(n<=0)delete cart[id];else cart[id]=Math.min(n,20);saveCart();}
+function addToCart(id){if(!products.some(p=>p.id===id))return;cart[id]=Math.min((cart[id]||0)+1,20);saveCart();updateCloudItem(id,cart[id]);announce('Added to your bag');}
+function setQuantity(id,n){if(!products.some(p=>p.id===id))return;if(n<=0)delete cart[id];else cart[id]=Math.min(n,20);saveCart();updateCloudItem(id,cart[id]||0);}
 function announce(msg){
  const target=byId('toast');
  if(!target)return;
@@ -119,7 +201,7 @@ function authHeader(mode){
  const isSignIn=mode==='signin';
  return '<p class="patch-kicker">WELCOME TO THE STUDIO</p>'+
  '<h2 id="patchCommerceTitle">'+(isSignIn?'Welcome back.':'A little more yours.')+'</h2>'+
- '<p class="patch-commerce-intro">Your own corner of the PatCh.BaGs studio — designed for a thoughtful shopping journey.</p>'+
+ '<p class="patch-commerce-intro">'+(checkoutAfterAuth?'Sign in or create an account to continue. Your selected colors and quantities stay in your bag.':'Your own corner of the PatCh.BaGs studio — designed for a thoughtful shopping journey.')+'</p>'+
  '<div class="patch-auth-tabs"><button type="button" data-patch-auth="signin" class="'+(isSignIn?'active':'')+'" aria-pressed="'+isSignIn+'">Sign in</button>'+
  '<button type="button" data-patch-auth="signup" class="'+(!isSignIn?'active':'')+'" aria-pressed="'+(!isSignIn)+'">Create account</button></div>';
 }
@@ -131,11 +213,11 @@ function showAccount(mode='signin'){
    '<button type="button" class="patch-form-submit" data-patch-signout>Sign out</button>');
   return;
  }
- const canAuth=authReady();
+ const canAuth=Boolean(authClient());
  const disabled=canAuth?'':' disabled';
  const fieldName=mode==='signup'?'<label>Your name<input name="name" type="text" autocomplete="name" maxlength="80" required'+disabled+'></label>':'';
  const notice=!canAuth?'<div class="patch-auth-notice">'+mini('shield')+
-  ' Secure account access is being prepared. Registration and login will be enabled when the store’s authentication service is connected. Please don’t enter a password yet.</div>':'';
+  ' Secure sign-in is being configured. Your chosen items, colors and quantities remain saved on this device. Do not enter a password until the service is activated.</div>':'';
  openModal(authHeader(mode)+notice+'<form id="patchAuthForm" class="patch-commerce-form" data-mode="'+mode+'">'+fieldName+
   '<label>Email address<input type="email" autocomplete="email" name="email" required'+disabled+'></label>'+
   '<label>Password<input type="password" autocomplete="'+(mode==='signup'?'new-password':'current-password')+'" minlength="8" name="password" required'+disabled+'></label>'+
@@ -145,33 +227,32 @@ function showAccount(mode='signin'){
 }
 async function submitAuth(form){
  const mode=form.dataset.mode;
- if(!authReady()){byId('patchAuthMessage').textContent='Secure authentication is not yet connected.';return;}
- const data=new FormData(form),email=String(data.get('email')||'').trim(),
- password=String(data.get('password')||''),name=String(data.get('name')||'').trim();
- const msg=byId('patchAuthMessage'),submit=$('button[type=submit]',form);
- msg.textContent='';submit.disabled=true;submit.textContent='Connecting securely…';
+ const client=authClient(),message=byId('patchAuthMessage');
+ if(!client){message.textContent='Secure authentication is not yet connected. Your bag is still saved here.';return;}
+ const values=new FormData(form),email=String(values.get('email')||'').trim(),password=String(values.get('password')||''),name=String(values.get('name')||'').trim();
+ const submit=$('button[type=submit]',form);message.textContent='';submit.disabled=true;submit.textContent='Connecting securely…';
  try{
-  const url=String(config.supabaseUrl).replace(/\/$/,'')+
-    (mode==='signup'?'/auth/v1/signup':'/auth/v1/token?grant_type=password');
-  const body=mode==='signup'?{email,password,data:{display_name:name}}:{email,password};
-  const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','apikey':config.supabasePublishableKey},body:JSON.stringify(body)});
-  const payload=await response.json();
-  if(!response.ok)throw Error(payload.msg||payload.error_description||payload.message||'Unable to sign in right now');
-  if(payload.access_token&&payload.user){
-    authSession={access_token:payload.access_token,user:payload.user};
-    closeModal();announce('You are signed in');updateAccountCopy();
+  const response=mode==='signup'
+   ?await client.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:location.origin+location.pathname}})
+   :await client.auth.signInWithPassword({email,password});
+  if(response.error)throw response.error;
+  if(response.data.session?.user){
+   await activateCustomerSession(response.data.session);
+   closeModal();announce('Signed in — your saved bag is ready');
+   if(checkoutAfterAuth){checkoutAfterAuth=false;openCheckout();}
   }else if(mode==='signup'){
-    msg.style.color='#3d633e';
-    msg.textContent='Please check your email for a confirmation link to finish creating your account.';
-  }else msg.textContent='Unable to complete sign-in right now.';
- }catch(e){msg.textContent=e.message||'Connection unavailable.'}
+   message.style.color='#3d633e';
+   message.textContent='Check your email to verify your account. Your bag stays saved on this device.';
+  }else message.textContent='Unable to finish sign-in right now.';
+ }catch(e){message.textContent=e.message||'Secure sign-in unavailable'}
  finally{submit.disabled=false;submit.textContent=mode==='signup'?'Create my account':'Sign in securely'}
 }
 async function signOut(){
- const session=authSession;authSession=null;updateAccountCopy();closeModal();announce('Signed out');
- if(session?.access_token&&authReady()){
-  try{await fetch(String(config.supabaseUrl).replace(/\/$/,'')+'/auth/v1/logout',{method:'POST',headers:{'apikey':config.supabasePublishableKey,Authorization:'Bearer '+session.access_token}})}catch(_){}
- }
+ const client=authClient();
+ checkoutAfterAuth=false;
+ if(client)try{await client.auth.signOut()}catch(_){}
+ authSession=null;activeUserId=null;cartCloudReady=false;cart={};
+ loadCart();renderCart();updateAccountCopy();closeModal();announce('Signed out');
 }
 function updateAccountCopy(){
  const el=byId('patchAccountStatus');if(el)el.textContent=authSession?'You are signed in. Your cart is saved on this device.':'Explore our handmade collection. Secure accounts are being prepared.';
@@ -201,6 +282,12 @@ function checkoutBody(){
 }
 function openCheckout(){
  if(!cartCount()){announce('Add a handmade piece to your bag first');return;}
+ if(!authSession?.user){
+  checkoutAfterAuth=true;
+  saveCart();
+  showAccount('signin');
+  return;
+ }
  openModal(checkoutBody());
 }
 async function copyText(s){
@@ -333,6 +420,7 @@ function setupCommerce(){
  if(!document.querySelector('script[src$="three-d-motion.js"]'))setupReviews();
  enhanceMotion();
  updateAccountCopy();
+ initializeCustomerAuth().catch(()=>{});
  document.addEventListener('click',e=>{
   const target=e.target instanceof Element?e.target:null;if(!target)return;
   /* The old storefront's add handlers use one-item enquiry lists.
