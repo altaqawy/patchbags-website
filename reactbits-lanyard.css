@@ -1,0 +1,83 @@
+/* Official React Bits Lanyard mount — full-bleed, immediately underneath the existing navbar.
+   No border, container card, replacement header or recreated badge physics.
+   React Bits original free component: https://reactbits.dev/components/lanyard */
+.patch-reactbits-strip{
+  position:relative;isolation:isolate;width:100%;height:clamp(460px,65svh,685px);
+  min-height:460px;overflow:hidden;margin:0;padding:0;border:0;
+  background:radial-gradient(ellipse at 51% 40%,#ffffff 0%,#f8f7f2 56%,#f1f1e9 100%);
+  color:#344737;
+}
+.patch-reactbits-strip:before{
+  content:"";position:absolute;z-index:5;top:0;left:50%;transform:translateX(-50%);
+  width:56px;height:7px;border-radius:0 0 9px 9px;
+  background:linear-gradient(90deg,#9ca99b,#e5e9df 50%,#98a696);pointer-events:none;
+  box-shadow:0 4px 6px #273d2920;
+}
+.patch-reactbits-lanyard-mount,.patch-reactbits-lanyard-mount .lanyard{
+  position:absolute;inset:0;width:100%;height:100%;overflow:hidden;
+}
+.patch-reactbits-lanyard-mount{z-index:2;touch-action:pan-y;}
+.patch-reactbits-lanyard-mount .lanyard-canvas{width:100%;height:100%;display:block;touch-action:pan-y;}
+.patch-reactbits-loading{
+  position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;
+  z-index:1;opacity:1;transition:opacity .45s ease;
+}
+.patch-reactbits-loading img{width:94px;height:94px;object-fit:contain;opacity:.7}
+.patch-reactbits-strip[data-ready="true"] .patch-reactbits-loading{opacity:0;visibility:hidden}
+.patch-reactbits-info{
+  position:absolute;z-index:4;left:clamp(18px,6.6vw,120px);top:50%;transform:translateY(-45%);
+  max-width:360px;pointer-events:none;
+}
+.patch-reactbits-eyebrow{
+  margin:0 0 18px;color:#899789;font:700 10px/1.6 var(--sans,system-ui);
+  letter-spacing:.2em;text-transform:uppercase;
+}
+.patch-reactbits-info h2{
+  margin:0;color:#354938;font:500 clamp(43px,4.2vw,65px)/1.1 var(--serif,Georgia);
+  letter-spacing:-.075em;
+}
+.patch-reactbits-info h2 em{color:#82937e;font-weight:400}
+.patch-reactbits-info p:last-child{
+  color:#7a8878;font:400 13px/1.8 var(--sans,system-ui);max-width:280px;margin:19px 0 0;
+}
+.patch-reactbits-bottom{
+  position:absolute;z-index:5;left:clamp(18px,6.6vw,120px);right:clamp(18px,6.6vw,120px);
+  bottom:clamp(20px,4vw,45px);display:flex;align-items:center;justify-content:space-between;gap:20px;
+  pointer-events:none;
+}
+.patch-reactbits-caption{
+  font:700 9px/1.5 var(--sans,system-ui);letter-spacing:.16em;color:#8c998c;
+  text-transform:uppercase;pointer-events:none;
+}
+.patch-reactbits-explore{
+  display:inline-flex;align-items:center;gap:15px;border-bottom:1px solid #8d9d8b;
+  color:#374b39;font:700 11px/1.6 var(--sans,system-ui);text-decoration:none;
+  padding-bottom:6px;pointer-events:auto;
+  transition:gap .25s ease,border-color .25s;
+}
+.patch-reactbits-explore:hover{gap:22px;color:#293d2a;border-color:#3e6145}
+.patch-reactbits-unavailable{
+  display:none;position:absolute;z-index:3;bottom:85px;left:50%;transform:translateX(-50%);
+  max-width:360px;width:calc(100% - 40px);text-align:center;color:#7c877a;
+  font:400 12px/1.6 var(--sans,system-ui);
+}
+.patch-reactbits-strip[data-error="true"] .patch-reactbits-unavailable{display:block}
+@media(max-width:900px){
+  .patch-reactbits-strip{height:540px}
+  .patch-reactbits-info{top:auto;bottom:85px;transform:none;max-width:240px}
+  .patch-reactbits-info h2{font-size:41px}
+  .patch-reactbits-info p:last-child{display:none}
+}
+@media(max-width:680px){
+  .patch-reactbits-strip{height:clamp(440px,60svh,550px);min-height:440px}
+  .patch-reactbits-info{left:18px;top:auto;bottom:68px;max-width:185px;transform:none}
+  .patch-reactbits-eyebrow{font-size:8px;letter-spacing:.1em;margin-bottom:7px}
+  .patch-reactbits-info h2{font-size:33px;line-height:1.06}
+  .patch-reactbits-bottom{left:18px;right:18px;bottom:22px}
+  .patch-reactbits-caption{font-size:8px;letter-spacing:.07em}
+  .patch-reactbits-explore{font-size:9px;gap:8px}
+  .patch-reactbits-strip:before{width:46px}
+}
+@media(prefers-reduced-motion:reduce){
+  .patch-reactbits-loading,.patch-reactbits-explore{transition:none}
+}
