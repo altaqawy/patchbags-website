@@ -1,83 +1,122 @@
-/* Official React Bits Lanyard mount — full-bleed, immediately underneath the existing navbar.
-   No border, container card, replacement header or recreated badge physics.
-   React Bits original free component: https://reactbits.dev/components/lanyard */
-.patch-reactbits-strip{
-  position:relative;isolation:isolate;width:100%;height:clamp(460px,65svh,685px);
-  min-height:460px;overflow:hidden;margin:0;padding:0;border:0;
-  background:radial-gradient(ellipse at 51% 40%,#ffffff 0%,#f8f7f2 56%,#f1f1e9 100%);
-  color:#344737;
-}
-.patch-reactbits-strip:before{
-  content:"";position:absolute;z-index:5;top:0;left:50%;transform:translateX(-50%);
-  width:56px;height:7px;border-radius:0 0 9px 9px;
-  background:linear-gradient(90deg,#9ca99b,#e5e9df 50%,#98a696);pointer-events:none;
-  box-shadow:0 4px 6px #273d2920;
-}
-.patch-reactbits-lanyard-mount,.patch-reactbits-lanyard-mount .lanyard{
-  position:absolute;inset:0;width:100%;height:100%;overflow:hidden;
-}
-.patch-reactbits-lanyard-mount{z-index:2;touch-action:pan-y;}
-.patch-reactbits-lanyard-mount .lanyard-canvas{width:100%;height:100%;display:block;touch-action:pan-y;}
-.patch-reactbits-loading{
-  position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;
-  z-index:1;opacity:1;transition:opacity .45s ease;
-}
-.patch-reactbits-loading img{width:94px;height:94px;object-fit:contain;opacity:.7}
-.patch-reactbits-strip[data-ready="true"] .patch-reactbits-loading{opacity:0;visibility:hidden}
-.patch-reactbits-info{
-  position:absolute;z-index:4;left:clamp(18px,6.6vw,120px);top:50%;transform:translateY(-45%);
-  max-width:360px;pointer-events:none;
-}
-.patch-reactbits-eyebrow{
-  margin:0 0 18px;color:#899789;font:700 10px/1.6 var(--sans,system-ui);
-  letter-spacing:.2em;text-transform:uppercase;
-}
-.patch-reactbits-info h2{
-  margin:0;color:#354938;font:500 clamp(43px,4.2vw,65px)/1.1 var(--serif,Georgia);
-  letter-spacing:-.075em;
-}
-.patch-reactbits-info h2 em{color:#82937e;font-weight:400}
-.patch-reactbits-info p:last-child{
-  color:#7a8878;font:400 13px/1.8 var(--sans,system-ui);max-width:280px;margin:19px 0 0;
-}
-.patch-reactbits-bottom{
-  position:absolute;z-index:5;left:clamp(18px,6.6vw,120px);right:clamp(18px,6.6vw,120px);
-  bottom:clamp(20px,4vw,45px);display:flex;align-items:center;justify-content:space-between;gap:20px;
+/* React Bits original WebGL Lanyard — overlay on the existing editorial Hero.
+   Header remains above the card; approved Hero photo and layout remain unchanged.
+   No standalone section, background panel, caption or extra vertical height. */
+.editorial-hero>.patch-reactbits-strip{
+  position:absolute;
+  z-index:5;
+  top:0;
+  right:clamp(4px,2.2vw,40px);
+  left:auto;
+  bottom:auto;
+  width:clamp(290px,42vw,600px);
+  max-width:58%;
+  height:100%;
+  min-height:0;
+  margin:0;
+  padding:0;
+  border:0;
+  outline:0;
+  border-radius:0;
+  box-shadow:none;
+  overflow:hidden;
+  isolation:isolate;
+  background:transparent;
+  color:inherit;
   pointer-events:none;
 }
-.patch-reactbits-caption{
-  font:700 9px/1.5 var(--sans,system-ui);letter-spacing:.16em;color:#8c998c;
-  text-transform:uppercase;pointer-events:none;
+/* The physical strap appears to emerge from the navbar's lower edge. */
+.editorial-hero>.patch-reactbits-strip::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:42px;height:8px;
+  border-radius:0 0 8px 8px;
+  z-index:3;
+  pointer-events:none;
+  background:linear-gradient(90deg,#748b73,#d5e0d0 48%,#6f8a6d);
+  box-shadow:0 3px 8px rgba(0,0,0,.18);
 }
-.patch-reactbits-explore{
-  display:inline-flex;align-items:center;gap:15px;border-bottom:1px solid #8d9d8b;
-  color:#374b39;font:700 11px/1.6 var(--sans,system-ui);text-decoration:none;
-  padding-bottom:6px;pointer-events:auto;
-  transition:gap .25s ease,border-color .25s;
+.patch-reactbits-strip .patch-reactbits-lanyard-mount,
+.patch-reactbits-strip .patch-reactbits-lanyard-mount .lanyard{
+  position:absolute;inset:0;width:100%;height:100%;
+  overflow:hidden;background:transparent;
 }
-.patch-reactbits-explore:hover{gap:22px;color:#293d2a;border-color:#3e6145}
-.patch-reactbits-unavailable{
-  display:none;position:absolute;z-index:3;bottom:85px;left:50%;transform:translateX(-50%);
-  max-width:360px;width:calc(100% - 40px);text-align:center;color:#7c877a;
-  font:400 12px/1.6 var(--sans,system-ui);
+.patch-reactbits-strip .patch-reactbits-lanyard-mount{
+  z-index:2;
+  pointer-events:auto;
+  touch-action:pan-y;
+}
+.patch-reactbits-strip .lanyard-canvas{
+  display:block;width:100%;height:100%;
+  background:transparent;
+  touch-action:pan-y;
+}
+.patch-reactbits-strip .patch-reactbits-loading{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  z-index:1;
+  pointer-events:none;
+  opacity:.55;
+  transition:opacity .4s ease;
+}
+.patch-reactbits-strip .patch-reactbits-loading img{
+  width:62px;height:62px;object-fit:contain;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.2));
+}
+.patch-reactbits-strip[data-ready="true"] .patch-reactbits-loading{
+  opacity:0;visibility:hidden;
+}
+.patch-reactbits-strip .patch-reactbits-unavailable{
+  display:none;
+  position:absolute;z-index:3;right:8%;bottom:15%;
+  max-width:220px;
+  font:600 10px/1.5 var(--sans,system-ui);
+  letter-spacing:.05em;
+  color:#fff;
+  text-shadow:0 2px 9px #0009;
+  pointer-events:none;
 }
 .patch-reactbits-strip[data-error="true"] .patch-reactbits-unavailable{display:block}
-@media(max-width:900px){
-  .patch-reactbits-strip{height:540px}
-  .patch-reactbits-info{top:auto;bottom:85px;transform:none;max-width:240px}
-  .patch-reactbits-info h2{font-size:41px}
-  .patch-reactbits-info p:last-child{display:none}
+
+/* Keep the text/CTA column clear on tablets: lanyard stays to the right. */
+@media(min-width:681px) and (max-width:1100px){
+  .editorial-hero>.patch-reactbits-strip{
+    right:0;
+    width:44%;
+    max-width:44%;
+    height:96%;
+  }
 }
 @media(max-width:680px){
-  .patch-reactbits-strip{height:clamp(440px,60svh,550px);min-height:440px}
-  .patch-reactbits-info{left:18px;top:auto;bottom:68px;max-width:185px;transform:none}
-  .patch-reactbits-eyebrow{font-size:8px;letter-spacing:.1em;margin-bottom:7px}
-  .patch-reactbits-info h2{font-size:33px;line-height:1.06}
-  .patch-reactbits-bottom{left:18px;right:18px;bottom:22px}
-  .patch-reactbits-caption{font-size:8px;letter-spacing:.07em}
-  .patch-reactbits-explore{font-size:9px;gap:8px}
-  .patch-reactbits-strip:before{width:46px}
+  .editorial-hero>.patch-reactbits-strip{
+    top:0;
+    right:0;
+    left:auto;
+    width:59%;
+    max-width:59%;
+    height:67%;
+    min-height:345px;
+    max-height:460px;
+    pointer-events:none;
+  }
+  .editorial-hero>.patch-reactbits-strip::before{
+    width:36px;height:7px;
+  }
+  .patch-reactbits-strip .patch-reactbits-lanyard-mount{
+    pointer-events:auto;
+  }
+  .patch-reactbits-strip .patch-reactbits-loading img{
+    width:45px;height:45px;
+  }
+}
+/* At very narrow widths, ensure the original hero CTA at the bottom remains reachable. */
+@media(max-width:390px){
+  .editorial-hero>.patch-reactbits-strip{
+    width:57%;max-width:57%;height:62%;min-height:320px;
+  }
 }
 @media(prefers-reduced-motion:reduce){
-  .patch-reactbits-loading,.patch-reactbits-explore{transition:none}
+  .patch-reactbits-strip .patch-reactbits-loading{transition:none}
 }
