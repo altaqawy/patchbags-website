@@ -16,8 +16,37 @@
   {id:"PB-10",name:"The Initial Zip Pouch",category:"personalized",image:"assets/new/monogram-black-h.webp",color:"Personalized"},
   {id:"PB-11",name:"The Chapter Book Sleeve",category:"accessories",image:"assets/new/book-sleeve-grey.webp",color:"Gray"},
   {id:"PB-12",name:"The Gingham Book Sleeve",category:"accessories",image:"assets/book-sleeve-gingham.webp",color:"Gingham"}
- ].map(item=>({...item,price:null,stock:null,active:false}));
+ ].map(item=>({...item,description:"",nameEnglish:item.name,comparePrice:null,badge:"Handmade",media:[],featured:false,price:null,stock:0,active:false}));
  let items=catalog;
+ const collectionNames={
+  bags:{ar:"الشنط",en:"Handmade bags"},accessories:{ar:"الإكسسوارات",en:"Accessories"},personalized:{ar:"القطع المخصصة",en:"Personalized"}
+ };
+ const previewKey="patchbags_owner_preview_only_v2";
+ // Text metadata only; browser file previews are NEVER uploaded or persisted.
+ try{
+  const saved=JSON.parse(localStorage.getItem(previewKey)||"null");
+  if(saved&&typeof saved==="object"){
+   if(Array.isArray(saved.categories))for(const c of saved.categories)
+    if(c&&/^[a-z0-9-]{2,50}$/.test(c.slug)&&String(c.ar||"").length<71&&String(c.en||"").length<71)
+      collectionNames[c.slug]={ar:String(c.ar),en:String(c.en)};
+   if(Array.isArray(saved.products))for(const p of saved.products){
+    if(!p||! /^(PB-[0-9]{2,4}|DRAFT-[0-9]{2,4})$/.test(p.id)||!p.name)continue;
+    const clean={...p,media:Array.isArray(p.media)?p.media.filter(m=>m&&String(m.url||"").startsWith("https://")).slice(0,12):[]};
+    if(typeof clean.image!=="string"||!(clean.image.startsWith("https://")||clean.image.startsWith("assets/")))
+      clean.image="assets/new/striped-tote-studio-front.webp";
+    const idx=items.findIndex(x=>x.id===p.id);
+    if(idx>=0)items[idx]={...items[idx],...clean};
+    else if(items.length<250)items.push(clean);
+   }
+  }
+ }catch(_){}
+ function persistDemo(){
+  try{
+   const compact=items.map(p=>({...p,media:(p.media||[]).filter(m=>String(m.url||"").startsWith("https://"))}));
+   localStorage.setItem(previewKey,JSON.stringify({products:compact,categories:Object.entries(collectionNames).map(([slug,v])=>({slug,...v}))}));
+  }catch(_){}
+ }
+
  let editingId=null;
  let toastTimer=null;
  let lastFocus=null;
@@ -25,8 +54,10 @@
  const $$=(sel,base=document)=>[...base.querySelectorAll(sel)];
  const byId=id=>document.getElementById(id);
  const escape=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
- const categories={bags:"شنط",accessories:"إكسسوارات",personalized:"منتجات مخصصة"};
- const panels={overview:"نظرة عامة",products:"المنتجات",orders:"الطلبات",customers:"العملاء",payments:"المدفوعات",insights:"الإحصائيات",settings:"إعدادات المتجر"};
+ const categories=Object.fromEntries(Object.entries(collectionNames).map(([id,v])=>[id,v.ar]));
+ const panels={overview:"نظرة عامة",products:"المنتجات",categories:"التصنيفات",orders:"الطلبات",customers:"العملاء",payments:"المدفوعات",insights:"الإحصائيات",settings:"إعدادات المتجر"};
+ const panelsEnglish={overview:"Overview",products:"Products",categories:"Collections",orders:"Orders",customers:"Customers",payments:"Payments",insights:"Analytics",settings:"Settings"};
+ let ownerLocale="ar";
  const formatMoney=value=>value===null||!Number.isFinite(value)?"لم يتحدد":Number(value).toLocaleString("ar-EG",{maximumFractionDigits:2})+" ج.م";
  function notice(message){
   const node=byId("ownerToast");node.textContent=message;
@@ -54,6 +85,7 @@
   byId("currentPageName").textContent=panels[name];
   sidebar(false);
   if(name==="products")renderProducts();
+  if(name==="categories")renderCategories();
   if(name==="overview")renderOverview();
   if(location.hash!=="#"+name)history.replaceState(null,"","#"+name);
   window.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
@@ -68,6 +100,30 @@
    '<strong>'+escape(p.name)+'</strong>'+
    '<button type="button" data-edit="'+escape(p.id)+'">تفاصيل القطعة ↗</button></div></article>'
   ).join("");
+ }
+ function renderCategories(){
+  const rows=Object.entries(collectionNames),list=byId("categoryList");
+  if(!list)return;
+  list.innerHTML=rows.map(([slug,c])=>
+   '<div class="category-item"><span class="category-icon">✳</span>'+
+   '<div><strong>'+escape(c.ar)+'</strong><small>'+escape(c.en)+' / '+escape(slug)+'</small></div>'+
+   '<span class="category-products-count">'+items.filter(p=>p.category===slug).length+' قطعة</span></div>'
+  ).join("");
+  const opts=byId("productCategory"),current=opts.value;
+  opts.innerHTML='<option value="all">كل الأقسام</option>'+rows.map(([slug,c])=>'<option value="'+escape(slug)+'">'+escape(c.ar)+'</option>').join("");
+  opts.value=collectionNames[current]?current:"all";
+ }
+ function addCategory(e){
+  e.preventDefault();
+  const ar=byId("categoryArabic").value.trim(),en=byId("categoryEnglish").value.trim();
+  const explicit=byId("categorySlug").value.trim().toLowerCase();
+  const slug=(explicit||en.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")).slice(0,50);
+  if(ar.length<2||en.length<2||!/^[a-z0-9][a-z0-9-]{1,49}$/.test(slug)||collectionNames[slug]){
+   notice("راجعي اسم التصنيف أو اختاري رمزًا مختلفًا");return;
+  }
+  collectionNames[slug]={ar,en};categories[slug]=ar;
+  renderCategories();persistDemo();e.target.reset();
+  notice("تمت إضافة التصنيف للمعاينة المحلية فقط");
  }
  function renderProducts(){
   const q=byId("productSearch").value.toLocaleLowerCase("en").trim();
