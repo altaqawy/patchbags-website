@@ -27,7 +27,8 @@ let activeImageIndex=0;
 // Photographed variants share one storefront card but retain distinct original SKUs.
 // These color options map only to real images supplied by the maker.
 const productColorFamilies=[
- {root:'PB-02',options:[
+ {root:'PB-01',options:[
+  {id:'PB-01',color:'Striped',hex:'#afa99e'},
   {id:'PB-02',color:'Ivory',hex:'#eee9dc'},
   {id:'PB-03',color:'Blush',hex:'#e9c6cd'}
  ]},
@@ -47,9 +48,11 @@ const selectedColorVariant={};
 try{
  const previous=JSON.parse(localStorage.getItem('patchbags_color_choices_v1')||'{}');
  if(previous&&typeof previous==='object'&&!Array.isArray(previous))
-  for(const family of productColorFamilies)
-   if(family.options.some(option=>option.id===previous[family.root]))
-    selectedColorVariant[family.root]=previous[family.root];
+  for(const family of productColorFamilies){
+   const saved=previous[family.root]||(family.root==='PB-01'?previous['PB-02']:null);
+   if(family.options.some(option=>option.id===saved))
+    selectedColorVariant[family.root]=saved;
+  }
 }catch(_){}
 function persistColorChoices(){try{localStorage.setItem('patchbags_color_choices_v1',JSON.stringify(selectedColorVariant))}catch(_){}}
 function collectionProducts(){return products.filter(p=>!colorRootById.has(p.id)||colorRootById.get(p.id)===p.id)}
