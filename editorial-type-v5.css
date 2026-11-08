@@ -554,3 +554,82 @@ html[lang="ar"] .patch-footer-action{white-space:normal}
 @media(prefers-reduced-motion:reduce){
   html.patch-photo-ready[lang="ar"] .editorial-hero-image{animation:none}
 }
+
+
+/* The dynamically mounted coverflow is bilingual too.
+   Keep the photograph order natural in both languages; never flip images. */
+.patch-cms3d{
+  padding-block:clamp(52px,5.4vw,78px) clamp(62px,6.3vw,93px);
+}
+.patch-cms3d .patch-cms-eyebrow{
+  font-family:var(--pb-ui-en);
+  margin:0 auto 12px;
+  letter-spacing:.14em;
+}
+.patch-cms3d h2{
+  max-width:min(94%,1050px);
+  margin:0 auto clamp(25px,3.5vw,44px);
+  overflow-wrap:break-word;
+  text-wrap:balance;
+}
+html[lang="en"] .patch-cms3d h2{
+  font-family:var(--pb-display-en);
+  font-size:clamp(54px,6vw,94px);
+  font-weight:500;
+  line-height:1;
+  letter-spacing:-.05em;
+}
+html[lang="en"] .patch-cms3d h2 em{
+  font-family:var(--pb-display-en);
+  font-style:italic;
+  font-weight:500;
+}
+html[lang="ar"] .patch-cms3d h2{
+  font-family:var(--pb-display-ar);
+  font-size:clamp(37px,4.3vw,71px);
+  font-weight:600;
+  line-height:1.55;
+  letter-spacing:0;
+  direction:rtl;
+  text-align:center;
+}
+html[lang="ar"] .patch-cms3d h2 em{
+  font-family:var(--pb-script-ar);
+  font-style:normal;
+  font-weight:600;
+  color:#899b85;
+}
+html[lang="ar"] .patch-cms3d .patch-cms-eyebrow{
+  font-family:var(--pb-ui-ar);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0;
+}
+.patch-cms3d-card figcaption{
+  font-family:var(--pb-ui-en);
+  font-size:clamp(10px,.95vw,12px);
+  font-weight:650;
+  letter-spacing:.015em;
+  text-shadow:0 1px 8px rgba(0,0,0,.45);
+  background:linear-gradient(to top,rgba(17,25,18,.83),rgba(17,25,18,.12) 85%,transparent);
+}
+html[lang="ar"] .patch-cms3d-card figcaption{
+  font-family:var(--pb-ui-ar);
+  font-size:clamp(11px,1vw,13px);
+  font-weight:600;
+  line-height:1.7;
+  letter-spacing:0;
+  text-align:right;
+  direction:rtl;
+}
+html[lang="ar"] .patch-cms3d-stage{direction:rtl}
+html[lang="ar"] .patch-cms3d-progress{direction:rtl}
+html[lang="ar"] .patch-cms3d-progress::after{transform-origin:right}
+@media(max-width:680px){
+ .patch-cms3d{padding-block:45px 62px}
+ .patch-cms3d h2{margin-bottom:25px}
+ html[lang="en"] .patch-cms3d h2{font-size:clamp(42px,11vw,67px)}
+ html[lang="ar"] .patch-cms3d h2{font-size:clamp(30px,8vw,47px);line-height:1.5}
+ html[lang="ar"] .patch-cms3d .patch-cms-eyebrow{font-size:10px}
+ .patch-cms3d-card figcaption{padding:36px 11px 13px}
+}
