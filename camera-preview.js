@@ -197,7 +197,7 @@
   build();if(!layer.hidden)close();
   prevFocus=document.activeElement;scrollLock=document.body.style.overflow;
   current={productId:params.productId||'',name:params.name||''};pos={x:0,y:0,scale:1};facing='environment';
-  stage.dataset.camera='off';layer.hidden=false;document.body.style.overflow='hidden';
+  statusKey='loading';stage.dataset.camera='off';layer.hidden=false;document.body.style.overflow='hidden';
   viewer.src=url;viewer.setAttribute('poster',params.poster||'');
   translate();applyPosition();q('.patch-cp-dialog').focus({preventScroll:true});
   startCamera(); // Requests permission only after a user clicks Camera Preview.
