@@ -1,6 +1,6 @@
 # PatCh.BaGs — independent secure commerce backend (Next.js App Router)
 
-**2026 CMS/customer update:** See [OWNER_CMS_AND_CUSTOMER_SETUP.md](../OWNER_CMS_AND_CUSTOMER_SETUP.md) for owner-managed categories, images/videos/GLB uploads, Cairo dashboard, before/after pricing, sales chart, Supabase Auth and mandatory login before checkout. Apply `db/003_product_cms.sql` and then `db/005_bilingual_product_copy.sql` to the commerce PostgreSQL database; apply `db/004_supabase_customer_cart.sql` separately in the Supabase SQL editor before activating these features. The code is not a live deployment.
+**2026 CMS/customer update:** See [OWNER_CMS_AND_CUSTOMER_SETUP.md](../OWNER_CMS_AND_CUSTOMER_SETUP.md) for owner-managed bilingual product names/descriptions/badges and categories, images/videos/GLB uploads, Cairo dashboard, before/after pricing, sales chart, Supabase Auth and mandatory login before checkout. Apply `db/003_product_cms.sql` and then `db/005_bilingual_product_copy.sql` to the commerce PostgreSQL database; apply `db/004_supabase_customer_cart.sql` separately in the Supabase SQL editor before activating these features. The code is not a live deployment.
 
 
 **Architecture verified:** the existing public GitHub Pages storefront is STATIC HTML/CSS/JS, not Next.js. To preserve every existing design and header choice, this project adds a separate Next.js App Router service in `commerce/`, and a small opt-in static `shop-checkout-bridge.js` in the repository root.
