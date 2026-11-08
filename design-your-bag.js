@@ -139,7 +139,8 @@ const tr={
  modelHelp:['Drag to rotate the 3D reference. AR and scale depend on your device; final details are confirmed by the studio.','لفّي المجسم باللمس أو الماوس. الواقع المعزز والحجم تقريبي، والتفاصيل النهائية بعد تأكيد الاستوديو.'],
  viewAR:['VIEW IN YOUR SPACE','شوفيها في مكانك'],
  arFailed:['AR could not start on this device. You can still rotate the 3D model.','الواقع المعزز مش متاح على الجهاز ده، لكن تقدري تلفّي المجسم 3D.'],
- modelLoadFailed:['Could not load the 3D model. Product photos remain available.','تعذر تحميل المجسم ثلاثي الأبعاد، لكن صور الشنطة ما زالت متاحة.']
+ modelLoadFailed:['Could not load the 3D model. Product photos remain available.','تعذر تحميل المجسم ثلاثي الأبعاد، لكن صور الشنطة ما زالت متاحة.'],
+ cameraPreview:['CAMERA PREVIEW','عاينيها بالكاميرا']
 };
 const T=k=>{const v=tr[k];return v? v[ar()?1:0]:k};
 const materialLabel=v=>tr.materialOptions.find(x=>x[0]===v)?.[ar()?2:1]||v;
@@ -231,6 +232,7 @@ function render(){
       '<button type="button" class="patch-cz-ar-button" slot="ar-button" aria-label="'+E(T('viewAR'))+'">'+E(T('viewAR'))+' ↗</button>'+
       '</model-viewer>':
    '<img src="'+image+'" alt="'+E(productLabel(p)+' · '+(photoIndex+1)+' / '+imageList.length)+'" decoding="async">')+
+  (model&&viewMode==='model'&&window.PATCH_CAMERA_PREVIEW?'<button type="button" class="patch-cz-camera-entry" data-cz-camera>'+E(T('cameraPreview'))+' <span aria-hidden="true">◎</span></button>':'')+
   (viewMode==='photo'&&state.monogram?'<span class="patch-cz-monogram patch-cz-monogram--'+E(state.letterStyle)+' patch-cz-monogram--'+E(state.letterPosition)+'">'+E(state.monogram)+'</span>':'')+
   '<span class="patch-cz-photo-tag">'+E(viewMode==='model'?T('modelPreview'):T('previewOnly'))+'</span>'+
   (viewMode==='photo'&&imageList.length>1?'<div class="patch-cz-photo-arrows"><button type="button" data-cz-photo="-1" aria-label="'+E(T('prevImage'))+'">←</button><span aria-live="polite">'+(photoIndex+1)+' / '+imageList.length+'</span><button type="button" data-cz-photo="1" aria-label="'+E(T('nextImage'))+'">→</button></div>':'')+'</div>'+
@@ -363,6 +365,14 @@ function handleInput(e){
 function handleClick(e){
  const target=e.target.closest('button,[data-cz-close]');if(!target)return;
  if(target.hasAttribute('data-cz-close')){close();return}
+ if(target.hasAttribute('data-cz-camera')){
+  const item=currentProduct();
+  const model=availableModel(item);
+  if(model&&window.PATCH_CAMERA_PREVIEW){
+   window.PATCH_CAMERA_PREVIEW.open({src:model,poster:photos(item)[photoIndex]||item.image,name:productLabel(item),productId:item.id});
+  }
+  return;
+ }
  if(target.dataset.czView){viewMode=target.dataset.czView==='model'&&availableModel(currentProduct())?'model':'photo';render();return}
  if(target.dataset.czPhoto){
   const count=photos(currentProduct()).length;
