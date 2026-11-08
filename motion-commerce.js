@@ -135,7 +135,11 @@ window.PATCH_AUTH={
  startCheckout:()=>openCheckout()
 };
 
-function cartCount(){return Object.values(cart).reduce((n,q)=>n+q,0)}
+const customDesigns=()=>window.PATCH_CUSTOMIZER?.list?.()||[];
+const customCount=()=>customDesigns().reduce((n,d)=>n+d.qty,0);
+const customProduct=d=>products.find(p=>p.id===d.productId);
+const customText=(en,ar)=>commerceLanguage()==='ar'?ar:en;
+function cartCount(){return Object.values(cart).reduce((n,q)=>n+q,0)+customCount()}
 function cartList(){return Object.entries(cart).map(([id,q])=>({product:products.find(p=>p.id===id),quantity:q})).filter(x=>x.product)}
 function addToCart(id){if(!products.some(p=>p.id===id))return;cart[id]=Math.min((cart[id]||0)+1,20);saveCart();updateCloudItem(id,cart[id]);announce('Added to your bag');}
 function setQuantity(id,n){if(!products.some(p=>p.id===id))return;if(n<=0)delete cart[id];else cart[id]=Math.min(n,20);saveCart();updateCloudItem(id,cart[id]||0);}
@@ -150,6 +154,7 @@ function renderCart(){
  if(byId('bagCount'))byId('bagCount').textContent=String(total);
  if(byId('drawerCount'))byId('drawerCount').textContent='('+total+')';
  const area=byId('bagItems');if(!area)return;
+ const requests=customDesigns();
  if(!total){
   area.innerHTML='<div class="patch-cart-empty">'+mini('bag')+'<h3>'+commerceTranslate('Your bag starts here.')+'</h3><p>'+commerceTranslate('Find a piece you love, then come back here.')+'</p></div>';
  }else{
@@ -162,9 +167,27 @@ function renderCart(){
     '<output aria-label="'+commerceTranslate('Quantity')+'">'+q+'</output>'+
     '<button type="button" data-patch-plus="'+p.id+'" aria-label="'+(commerceLanguage()==='ar'?'زيادة كمية ':'Increase ')+escaped(commerceProductName(p))+(commerceLanguage()==='ar'?'':' quantity')+'">+</button>'+
     '<button type="button" class="patch-cart-remove" data-patch-remove="'+p.id+'">'+commerceTranslate('Remove')+'</button>'+
-    '</div></div></article>').join('');
+    '</div></div></article>').join('')+
+    requests.map(d=>{
+      const product=customProduct(d);if(!product)return '';
+      const detail=window.PATCH_CUSTOMIZER?.description?.(d)||'';
+      return '<article class="patch-cart-card patch-cart-custom">'+
+       '<img loading="lazy" src="'+escaped(product.image)+'" alt="'+escaped(commerceProductName(product))+'">'+
+       '<div><small>'+customText('DESIGN REQUEST · PENDING CONFIRMATION','طلب تصميم · في انتظار التأكيد')+'</small>'+
+       '<h3>'+escaped(commerceProductName(product))+' × '+d.qty+'</h3>'+
+       '<p class="patch-cart-design-details">'+escaped(detail)+'</p>'+
+       '<p class="patch-cart-design-disclaimer">'+customText('Options and price must be confirmed by the studio. Saved on this device only.','التفاصيل والسعر لازم يتأكدوا من صاحبة المشروع. التصميم محفوظ على الجهاز ده فقط.')+'</p>'+
+       '<div class="patch-cart-custom-actions">'+
+       '<button type="button" data-cz-bag-copy="'+escaped(d.id)+'">'+customText('Copy request','نسخ الطلب')+'</button>'+
+       '<button type="button" data-cz-bag-remove="'+escaped(d.id)+'">'+customText('Remove','إزالة')+'</button></div></div></article>';
+    }).join('');
  }
- const checkout=byId('patchStartCheckout');if(checkout)checkout.disabled=!total;
+ const checkout=byId('patchStartCheckout');
+ if(checkout){
+  checkout.disabled=!total;
+  const onlyCustom=requests.length>0&&!cartList().length;
+  checkout.innerHTML=mini('bag')+' '+(onlyCustom?customText('Discuss design requests','تواصلي بخصوص التصميمات'):commerceTranslate('Continue to checkout'))+' <span>↗</span>';
+ }
 }
 function upgradeBag(){
  const drawer=byId('bagDrawer');if(!drawer)return;
@@ -266,11 +289,17 @@ function updateAccountCopy(){
  const el=byId('patchAccountStatus');if(el)el.textContent=commerceTranslate(authSession?'You are signed in. Your cart is saved on this device.':'Explore our handmade collection. Secure accounts are being prepared.');
 }
 function checkoutBody(){
+ const hasCustom=customDesigns().length>0;
+ const onlineAllowed=paymentReady()&&!hasCustom;
  return '<p class="patch-kicker">THE PATCH BAG / CHECKOUT</p>'+
   '<h2 id="patchCommerceTitle">Almost yours.</h2>'+
   '<div class="patch-checkout-steps"><span class="active">01 / Your picks</span><span class="active">02 / Delivery</span><span class="active">03 / Payment</span></div>'+
   '<div class="patch-checkout-items">'+cartList().map(({product:p,quantity:q})=>
-   '<div class="patch-checkout-line"><img src="'+escaped(p.image)+'" alt=""><strong>'+escaped(commerceProductName(p))+'</strong><span>× '+q+'</span></div>').join('')+'</div>'+
+   '<div class="patch-checkout-line"><img src="'+escaped(p.image)+'" alt=""><strong>'+escaped(commerceProductName(p))+'</strong><span>× '+q+'</span></div>').join('')+
+   customDesigns().map(d=>{
+    const p=customProduct(d);if(!p)return '';
+    return '<div class="patch-checkout-line patch-checkout-custom"><img src="'+escaped(p.image)+'" alt=""><strong>'+escaped(commerceProductName(p))+' · '+customText('Custom design request','طلب تصميم مخصص')+'</strong><span>× '+d.qty+'</span></div>';
+   }).join('')+'</div>'+
   '<p class="patch-auth-notice">Prices, delivery and totals are quoted by the studio. This page does not charge you or place an order automatically.</p>'+
   '<form id="patchCheckoutForm" class="patch-commerce-form">'+
   '<label>Full name<input required autocomplete="name" name="name" type="text" maxlength="100" placeholder="Your name"></label>'+
@@ -281,8 +310,8 @@ function checkoutBody(){
   '<div class="patch-kicker" style="margin-top:12px">PAYMENT OPTION</div>'+
   '<label class="patch-pay-option"><input type="radio" name="payment" value="studio" checked>'+
   '<span><strong>Request a payment link from the studio</strong><small>No payment taken here. Copy your request and send it to the maker via Instagram.</small></span></label>'+
-  '<label class="patch-pay-option '+(paymentReady()?'':'disabled')+'"><input type="radio" name="payment" value="online"'+(paymentReady()?'':' disabled')+'>'+
-  '<span><strong>Secure online payment</strong><small>'+(paymentReady()?'Continue to hosted checkout after the server confirms prices.':'Coming soon — requires a connected merchant payment service.')+'</small></span></label>'+
+  '<label class="patch-pay-option '+(onlineAllowed?'':'disabled')+'"><input type="radio" name="payment" value="online"'+(onlineAllowed?'':' disabled')+'>'+
+  '<span><strong>Secure online payment</strong><small>'+(hasCustom?customText('Not available for made-to-order design requests until the studio confirms details.','غير متاح لطلبات التخصيص قبل تأكيد التفاصيل من صاحبة المشروع.'):(paymentReady()?'Continue to hosted checkout after the server confirms prices.':'Coming soon — requires a connected merchant payment service.'))+'</small></span></label>'+
   '<div id="patchPaymentFeedback" class="patch-payment-feedback" role="status"></div>'+
   '<button class="patch-form-submit" type="submit">Copy order request →</button>'+
   '<p class="patch-checkout-disclaimer">This is an enquiry until the studio confirms prices and accepts your order. Never enter card details here.</p></form>'+
@@ -290,6 +319,13 @@ function checkoutBody(){
 }
 function openCheckout(){
  if(!cartCount()){announce('Add a handmade piece to your bag first');return;}
+ // Custom-only baskets are a non-purchasable studio enquiry, not a checkout.
+ // They must never be blocked by an unconfigured sign-in/payment gateway.
+ if(customDesigns().length&&!cartList().length){
+  const message=window.PATCH_CUSTOMIZER?.formatRequests?.(customDesigns());
+  if(message)window.open('https://wa.me/201141693208?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');
+  return;
+ }
  if(!authSession?.user){
   checkoutAfterAuth=true;
   saveCart();
@@ -308,23 +344,26 @@ async function copyText(s){
 }
 function enquiryText(details){
  const fields=details||{};
- const rows=cartList().map(({product,quantity})=>'• '+commerceProductName(product)+' ('+product.id+') × '+quantity).join('\\n');
+ const rows=cartList().map(({product,quantity})=>'• '+commerceProductName(product)+' ('+product.id+') × '+quantity).join('\n');
+ const custom=customDesigns();
+ const customRows=custom.length?'\n\n'+(commerceLanguage()==='ar'?'طلبات التخصيص:\n':'Custom design requests:\n')+
+  custom.map((d,i)=>(i+1)+'. '+(window.PATCH_CUSTOMIZER?.description?.(d)||'')).join('\n\n'):'';
  if(commerceLanguage()==='ar'){
-  let msg='مرحبًا PatCh.BaGs ♡\\nأرغب في الاستفسار عن القطع التالية:\\n'+rows;
-  if(fields.name)msg+='\\n\\nالاسم: '+fields.name;
-  if(fields.email)msg+='\\nالبريد الإلكتروني: '+fields.email;
-  if(fields.phone)msg+='\\nرقم الهاتف: '+fields.phone;
-  if(fields.city)msg+='\\nالمدينة: '+fields.city;
-  if(fields.notes)msg+='\\nملاحظات: '+fields.notes;
-  return msg+'\\n\\nيرجى تأكيد الأسعار الحالية وتكلفة التوصيل والألوان المتاحة وطرق الدفع. شكرًا لكم!';
+  let msg='مرحبًا PatCh.BaGs ♡\nأرغب في الاستفسار عن القطع التالية:\n'+rows+customRows;
+  if(fields.name)msg+='\n\nالاسم: '+fields.name;
+  if(fields.email)msg+='\nالبريد الإلكتروني: '+fields.email;
+  if(fields.phone)msg+='\nرقم الهاتف: '+fields.phone;
+  if(fields.city)msg+='\nالمدينة: '+fields.city;
+  if(fields.notes)msg+='\nملاحظات: '+fields.notes;
+  return msg+'\n\nيرجى تأكيد الأسعار الحالية وتكلفة التوصيل والألوان المتاحة وطرق الدفع. طلبات التخصيص غير مؤكدة حتى موافقة الاستوديو. شكرًا لكم!';
  }
- let msg='Hello PatCh.BaGs ♡\\nI would like to ask about these handmade pieces:\\n'+rows;
- if(fields.name)msg+='\\n\\nName: '+fields.name;
- if(fields.email)msg+='\\nEmail: '+fields.email;
- if(fields.phone)msg+='\\nPhone: '+fields.phone;
- if(fields.city)msg+='\\nCity: '+fields.city;
- if(fields.notes)msg+='\\nNotes: '+fields.notes;
- return msg+'\\n\\nCould you please confirm current prices, delivery cost, available colors and payment options? Thank you!';
+ let msg='Hello PatCh.BaGs ♡\nI would like to ask about these handmade pieces:\n'+rows+customRows;
+ if(fields.name)msg+='\n\nName: '+fields.name;
+ if(fields.email)msg+='\nEmail: '+fields.email;
+ if(fields.phone)msg+='\nPhone: '+fields.phone;
+ if(fields.city)msg+='\nCity: '+fields.city;
+ if(fields.notes)msg+='\nNotes: '+fields.notes;
+ return msg+'\n\nCould you confirm current prices, delivery, color availability and payment options? Custom design requests are not confirmed orders. Thank you!';
 }
 async function copyRequest(details){
  const content=enquiryText(details),ok=await copyText(content);
@@ -343,6 +382,7 @@ async function submitCheckout(form){
  const submit=$('button[type=submit]',form),feedback=byId('patchPaymentFeedback');
  feedback.classList.remove('show');submit.disabled=true;
  try{
+  if(payment==='online'&&customDesigns().length)throw Error(customText('Custom design requests require studio approval before payment.','طلبات التصميم المخصص لازم تتأكد من الاستوديو قبل الدفع.'));
   if(payment==='online'&&paymentReady()){
    submit.textContent='Starting secure checkout…';
    const response=await fetch(config.paymentApiEndpoint,{
@@ -430,6 +470,23 @@ function enhanceSocialIcons(){
 }
 function setupCommerce(){
  if(typeof products==='undefined'||!byId('bagDrawer'))return;
+ document.addEventListener('patch:custom-designs-changed',renderCart);
+ document.addEventListener('click',event=>{
+  const remove=event.target.closest('[data-cz-bag-remove]');
+  if(remove){event.preventDefault();window.PATCH_CUSTOMIZER?.remove?.(remove.dataset.czBagRemove);return;}
+  const copy=event.target.closest('[data-cz-bag-copy]');
+  if(!copy)return;
+  event.preventDefault();
+  const record=customDesigns().find(d=>d.id===copy.dataset.czBagCopy);
+  if(!record)return;
+  const message=window.PATCH_CUSTOMIZER?.formatRequests?.([record]);
+  if(!message)return;
+  copyText(message).then(ok=>{
+   if(ok)announce(customText('Design request copied — send it to the studio.','تم نسخ طلب التخصيص، ابعتيه للاستوديو.'));
+   else window.prompt(customText('Copy design request','انسخي طلب التخصيص'),message);
+  });
+ });
+
  loadCart();
  buildModal();
  upgradeBag();
@@ -441,7 +498,9 @@ function setupCommerce(){
  document.addEventListener('patch:language-changed',()=>{
   renderCart();upgradeBag();updateAccountCopy();
   const lines=$('.patch-checkout-line strong');
-  cartList().forEach((item,index)=>{if(lines[index])lines[index].textContent=commerceProductName(item.product)});
+  const shop=cartList();
+  shop.forEach((item,index)=>{if(lines[index])lines[index].textContent=commerceProductName(item.product)});
+  customDesigns().forEach((d,index)=>{const p=customProduct(d);if(p&&lines[shop.length+index])lines[shop.length+index].textContent=commerceProductName(p)+' · '+customText('Custom design request','طلب تصميم مخصص')});
  });
  document.addEventListener('click',e=>{
   const target=e.target instanceof Element?e.target:null;if(!target)return;
