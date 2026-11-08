@@ -39,3 +39,12 @@
  .product-variant-swatch{transition:none}
  .product-variant-fade{animation:none}
 }
+
+/* Additional picker row must never push CTA out of the fixed desktop modal. */
+@media(min-width:681px){
+ .product-modal-info{overflow-y:auto;overscroll-behavior:contain;justify-content:safe center}
+}
+@media(max-width:680px){
+ .product-modal-info{overflow:visible}
+}
+#modalColorOptions[hidden]{display:none}
