@@ -12,30 +12,47 @@
       import('./Lanyard.js')
     ]);
     const root=reactDom.createRoot(mount);
-    root.render(React.createElement(Lanyard,{
-      className:'patch-original-reactbits-lanyard',
-      frontImage:'./assets/reactbits/patch-tag-front.svg',
-      backImage:'./assets/reactbits/patch-tag-back.svg',
-      imageFit:'cover',
-      cardColor:'#f8f7f1',
-      orientation:'portrait',
-      finish:'matte',
-      cornerRadius:0.29,
-      size:window.matchMedia('(max-width: 680px)').matches?0.37:0.53,
-      anchor:'patch-hero-right',
-      // A shorter mobile strap keeps the badge above the Hero heading and CTA.
-      // Position the resting badge above the mobile heading; the original drag physics remain unchanged.
-      strapLength:window.matchMedia('(max-width: 680px)').matches?0.05:0.44,
-      strapColor:'#7f9879',
-      strapWidth:0.6,
-      metal:'gold',
-      gravity:1,
-      damping:0.51,
-      elasticity:0.58,
-      breeze:0.24,
-      interactive:true,
-      intro:true
-    }));
+    // Reserve the editorial text column in both languages. Move the original
+    // interactive 3D tag into the opposite photographic margin, and scale it
+    // down so it cannot obscure headlines or the hero CTAs.
+    const phone=window.matchMedia('(max-width: 680px)');
+    const tablet=window.matchMedia('(max-width: 1100px)');
+    const renderLanyard=()=>{
+      const arabic=document.documentElement.lang==='ar';
+      const anchor=phone.matches
+        ?(arabic?'patch-hero-safe-left-mobile':'patch-hero-safe-right-mobile')
+        :tablet.matches
+          ?(arabic?'patch-hero-safe-left-tablet':'patch-hero-safe-right-tablet')
+          :(arabic?'patch-hero-safe-left':'patch-hero-safe-right');
+      root.render(React.createElement(Lanyard,{
+        className:'patch-original-reactbits-lanyard',
+        frontImage:'./assets/reactbits/patch-tag-front.svg',
+        backImage:'./assets/reactbits/patch-tag-back.svg',
+        imageFit:'cover',
+        cardColor:'#f8f7f1',
+        orientation:'portrait',
+        finish:'matte',
+        cornerRadius:0.29,
+        size:phone.matches?0.24:tablet.matches?0.30:0.35,
+        anchor,
+        strapLength:phone.matches?0.018:0.052,
+        strapColor:'#596d59',
+        strapWidth:0.44,
+        metal:'gold',
+        gravity:1,
+        damping:0.55,
+        elasticity:0.48,
+        breeze:0.13,
+        interactive:true,
+        intro:true
+      }));
+    };
+    renderLanyard();
+    // Preserve component state and physics when the customer changes language
+    // or device orientation: change props instead of mounting a second canvas.
+    document.addEventListener('patch:language-changed',renderLanyard);
+    phone.addEventListener('change',renderLanyard);
+    tablet.addEventListener('change',renderLanyard);
     // Record when the real WebGL canvas exists; the hero has no loading emblem.
     const watcher=new MutationObserver(()=>{
       if(mount.querySelector('canvas')){
@@ -47,6 +64,9 @@
     if(mount.querySelector('canvas')){stage.dataset.ready='true';watcher.disconnect();}
     window.addEventListener('pagehide',()=>{
       watcher.disconnect();
+      document.removeEventListener('patch:language-changed',renderLanyard);
+      phone.removeEventListener('change',renderLanyard);
+      tablet.removeEventListener('change',renderLanyard);
       root.unmount();
     },{once:true});
   }catch(error){
