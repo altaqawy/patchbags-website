@@ -178,6 +178,7 @@ function renderCart(){
        '<p class="patch-cart-design-details">'+escaped(detail)+'</p>'+
        '<p class="patch-cart-design-disclaimer">'+customText('Options and price must be confirmed by the studio. Saved on this device only.','التفاصيل والسعر لازم يتأكدوا من صاحبة المشروع. التصميم محفوظ على الجهاز ده فقط.')+'</p>'+
        '<div class="patch-cart-custom-actions">'+
+       '<button type="button" data-cz-bag-edit="'+escaped(d.id)+'">'+customText('Edit design','تعديل التصميم')+'</button>'+
        '<button type="button" data-cz-bag-copy="'+escaped(d.id)+'">'+customText('Copy request','نسخ الطلب')+'</button>'+
        '<button type="button" data-cz-bag-remove="'+escaped(d.id)+'">'+customText('Remove','إزالة')+'</button></div></div></article>';
     }).join('');
@@ -472,6 +473,11 @@ function setupCommerce(){
  if(typeof products==='undefined'||!byId('bagDrawer'))return;
  document.addEventListener('patch:custom-designs-changed',renderCart);
  document.addEventListener('click',event=>{
+  const edit=event.target.closest('[data-cz-bag-edit]');
+  if(edit){
+   event.preventDefault();window.PATCH_CUSTOMIZER?.edit?.(edit.dataset.czBagEdit);
+   return;
+  }
   const remove=event.target.closest('[data-cz-bag-remove]');
   if(remove){event.preventDefault();window.PATCH_CUSTOMIZER?.remove?.(remove.dataset.czBagRemove);return;}
   const copy=event.target.closest('[data-cz-bag-copy]');
