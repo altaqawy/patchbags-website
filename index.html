@@ -34,8 +34,10 @@
 }}
 </script>
 <link href="social-icons.css" rel="stylesheet"/>
-<link href="footer-refined.css" rel="stylesheet"/></head>
+<link href="footer-refined.css" rel="stylesheet"/><link href="premium-editorial.css" rel="stylesheet"/>
+</head>
 <body>
+<div class="patch-scroll-progress" aria-hidden="true"><span></span></div>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="topline"><span class="topline-dot"></span> Handcrafted with care in Alexandria, Egypt <span class="topline-star">✳</span> <span class="topline-secondary">Made to feel personal</span></div>
 <header class="site-header" id="siteHeader">
@@ -51,6 +53,7 @@
 <a href="#contact">Contact</a>
 </nav>
 <div class="nav-actions">
+<div class="patch-lang-toggle" role="group" aria-label="Choose language"><button type="button" data-patch-lang="en" aria-pressed="true" lang="en">EN</button><button type="button" data-patch-lang="ar" aria-pressed="false" lang="ar">عربي</button></div>
 <button aria-label="Search products" class="icon-button search-trigger" data-open="search" type="button">
 <svg fill="none" height="21" stroke="currentColor" stroke-linecap="round" stroke-width="1.65" viewbox="0 0 24 24" width="21"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
 </button>
@@ -72,15 +75,20 @@
 <section aria-labelledby="heroTitle" class="hero editorial-hero" id="home">
 <img alt="Handmade striped cotton cord bag, designed and made in Alexandria" class="editorial-hero-image" fetchpriority="high" src="assets/woven-stripe-tote.webp"/>
 <div class="editorial-hero-vignette"></div>
+<div class="patch-hero-light" aria-hidden="true"></div>
+<span class="patch-hero-vertical" aria-hidden="true">HANDMADE / SINCE THE BEGINNING</span>
 <div class="editorial-hero-content container reveal">
 <p class="hero-kicker"><span class="hero-kicker-dot"></span> PATCh.BaGs · HANDMADE IN ALEXANDRIA</p>
 <h1 id="heroTitle">A little more<br/><em>you.</em></h1>
-<a class="hero-cta" href="#collection">Explore the collection <span aria-hidden="true">↗</span></a>
+<p class="patch-hero-lead">Small details. Beautifully handmade. A piece of everyday joy, made yours.</p>
+<div class="patch-hero-actions"><a class="hero-cta" href="#collection">Explore the collection <span aria-hidden="true">↗</span></a><a class="patch-hero-secondary" href="#story">Meet the maker ↗</a></div>
+<div class="patch-hero-notes"><span>Made with intention</span><i aria-hidden="true"></i><span>Handmade in Alexandria</span></div>
 </div>
 <div id="patchReactBitsStrip" class="patch-reactbits-strip" aria-label="Interactive PatCh.BaGs 3D hanging tag">
   <div id="patchReactBitsMount" class="patch-reactbits-lanyard-mount"></div>
   <span class="patch-reactbits-unavailable" role="status">3D tag unavailable on this device</span>
 </div>
+<div class="patch-hero-index" aria-hidden="true"><strong>01</strong><i></i>04</div>
 <div class="editorial-hero-bottom"><span>01 / THE EVERYDAY EDIT</span><a aria-label="Scroll to browse the collection" href="#visual-categories">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a></div>
 </section>
 <div aria-label="Made by hand, made with heart, made to be yours" class="marquee"><div aria-hidden="true" class="marquee-track"><span>Made by hand</span><i>✳</i><span>Made with heart</span><i>✳</i><span>Made to be yours</span><i>✳</i><span>Made by hand</span><i>✳</i><span>Made with heart</span><i>✳</i><span>Made to be yours</span><i>✳</i></div></div>
@@ -119,12 +127,39 @@
 </div>
 </section>
 
-<section class="lookbook-section" aria-labelledby="lookbookTitle">
- <div class="lookbook-head container"><span class="eyebrow">THE PHOTO DIARY / PATCH.BAGS</span><h2 id="lookbookTitle">Worn with <em>love.</em></h2></div>
- <div class="lookbook-grid">
-  <figure class="lookbook-frame lookbook-feature"><img loading="lazy" decoding="async" src="assets/new/ivory-tote-lifestyle-carry.webp" alt="Model carrying the ivory woven tote with a black denim jacket"/><figcaption>01 / EVERYDAY CARRY</figcaption></figure>
-  <figure class="lookbook-frame"><img loading="lazy" decoding="async" src="assets/new/blush-tote-scarf-closeup.webp" alt="Close-up of blush-striped tote with decorative scarf"/><figcaption>02 / A TOUCH OF BLUSH</figcaption></figure>
-  <figure class="lookbook-frame"><img loading="lazy" decoding="async" src="assets/new/striped-tote-label-closeup.webp" alt="Patch Bags maker's tag stitched onto striped tote"/><figcaption>03 / MADE BY HAND</figcaption></figure>
+<section class="lookbook-section patch-lookbook-premium" aria-labelledby="lookbookTitle">
+ <div class="lookbook-head container">
+  <div><span class="eyebrow">THE PHOTO DIARY / PATCH.BAGS</span><h2 id="lookbookTitle">Worn with <em>love.</em></h2></div>
+  <p class="patch-lookbook-intro">Real pieces. Real moments. Explore the details and tap the + to see a piece up close.</p>
+ </div>
+ <div class="lookbook-grid" id="patchPremiumLookbook" aria-label="Interactive product lookbook" role="group">
+  <figure class="lookbook-frame lookbook-feature">
+   <img loading="lazy" decoding="async" src="assets/new/ivory-tote-lifestyle-carry.webp" alt="Model carrying the ivory woven tote with a black denim jacket"/>
+   <button class="lookbook-hotspot" style="--hotspot-x:53%;--hotspot-y:48%" type="button" data-lookbook-product="PB-02" aria-label="View the ivory woven tote"><span class="lookbook-hotspot-label">Ivory sculpted tote</span></button>
+   <figcaption><span>01 / EVERYDAY CARRY</span><span class="lookbook-frame-number">01 / 04</span></figcaption>
+  </figure>
+  <figure class="lookbook-frame">
+   <img loading="lazy" decoding="async" src="assets/new/blush-tote-scarf-closeup.webp" alt="Blush striped tote photographed with a decorative scarf"/>
+   <button class="lookbook-hotspot" style="--hotspot-x:55%;--hotspot-y:53%" type="button" data-lookbook-product="PB-03" aria-label="View the blush striped tote"><span class="lookbook-hotspot-label">Blush striped tote</span></button>
+   <figcaption><span>02 / A TOUCH OF BLUSH</span><span class="lookbook-frame-number">02 / 04</span></figcaption>
+  </figure>
+  <figure class="lookbook-frame">
+   <img loading="lazy" decoding="async" src="assets/new/striped-tote-label-closeup.webp" alt="The PatCh.BaGs handmade signature label close-up"/>
+   <button class="lookbook-hotspot" style="--hotspot-x:61%;--hotspot-y:48%" type="button" data-lookbook-product="PB-01" aria-label="View the signature striped tote"><span class="lookbook-hotspot-label">Signature striped tote</span></button>
+   <figcaption><span>03 / MADE BY HAND</span><span class="lookbook-frame-number">03 / 04</span></figcaption>
+  </figure>
+  <figure class="lookbook-frame">
+   <img loading="lazy" decoding="async" src="assets/new/monogram-cream-s.webp" alt="Cream handmade personal initial letter pouch"/>
+   <button class="lookbook-hotspot" style="--hotspot-x:54%;--hotspot-y:50%" type="button" data-lookbook-product="PB-10" aria-label="View the personalized initial pouch"><span class="lookbook-hotspot-label">Initial zip pouch</span></button>
+   <figcaption><span>04 / PERSONAL TOUCH</span><span class="lookbook-frame-number">04 / 04</span></figcaption>
+  </figure>
+ </div>
+ <div class="patch-lookbook-footer container">
+  <span>TAP + TO EXPLORE EACH PIECE</span>
+  <div class="patch-lookbook-controls" aria-label="Lookbook navigation">
+   <button type="button" data-lookbook-direction="prev" aria-label="Previous lookbook image">←</button>
+   <button type="button" data-lookbook-direction="next" aria-label="Next lookbook image">→</button>
+  </div>
  </div>
 </section>
 <section class="patch-words-section" id="patchWords" data-reviews-3d="true" aria-labelledby="patchWordsTitle">
@@ -240,5 +275,6 @@
 <script defer="" src="three-d-motion.js"></script>
 <script type="module" src="reactbits/lanyard-mount.js"></script>
 <script defer="" src="shop-checkout-bridge.js"></script>
+<script defer="" src="premium-editorial.js"></script>
 </body>
 </html>
