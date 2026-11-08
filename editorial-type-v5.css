@@ -1,0 +1,556 @@
+/*
+ * PatCh.BaGs — Editorial Typography / Art Direction V5.
+ *
+ * Independent English and Arabic typographic systems. This stylesheet is loaded
+ * after every legacy CSS layer to settle competing layout and font-size rules.
+ * Nothing here alters product inventory, pricing, checkout logic, or images.
+ */
+
+:root{
+  --pb-display-en:"Cormorant Garamond","Playfair Display",Georgia,serif;
+  --pb-ui-en:"Manrope","DM Sans",system-ui,sans-serif;
+  --pb-display-ar:"Alexandria","IBM Plex Sans Arabic",sans-serif;
+  --pb-ui-ar:"IBM Plex Sans Arabic","Alexandria","Cairo",sans-serif;
+  --pb-script-ar:"El Messiri","Alexandria",sans-serif;
+  --pb-heading-ink:#303a31;
+  --pb-heading-muted:#82927d;
+  --pb-copy-ink:#677166;
+  --pb-text-track:.006em;
+  --pb-space-tight:clamp(18px,2vw,30px);
+  --pb-space-normal:clamp(28px,3vw,48px);
+  --pb-section-gap:clamp(55px,7vw,116px);
+}
+html{font-synthesis:none}
+body{text-rendering:optimizeLegibility}
+body :is(h1,h2,h3,blockquote){text-wrap:balance}
+body :is(p,figcaption){text-wrap:pretty}
+main :is(section,article,div){min-width:0}
+a,button{touch-action:manipulation}
+
+/* EN: expressive high-contrast editorial display + precise contemporary UI. */
+html[lang="en"] body{
+  font-family:var(--pb-ui-en);
+  line-height:1.72;
+  letter-spacing:var(--pb-text-track);
+}
+html[lang="en"] :is(
+  .editorial-hero h1,.category-header h2,.collection .section-heading h2,
+  .editorial-feature .feature-top h2,.patch-lookbook-premium .lookbook-head h2,
+  .patch-words-head h2,.custom-copy h2,.social-heading h2,.story-copy h2,
+  .patch-footer-refined .patch-footer-cta p,.patch-review-quote,
+  .patch-scroll-reviews .patch-depth-card .quote,.feature-caption strong,
+  .category-tile-caption strong,.product-name,.product-modal-info h2,
+  .patch-cart-card h3,.patch-commerce-content h2
+){
+  font-family:var(--pb-display-en);
+  font-weight:500;
+  font-synthesis:none;
+}
+html[lang="en"] :is(
+  .eyebrow,.patch-kicker,.category-overline,.custom-kicker,
+  .patch-footer-refined .patch-footer-eyebrow,.patch-footer-refined .patch-footer-group-label,
+  .lookbook-frame figcaption,.product-info small,.product-variant-kicker,
+  .patch-review-meta,.patch-review-card-label,.patch-review-scroll-label
+){
+  font-family:var(--pb-ui-en);
+  letter-spacing:.13em;
+  line-height:1.65;
+}
+html[lang="en"] :is(
+  .desktop-nav a,.mobile-nav a,.hero-cta,.patch-hero-secondary,.filter-chip,
+  .button,.bag-button,.patch-footer-refined .patch-footer-group>a,
+  .patch-footer-refined .patch-footer-action
+){font-family:var(--pb-ui-en);font-weight:600}
+html[lang="en"] :is(
+  .editorial-hero h1,.category-header h2,.collection .section-heading h2,
+  .editorial-feature .feature-top h2,.patch-lookbook-premium .lookbook-head h2,
+  .patch-words-head h2,.custom-copy h2,.social-heading h2,.story-copy h2
+){letter-spacing:-.048em}
+
+/* AR: distinctive geometric editorial titles, calm readable body, custom
+ * brush-like accent. Arabic is composed, not transliterated into Latin metrics. */
+html[lang="ar"] body{
+  font-family:var(--pb-ui-ar);
+  font-size:15px;
+  line-height:1.95;
+  letter-spacing:0;
+  direction:rtl;
+}
+html[lang="ar"] :is(
+  .topline,.desktop-nav a,.mobile-nav a,.hero-kicker,.patch-hero-lead,
+  .patch-hero-notes,.patch-hero-secondary,.hero-cta,.eyebrow,.patch-kicker,
+  .filter-chip,.category-tile-caption small,.category-tile-caption>span,
+  .patch-lookbook-intro,.patch-lookbook-footer,.lookbook-frame figcaption,
+  .patch-words-head>p,.patch-review-meta,.patch-review-card-label,
+  .patch-review-scroll-label,.patch-review-byline,.patch-review-byline small,
+  .custom-kicker,.custom-copy .button,.story-copy>p,.social-heading .eyebrow,
+  .collection-note,.product-info small,.product-name,.product-variant-picker,
+  .product-modal-info,.patch-cart-card,.drawer,.search-modal,.patch-commerce-content,
+  .patch-footer-refined .patch-footer-eyebrow,
+  .patch-footer-refined .patch-footer-group-label,
+  .patch-footer-refined .patch-footer-group>a,
+  .patch-footer-refined .patch-footer-action,.patch-footer-refined .patch-footer-follow>p
+){
+  font-family:var(--pb-ui-ar);
+  letter-spacing:0;
+}
+html[lang="ar"] :is(
+  .editorial-hero h1,.category-header h2,.collection .section-heading h2,
+  .editorial-feature .feature-top h2,.patch-lookbook-premium .lookbook-head h2,
+  .patch-words-head h2,.custom-copy h2,.social-heading h2,.story-copy h2,
+  .feature-caption strong,.category-tile-caption strong,.patch-commerce-content h2,
+  .product-modal-info h2,.product-name,.patch-cart-card h3
+){
+  font-family:var(--pb-display-ar);
+  font-weight:600;
+  line-height:1.47;
+  letter-spacing:0;
+  overflow-wrap:break-word;
+}
+html[lang="ar"] :is(
+  .editorial-hero h1 em,.category-header h2 em,.collection .section-heading h2 em,
+  .editorial-feature .feature-top h2 em,.patch-lookbook-premium .lookbook-head h2 em,
+  .patch-words-head h2 em,.custom-copy h2 em,.social-heading h2 em,.story-copy h2 em,
+  .patch-footer-refined .patch-footer-cta p em
+){
+  font-family:var(--pb-script-ar);
+  font-weight:600;
+  font-style:normal;
+  letter-spacing:0;
+}
+html[lang="ar"] :is(
+ .patch-review-quote,.patch-scroll-reviews .patch-depth-card .quote
+){
+  font-family:var(--pb-script-ar);
+  letter-spacing:0;
+  font-weight:500;
+  line-height:1.78;
+  text-align:right;
+}
+html[lang="ar"] .eyebrow{
+  font-size:clamp(10px,.9vw,12px);
+  font-weight:600;
+  text-transform:none;
+}
+html[lang="ar"] .eyebrow-line{flex:none}
+
+/* Anchors and microcopy: one consistent alignment rule per language. */
+html[lang="en"] :is(
+ .category-header,.section-heading,.editorial-feature .feature-top,
+ .patch-lookbook-premium .lookbook-head,.patch-words-head,.social-heading,
+ .story-copy,.custom-copy
+){text-align:left}
+html[lang="ar"] :is(
+ .category-header,.section-heading,.editorial-feature .feature-top,
+ .patch-lookbook-premium .lookbook-head,.patch-words-head,.social-heading,
+ .story-copy,.custom-copy
+){text-align:right;direction:rtl}
+html[lang="ar"] :is(
+ .category-header,.section-heading,.editorial-feature .feature-top,
+ .patch-lookbook-premium .lookbook-head,.patch-words-head,.social-heading
+) :is(h2,p,span){text-align:inherit}
+html[lang="ar"] :is(
+ .category-header,.section-heading,.editorial-feature .feature-top,
+ .patch-lookbook-premium .lookbook-head,.patch-words-head,.social-heading
+){align-items:start}
+html[lang="ar"] .story-copy{align-items:flex-start}
+
+/* One typographic rhythm, with explicit sizes for each editorial section. */
+.category-header h2,
+.collection .section-heading h2,
+.editorial-feature .feature-top h2,
+.patch-lookbook-premium .lookbook-head h2,
+.patch-words-head h2,
+.social-heading h2,
+.story-copy h2{margin:0;max-width:100%;overflow-wrap:normal}
+html[lang="en"] .category-header h2{font-size:clamp(54px,5.8vw,96px);line-height:.99}
+html[lang="en"] .collection .section-heading h2{font-size:clamp(58px,6vw,100px);line-height:1}
+html[lang="en"] .editorial-feature .feature-top h2{font-size:clamp(54px,5.2vw,86px);line-height:1.02}
+html[lang="en"] .patch-lookbook-premium .lookbook-head h2{font-size:clamp(59px,6.6vw,108px);line-height:1.02}
+html[lang="en"] .patch-words-head h2{font-size:clamp(56px,6vw,99px);line-height:1.01}
+html[lang="en"] .custom-copy h2{font-size:clamp(69px,7.1vw,116px);line-height:1.02}
+html[lang="en"] .social-heading h2{font-size:clamp(57px,6vw,101px);line-height:1}
+html[lang="en"] .story-copy h2{font-size:clamp(61px,6vw,93px);line-height:1.02}
+html[lang="ar"] .category-header h2{font-size:clamp(39px,4.1vw,66px);line-height:1.49;max-width:22ch}
+html[lang="ar"] .collection .section-heading h2{font-size:clamp(41px,4.4vw,69px);line-height:1.45}
+html[lang="ar"] .editorial-feature .feature-top h2{font-size:clamp(39px,4vw,65px);line-height:1.49}
+html[lang="ar"] .patch-lookbook-premium .lookbook-head h2{font-size:clamp(41px,4.45vw,72px);line-height:1.48}
+html[lang="ar"] .patch-words-head h2{font-size:clamp(39px,4.4vw,69px);line-height:1.48}
+html[lang="ar"] .custom-copy h2{font-size:clamp(47px,5.5vw,88px);line-height:1.48}
+html[lang="ar"] .social-heading h2{font-size:clamp(41px,4.55vw,71px);line-height:1.48}
+html[lang="ar"] .story-copy h2{font-size:clamp(41px,4.45vw,73px);line-height:1.48}
+html[lang="ar"] .patch-footer-refined .patch-footer-cta p{font-family:var(--pb-display-ar);font-size:clamp(25px,2.55vw,36px);line-height:1.6}
+
+/* Consistent page architecture: eyebrow above display heading, never orphaned. */
+.category-header{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-start;
+  gap:clamp(10px,1vw,15px);
+  margin-bottom:var(--pb-space-normal);
+}
+.category-header .eyebrow{margin:0;white-space:normal}
+.section-heading{
+  justify-content:flex-start;
+  align-items:flex-start;
+  margin-bottom:var(--pb-space-normal);
+}
+.section-heading>div{min-width:0}
+.section-heading .eyebrow{margin:0 0 12px}
+.editorial-feature .feature-top{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-start;
+  gap:clamp(11px,1vw,17px);
+  padding:0;
+  margin-bottom:var(--pb-space-normal);
+}
+.editorial-feature .feature-top .eyebrow{margin:0}
+.patch-lookbook-premium .lookbook-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(210px,.34fr);
+  gap:clamp(25px,4vw,80px);
+  align-items:end;
+  padding-bottom:var(--pb-space-normal);
+}
+.patch-lookbook-premium .lookbook-head>div{min-width:0}
+.patch-lookbook-premium .lookbook-head .eyebrow{margin:0 0 13px}
+.patch-lookbook-intro{
+  max-width:345px;
+  margin:0;
+  font-size:clamp(13px,1.1vw,15px);
+  line-height:1.95;
+}
+.patch-words-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(200px,.32fr);
+  align-items:end;
+  column-gap:clamp(28px,5vw,95px);
+  margin-bottom:var(--pb-space-normal);
+}
+.patch-words-head .patch-kicker{margin-bottom:13px}
+.patch-words-head>p{
+  max-width:345px;
+  font-size:clamp(13px,1.1vw,15px);
+  line-height:1.94;
+  margin:0 0 8px;
+}
+.social-heading{align-items:end;gap:clamp(20px,4vw,70px)}
+html[lang="ar"] .social-heading .patch-social-icons{direction:ltr}
+html[lang="ar"] .category-header{align-items:flex-start}
+html[lang="ar"] .editorial-feature .feature-top{align-items:flex-start}
+html[lang="ar"] .patch-words-head>p{direction:rtl;text-align:right}
+html[lang="ar"] .patch-lookbook-intro{direction:rtl;text-align:right}
+
+/* Hero: different placement, line breaks and contrast WITHOUT flipping the bag. */
+html[lang="en"] .editorial-hero h1{
+  font-family:var(--pb-display-en);
+  font-weight:500;
+  letter-spacing:-.052em;
+  line-height:.92;
+}
+html[lang="en"] .editorial-hero h1 em{font-weight:500;letter-spacing:-.045em}
+html[lang="en"] .patch-hero-lead{
+  font-family:var(--pb-ui-en);
+  font-size:clamp(14px,1.18vw,16px);
+  line-height:1.9;
+  letter-spacing:0;
+}
+html[lang="en"] .hero-kicker{font-family:var(--pb-ui-en);font-weight:700;letter-spacing:.14em}
+html[lang="ar"] .editorial-hero h1{
+  font-family:var(--pb-display-ar);
+  font-size:clamp(48px,5.65vw,87px);
+  font-weight:600;
+  line-height:1.46;
+  max-width:47%;
+  margin:0 0 17px;
+  letter-spacing:0;
+}
+html[lang="ar"] .editorial-hero h1 em{
+  font-family:var(--pb-script-ar);
+  font-weight:600;
+  color:#f6f1df;
+}
+html[lang="ar"] .patch-hero-lead{
+  max-width:min(46%,480px);
+  font-family:var(--pb-ui-ar);
+  font-size:clamp(14px,1.3vw,17px);
+  line-height:2.05;
+  margin:0 0 22px;
+}
+html[lang="ar"] .hero-kicker{
+  font-size:clamp(10px,.95vw,12px);
+  line-height:1.9;
+  text-align:right;
+  white-space:normal;
+}
+html[lang="ar"] .patch-hero-actions{
+  direction:rtl;
+  align-items:center;
+  gap:clamp(10px,1.2vw,22px);
+}
+html[lang="ar"] .patch-hero-actions .hero-cta{min-height:50px}
+html[lang="ar"] .patch-hero-notes{margin-top:23px;line-height:1.6}
+html[lang="ar"] .patch-hero-secondary{transform:none;font-size:12px}
+html[lang="ar"] .patch-hero-secondary span{display:inline-block;transform:scaleX(-1)}
+html.patch-photo-ready[lang="ar"] .editorial-hero-image{
+  left:-12%;
+  right:auto;
+  width:100%;
+  object-fit:contain;
+  object-position:center center;
+  transform:none;
+  -webkit-mask-image:linear-gradient(to left,transparent 0%,rgba(0,0,0,.55) 10%,#000 23%,#000 100%);
+  mask-image:linear-gradient(to left,transparent 0%,rgba(0,0,0,.55) 10%,#000 23%,#000 100%);
+}
+@keyframes pbHeroPortraitRtl{
+  from{opacity:.52;transform:translateX(-18px)}
+  to{opacity:1;transform:translateX(0)}
+}
+html.patch-photo-ready[lang="ar"] .editorial-hero-image{
+  animation:pbHeroPortraitRtl .95s cubic-bezier(.25,.8,.25,1) both;
+}
+html.patch-photo-ready[lang="ar"] .editorial-hero-vignette{
+  background:
+    linear-gradient(270deg,rgba(18,22,20,.81),rgba(24,28,25,.51) 29%,transparent 68%),
+    linear-gradient(0deg,rgba(14,18,17,.38),transparent 26%);
+}
+html.patch-photo-ready[lang="ar"] .editorial-hero::after{
+  background:linear-gradient(270deg,rgba(35,37,37,.27),transparent 50%);
+}
+html.patch-photo-ready[lang="ar"] .editorial-hero-content.container{
+  box-sizing:border-box;
+  width:min(calc(100% - 9%),1500px);
+  height:100%;
+  margin-inline:auto;
+  padding:42px 0 78px;
+  direction:rtl;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  text-align:right;
+}
+html[lang="ar"] .editorial-hero-content.container{
+  align-items:flex-start;
+  direction:rtl;
+  text-align:right;
+}
+html[lang="ar"] .editorial-hero h1,
+html[lang="ar"] .patch-hero-lead,
+html[lang="ar"] .patch-hero-actions,
+html[lang="ar"] .patch-hero-notes,
+html[lang="ar"] .hero-kicker{align-self:flex-start;text-align:right}
+html[lang="ar"] .editorial-hero-bottom{direction:rtl}
+html[lang="ar"] .editorial-hero-bottom>span{letter-spacing:0}
+html[lang="ar"] .patch-hero-vertical{
+  font-family:var(--pb-ui-en);
+  letter-spacing:.15em;
+}
+
+/* Product cards: captions and buttons remain aligned at varied text lengths. */
+.collection .products-grid{align-items:start}
+.collection .product-info{align-items:flex-start}
+.product-info>div{min-width:0;flex:1}
+html[lang="en"] .product-name{font-size:clamp(21px,1.85vw,28px);line-height:1.14}
+html[lang="ar"] .product-name{font-size:clamp(16px,1.4vw,21px);line-height:1.65;letter-spacing:0}
+html[lang="ar"] .product-name button{font-family:var(--pb-display-ar);font-weight:600;line-height:1.65;text-align:right}
+html[lang="ar"] .product-info small,
+html[lang="ar"] .product-image-label{
+  font-size:clamp(10px,.83vw,12px);
+  line-height:1.75;
+  white-space:normal;
+}
+html[lang="ar"] .product-info .patch-live-price,
+html[lang="ar"] .product-info .patch-compare-price{font-family:var(--pb-ui-ar);line-height:1.8}
+html[lang="ar"] .product-variant-heading,
+html[lang="ar"] .product-variant-options{direction:rtl}
+html[lang="ar"] .product-variant-color{font-family:var(--pb-ui-ar);font-size:12px}
+html[lang="ar"] .patch-compare-price{gap:8px}
+html[lang="ar"] .product-add{flex:none}
+
+/* Content details and hand-made accent styling. */
+html[lang="en"] .category-tile-caption strong{font-size:clamp(34px,3.8vw,60px);line-height:1.04}
+html[lang="ar"] .category-tile-caption strong{
+  font-size:clamp(24px,2.8vw,39px);
+  line-height:1.58;
+  max-width:100%;
+}
+html[lang="ar"] .category-tile-caption{right:7%;left:auto;align-items:flex-start}
+html[lang="en"] .feature-caption strong{font-size:clamp(30px,2.8vw,43px)}
+html[lang="ar"] .feature-caption strong{font-size:clamp(23px,2.05vw,31px);line-height:1.6}
+html[lang="en"] .patch-review-quote{font-size:clamp(32px,3vw,52px);line-height:1.22}
+html[lang="ar"] .patch-review-quote{font-size:clamp(23px,2.25vw,37px);line-height:1.82}
+html[lang="en"] .patch-scroll-reviews .patch-review-space .patch-depth-card .quote{font-size:clamp(25px,3vw,42px);line-height:1.18}
+html[lang="ar"] .patch-scroll-reviews .patch-review-space .patch-depth-card .quote{font-size:clamp(19px,1.95vw,30px);line-height:1.8}
+html[lang="ar"] .story-copy h2{white-space:normal}
+html[lang="en"] .story-copy>p:not(.eyebrow){font-size:15px;line-height:1.95}
+html[lang="ar"] .story-copy>p:not(.eyebrow){
+  font-size:clamp(14px,1.2vw,16px);
+  line-height:2.12;
+  max-width:470px;
+}
+html[lang="ar"] .handwriting{
+  font-family:var(--pb-script-ar);
+  font-style:normal;
+  font-size:clamp(29px,3.2vw,45px);
+}
+html[lang="ar"] .handwriting em{font-family:var(--pb-script-ar);font-size:1.2em}
+html[lang="en"] .patch-footer-refined .patch-footer-cta p{
+  font-size:clamp(32px,3vw,45px);
+  line-height:1.15;
+}
+html[lang="ar"] .patch-footer-refined .patch-footer-about>p:last-child,
+html[lang="ar"] .patch-footer-refined .patch-footer-follow>p{font-size:13px;line-height:2}
+html[lang="ar"] .patch-footer-refined .patch-footer-group{
+  align-items:flex-start;
+  text-align:right;
+}
+html[lang="ar"] .patch-footer-refined .patch-footer-group>a,
+html[lang="ar"] .patch-footer-refined .patch-footer-action{font-size:13px;line-height:1.9}
+html[lang="ar"] .patch-footer-refined .patch-footer-group-label{font-size:11px}
+html[lang="ar"] .patch-footer-refined .patch-footer-opening{
+  grid-template-columns:minmax(0,1fr) minmax(255px,.45fr);
+  align-items:start;
+}
+html[lang="ar"] .patch-footer-refined .patch-footer-cta{padding-top:0;align-self:center}
+html[lang="ar"] .patch-footer-refined .patch-footer-nav{align-items:start}
+html[lang="en"] .patch-footer-refined .footer-brand{font-family:var(--serif,Georgia)}
+html[lang="ar"] .patch-footer-refined .footer-brand{font-family:var(--serif,Georgia);direction:ltr;unicode-bidi:isolate}
+html[lang="ar"] .patch-commerce-form label{font-size:13px;line-height:1.9}
+html[lang="ar"] .patch-commerce-content h2{font-size:clamp(29px,3.1vw,47px);line-height:1.5}
+html[lang="ar"] .product-modal-info h2{font-size:clamp(27px,3vw,43px);line-height:1.5}
+html[lang="ar"] .patch-commerce-intro{font-size:14px;line-height:2}
+html[lang="ar"] .patch-cart-card h3{font-size:clamp(17px,1.4vw,21px);line-height:1.6}
+html[lang="ar"] .patch-footer-action{white-space:normal}
+
+/* Medium screens: stop overflowing two-column heading/card layouts. */
+@media(max-width:1120px){
+  .patch-lookbook-premium .lookbook-head{grid-template-columns:minmax(0,1fr) minmax(185px,.38fr)}
+  .patch-words-head{grid-template-columns:minmax(0,1fr) minmax(175px,.4fr)}
+  html[lang="ar"] .desktop-nav{gap:clamp(10px,1.8vw,19px)}
+  html[lang="ar"] .desktop-nav a{font-size:12px}
+  html[lang="ar"] .brand{min-width:0}
+  html[lang="ar"] .nav-wrap{gap:12px}
+}
+@media(min-width:681px) and (max-width:1199px){
+  html.patch-photo-ready[lang="ar"] .editorial-hero-image{
+    left:-7%;
+    right:auto;
+    width:80%;
+    -webkit-mask-image:linear-gradient(to left,transparent,#000 23%,#000 100%);
+    mask-image:linear-gradient(to left,transparent,#000 23%,#000 100%);
+  }
+  html.patch-photo-ready[lang="ar"] .editorial-hero-content.container{
+    width:calc(100% - 9%);
+    padding:36px 0 68px;
+    align-items:flex-start;
+  }
+  html[lang="ar"] .editorial-hero h1{font-size:clamp(40px,5.3vw,66px);max-width:48%}
+  html[lang="ar"] .patch-hero-lead{max-width:48%;font-size:13px}
+}
+@media(max-width:900px){
+  .patch-lookbook-premium .lookbook-head{display:block}
+  .patch-lookbook-intro{margin-top:17px;max-width:520px}
+  .patch-words-head{display:block}
+  .patch-words-head>p{margin-top:15px;max-width:560px}
+  html[lang="ar"] .patch-footer-refined .patch-footer-opening{
+    grid-template-columns:minmax(0,1fr) minmax(220px,.7fr);
+  }
+  html[lang="ar"] .patch-footer-refined .patch-footer-cta{padding-inline-start:20px}
+}
+@media(max-width:680px){
+  :root{--pb-space-normal:22px;--pb-section-gap:58px}
+  html[lang="en"] body{font-size:13px}
+  html[lang="ar"] body{font-size:13px;line-height:1.9}
+  .category-header{gap:6px}
+  .category-header .eyebrow{margin:0}
+  .editorial-feature .feature-top{gap:9px}
+  .patch-lookbook-premium .lookbook-head{display:block;padding-bottom:20px}
+  .patch-lookbook-intro{margin-top:12px;font-size:12px;line-height:1.9}
+  .patch-words-head>p{margin-top:11px;font-size:12px}
+  html[lang="en"] .category-header h2{font-size:clamp(43px,12vw,62px);line-height:1}
+  html[lang="en"] .collection .section-heading h2{font-size:clamp(47px,13vw,67px);line-height:.98}
+  html[lang="en"] .editorial-feature .feature-top h2{font-size:clamp(43px,11.5vw,63px);line-height:1.02}
+  html[lang="en"] .patch-lookbook-premium .lookbook-head h2{font-size:clamp(51px,13vw,72px);line-height:1}
+  html[lang="en"] .patch-words-head h2{font-size:clamp(48px,12vw,67px);line-height:1}
+  html[lang="en"] .custom-copy h2{font-size:clamp(57px,13.5vw,78px);line-height:1}
+  html[lang="en"] .social-heading h2{font-size:clamp(48px,12vw,68px);line-height:1}
+  html[lang="en"] .story-copy h2{font-size:clamp(50px,11.9vw,69px);line-height:1.05}
+  html[lang="ar"] .category-header h2,
+  html[lang="ar"] .collection .section-heading h2,
+  html[lang="ar"] .editorial-feature .feature-top h2,
+  html[lang="ar"] .patch-lookbook-premium .lookbook-head h2,
+  html[lang="ar"] .patch-words-head h2,
+  html[lang="ar"] .social-heading h2{
+    font-size:clamp(30px,8.2vw,44px);
+    line-height:1.55;
+    max-width:100%;
+  }
+  html[lang="ar"] .custom-copy h2{font-size:clamp(38px,10vw,58px);line-height:1.49;max-width:100%}
+  html[lang="ar"] .story-copy h2{font-size:clamp(32px,8.4vw,47px);line-height:1.5}
+  html[lang="ar"] .editorial-hero h1{
+    font-size:clamp(41px,10vw,58px);
+    line-height:1.44;
+    max-width:100%;
+    margin:0 0 13px;
+  }
+  html[lang="en"] .editorial-hero h1{
+    font-size:clamp(68px,17vw,96px);
+    line-height:.92;
+    margin-bottom:24px;
+  }
+  html[lang="ar"] .hero-kicker{font-size:9px;margin-bottom:12px;max-width:100%}
+  html[lang="ar"] .patch-hero-lead{max-width:min(100%,400px);font-size:12px;line-height:1.95;margin:0 0 15px}
+  html[lang="ar"] .editorial-hero-content.container{align-items:flex-start;direction:rtl}
+  html[lang="ar"] .patch-hero-actions{gap:7px;flex-direction:column;align-items:flex-start}
+  html[lang="ar"] .patch-hero-notes{margin-top:14px;gap:9px;font-size:8px}
+  html[lang="ar"] .editorial-hero-bottom{font-size:8px}
+  .product-info{align-items:flex-start}
+  html[lang="en"] .product-name{font-size:clamp(18px,5vw,22px);line-height:1.2}
+  html[lang="ar"] .product-name{font-size:clamp(13px,3.6vw,17px);line-height:1.7}
+  html[lang="ar"] .product-name button{line-height:1.7}
+  html[lang="ar"] .product-info small{font-size:9px}
+  html[lang="ar"] .category-tile-caption strong{font-size:clamp(20px,5.4vw,30px);line-height:1.5}
+  html[lang="ar"] .feature-caption strong{font-size:clamp(20px,5.2vw,27px);line-height:1.5}
+  html[lang="ar"] .patch-review-quote{font-size:clamp(20px,5.3vw,29px);line-height:1.75}
+  html[lang="ar"] .patch-scroll-reviews .patch-review-space .patch-depth-card .quote{font-size:clamp(17px,4.3vw,23px);line-height:1.72}
+  html[lang="ar"] .story-copy>p:not(.eyebrow){font-size:13px;line-height:2}
+  html[lang="ar"] .patch-footer-refined .patch-footer-opening{grid-template-columns:minmax(0,1fr);gap:22px}
+  html[lang="ar"] .patch-footer-refined .patch-footer-cta{
+    border-right:0;
+    padding:17px 0 0;
+    border-top:1px solid #d4dcd1;
+  }
+  html[lang="ar"] .patch-footer-refined .patch-footer-cta p{font-size:clamp(25px,7vw,33px);line-height:1.58}
+  html[lang="ar"] .patch-footer-refined .patch-footer-about>p:last-child{font-size:12px;line-height:1.9}
+  html[lang="ar"] .patch-footer-refined .patch-footer-nav{gap:26px 15px}
+  html[lang="ar"] .patch-footer-refined .patch-footer-group>a,
+  html[lang="ar"] .patch-footer-refined .patch-footer-action{font-size:12px}
+  .patch-lang-toggle-header button{min-height:29px}
+  .nav-actions{gap:7px}
+  .bag-button{font-size:0;gap:6px;padding:7px 8px}
+  .bag-button::before{content:"Bag";font-family:var(--pb-ui-en);font-size:10px;font-weight:700;letter-spacing:.02em}
+  html[lang="ar"] .bag-button::before{content:"حقيبتي";font-family:var(--pb-ui-ar);font-size:10px;letter-spacing:0}
+  .bag-count{font-size:10px}
+  html[lang="ar"] .brand small{font-size:7px}
+}
+@media(max-width:390px){
+  html[lang="ar"] .brand small{display:none}
+  .brand img{width:33px;height:33px}
+  .brand>span{font-size:14px}
+  .bag-button::before{font-size:9px}
+  html[lang="ar"] .bag-button::before{font-size:9px}
+  .nav-wrap{gap:6px}
+  html[lang="ar"] .editorial-hero h1{font-size:clamp(38px,10vw,44px)}
+  html[lang="ar"] .category-header h2,
+  html[lang="ar"] .collection .section-heading h2,
+  html[lang="ar"] .editorial-feature .feature-top h2,
+  html[lang="ar"] .patch-lookbook-premium .lookbook-head h2,
+  html[lang="ar"] .patch-words-head h2,
+  html[lang="ar"] .social-heading h2{font-size:clamp(28px,7.9vw,33px)}
+}
+@media(prefers-reduced-motion:reduce){
+  html.patch-photo-ready[lang="ar"] .editorial-hero-image{animation:none}
+}
