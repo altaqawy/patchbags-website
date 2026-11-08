@@ -1,0 +1,7 @@
+/* Patch Bags augmented reality — scoped to existing product media */
+.patch-modal-model model-viewer{height:clamp(280px,35vw,400px);background:#f4f0e9;border-radius:16px;--poster-color:#f4f0e9}
+.patch-modal-model .patch-ar-launch{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);border:1px solid #3e5443;border-radius:999px;background:#3e5443;color:white;padding:12px 20px;white-space:nowrap;font:600 13px/1.2 var(--sans,system-ui);box-shadow:0 8px 25px #0002;cursor:pointer}
+.patch-modal-model .patch-ar-launch:focus-visible{outline:3px solid #b2ceaa;outline-offset:3px}
+.patch-modal-model .patch-ar-note{color:#68635d;margin:6px 0 0;font:400 12px/1.6 var(--sans,system-ui);text-align:center}
+html[lang=ar] .patch-modal-model .patch-ar-note{direction:rtl}
+@media(max-width:680px){.patch-modal-model model-viewer{height:310px;min-height:310px}.patch-modal-model .patch-ar-launch{padding:11px 15px;font-size:12px}}
