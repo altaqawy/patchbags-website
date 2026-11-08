@@ -409,8 +409,8 @@ html[lang="ar"] .patch-footer-refined .patch-footer-opening{
 }
 html[lang="ar"] .patch-footer-refined .patch-footer-cta{padding-top:0;align-self:center}
 html[lang="ar"] .patch-footer-refined .patch-footer-nav{align-items:start}
-html[lang="en"] .patch-footer-refined .footer-brand{font-family:var(--pb-display-en)}
-html[lang="ar"] .patch-footer-refined .footer-brand{font-family:var(--pb-display-en);direction:ltr;unicode-bidi:isolate}
+html[lang="en"] .patch-footer-refined .footer-brand{font-family:var(--serif,Georgia)}
+html[lang="ar"] .patch-footer-refined .footer-brand{font-family:var(--serif,Georgia);direction:ltr;unicode-bidi:isolate}
 html[lang="ar"] .patch-commerce-form label{font-size:13px;line-height:1.9}
 html[lang="ar"] .patch-commerce-content h2{font-size:clamp(29px,3.1vw,47px);line-height:1.5}
 html[lang="ar"] .product-modal-info h2{font-size:clamp(27px,3vw,43px);line-height:1.5}
