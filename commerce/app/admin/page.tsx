@@ -163,6 +163,28 @@ export default function Admin(){
  </div>}
  </>}
  {tab==='orders'&&<div className="panel"><div className="row"><h2>الطلبات</h2><button className="btn" onClick={load}>تحديث</button></div><table className="list"><thead><tr><th>العميل</th><th>الطلب</th><th>الوسيلة</th><th>المبلغ</th><th>الدفع</th><th>الإجراء</th></tr></thead><tbody>{orders.map(o=><tr key={o.id}><td>{o.customer_name}<br/><small>{o.email}</small></td><td>{o.id.slice(0,8)}</td><td>{o.method}</td><td>{currency(o.total_minor)}</td><td>{o.payment_status}</td><td><button className="btn" onClick={async()=>{try{setOrderDetails(await api('/api/admin/orders/'+o.id))}catch(e:any){setMsg(e.message)}}}>التفاصيل</button> {['bank','wallet'].includes(o.method)&&o.payment_status==='awaiting_verification'?<button className="btn" onClick={()=>{if(confirm('لا تؤكدي إلا بعد مراجعة وصول المبلغ فعليًا إلى الحساب'))send('/api/admin/orders/manual-verify',{orderId:o.id,confirm:'MANUALLY_VERIFIED_RECEIPT'})}}>تحقق يدوي</button>:'—'}</td></tr>)}</tbody></table>{orders.length===0&&<p>لا توجد طلبات حتى الآن.</p>}{orderDetails&&<div className="panel"><div className="row"><h2>تفاصيل الطلب {orderDetails.order?.id}</h2><button className="btn" onClick={()=>setOrderDetails(null)}>إغلاق</button></div><p>{orderDetails.order?.customer_name} · {orderDetails.order?.phone} · {orderDetails.order?.city}</p><p>{orderDetails.order?.address}</p><p>مرجع التحويل: {orderDetails.order?.manual_reference||'لا يوجد'}</p><table className="list"><tbody>{(orderDetails.items||[]).map((it:any)=><tr key={it.product_id}><td>{it.title_snapshot}</td><td>× {it.quantity}</td><td>{currency(it.total_minor)}</td></tr>)}</tbody></table><p>محاولات Paymob: {(orderDetails.attempts||[]).length}</p></div>}</div>}
- {tab==='reports'&&<><div className="panel"><div className="row"><h2>تقارير المدفوعات</h2><a className="btn" href="/api/admin/reports?format=csv">تصدير CSV</a></div><p>الإحصاءات تشمل المبالغ التي تم تأكيدها فقط.</p><table className="list"><thead><tr><th>اليوم</th><th>الطلبات</th><th>المدفوع المؤكد</th></tr></thead><tbody>{(report.periods||[]).map((r:any)=><tr key={r.day}><td>{r.day}</td><td>{r.orders}</td><td>{currency(r.paid_minor)}</td></tr>)}</tbody></table>{!report.periods?.length&&<p>لا توجد إيرادات مؤكدة.</p>}</div></>}
+ {tab==='reports'&&<><div className="panel owner-analytics">
+ <div className="row"><div><small className="owner-overline">SALES INSIGHTS</small><h2>تقارير المبيعات</h2><p>الإيرادات تشمل عمليات الدفع المؤكدة فقط، بدون أرقام تجريبية.</p></div><a className="btn" href="/api/admin/reports?format=csv">تصدير CSV</a></div>
+ <div className="owner-dashboard-metrics">
+  <div className="owner-metric"><span>المبيعات المؤكدة (31 يوم)</span><strong>{currency((report.periods||[]).reduce((n:number,p:any)=>n+Number(p.paid_minor||0),0))}</strong></div>
+  <div className="owner-metric"><span>الطلبات (31 يوم)</span><strong>{(report.periods||[]).reduce((n:number,p:any)=>n+Number(p.orders||0),0)}</strong></div>
+  <div className="owner-metric"><span>في انتظار الدفع</span><strong>{orders.filter(o=>o.payment_status==='pending'||o.payment_status==='awaiting_verification').length}</strong></div>
+ </div>
+ <div className="row owner-chart-toolbar"><h3>أداء المبيعات اليومية</h3><div className="owner-chart-period">{[7,14,30].map(d=><button type="button" className={reportDays===d?'selected':''} key={d} onClick={()=>setReportDays(d)}>{d} يوم</button>)}</div></div>
+ {(report.periods||[]).length===0?<div className="owner-chart-empty"><span>✳</span><strong>لسه مفيش بيانات بيع مؤكدة</strong><p>أول ما يبدأ المتجر في استقبال المدفوعات، هتشوفي الرسم الحقيقي هنا.</p></div>:
+ <div className="owner-sales-chart" role="img" aria-label="مبيعات مؤكدة خلال الفترة المحددة">
+  {(report.periods||[]).slice(0,reportDays).reverse().map((p:any,i:number)=>{
+   const peak=Math.max(1,...(report.periods||[]).slice(0,reportDays).map((v:any)=>Number(v.paid_minor||0)));
+   const value=Number(p.paid_minor||0);
+   return <div key={String(p.day)+i} className="owner-chart-col" title={String(p.day)+' · '+currency(value)}>
+    <span className="owner-chart-bar" style={{height:(value>0?Math.max(3,value/peak*100):2)+'%'}}/>
+    <small>{String(p.day).slice(5,10)}</small>
+   </div>
+  })}</div>}
+ <h3>التفاصيل اليومية</h3>
+ <div style={{overflowX:'auto'}}><table className="list"><thead><tr><th>اليوم</th><th>الطلبات</th><th>المبيعات المدفوعة</th></tr></thead>
+ <tbody>{(report.periods||[]).map((p:any)=><tr key={p.day}><td>{String(p.day).slice(0,10)}</td><td>{p.orders}</td><td>{currency(p.paid_minor)}</td></tr>)}</tbody></table></div>
+ </div></>}
+
  </main>
 }
