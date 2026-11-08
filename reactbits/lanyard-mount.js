@@ -21,7 +21,7 @@
       orientation:'portrait',
       finish:'matte',
       cornerRadius:0.29,
-      size:window.matchMedia('(max-width: 680px)').matches?0.43:0.60,
+      size:window.matchMedia('(max-width: 680px)').matches?0.37:0.53,
       anchor:'patch-right',
       strapLength:0.8,
       strapColor:'#7f9879',
@@ -34,7 +34,7 @@
       interactive:true,
       intro:true
     }));
-    // Hide the static loading emblem once the real WebGL canvas exists.
+    // Record when the real WebGL canvas exists; the hero has no loading emblem.
     const watcher=new MutationObserver(()=>{
       if(mount.querySelector('canvas')){
         stage.dataset.ready='true';
