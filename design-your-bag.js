@@ -222,9 +222,9 @@ function render(){
   ).join('')+'</div>':'')+
   '<div class="patch-cz-preview-bottom"><p>'+E(productLabel(p))+'</p><span>'+E(T('previewCaption'))+'</span></div>'+
   '<p class="patch-cz-preview-note">'+E(viewMode==='model'?T('modelHelp'):T('previewNotice'))+'</p>'+
-  '<div class="patch-cz-summary"><p class="patch-cz-summary-title">'+E(T('summary'))+'</p><dl class="patch-cz-summary-values" aria-live="polite">'+summaryMarkup()+'</dl><p>'+E(T('previewSummary'))+'</p></div></div></div>'+
+  '<div class="patch-cz-summary"><p class="patch-cz-summary-title">'+E(T('summary'))+'</p><dl class="patch-cz-summary-values" aria-live="off">'+summaryMarkup()+'</dl><p>'+E(T('previewSummary'))+'</p></div></div></div>'+
  '<div class="patch-cz-editor"><div class="patch-cz-top">'+
-  '<p class="patch-cz-kicker">'+E(T('kicker'))+'</p>'+
+  '<p class="patch-cz-kicker">'+E(editingId?T('editingTitle'):T('kicker'))+'</p>'+
   '<h2 id="patchCustomizerTitle">'+E(T('title'))+'</h2>'+
   '<p class="patch-cz-intro">'+E(T('desc'))+'</p></div>'+
   '<fieldset class="patch-cz-field"><legend>'+E(T('chooseStyle'))+'</legend><div class="patch-cz-products">'+list.map(item=>
