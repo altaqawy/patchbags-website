@@ -462,3 +462,39 @@ html[lang="ar"] .patch-cz-monogram{direction:auto;unicode-bidi:plaintext}
 @media(prefers-reduced-motion:reduce){
  .patch-cz-thumbs button,.patch-cz-photo-arrows button{transition:none}
 }
+
+
+/* Owner-uploaded 3D is opt-in and appears only when a supported source exists. */
+.patch-cz-view-modes{
+ display:inline-flex;align-items:center;gap:3px;align-self:flex-start;
+ border:1px solid #cbd7c9;padding:4px;border-radius:100px;
+ margin:0 0 12px;background:#edf1e9;
+}
+.patch-cz-view-modes button{
+ border:0;background:transparent;color:#5f735f;border-radius:100px;
+ font:700 10px/1.45 var(--pb-ui-en,Manrope,system-ui);
+ padding:8px 14px;cursor:pointer;
+}
+.patch-cz-view-modes button[aria-pressed="true"]{
+ background:#354b3b;color:#f4f6ed;box-shadow:0 2px 9px #243a2e20;
+}
+.patch-cz-photo-model{background:radial-gradient(ellipse at 30% 20%,#edf0e8,#d2d7cc)}
+.patch-cz-photo-model::after{pointer-events:none;opacity:.25}
+.patch-cz-photo-model model-viewer{
+ width:100%;height:100%;
+ display:block;outline:0;
+ background:transparent;
+ --poster-color:transparent;
+}
+html[lang="ar"] .patch-cz-view-modes button{
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
+ font-size:11px;letter-spacing:0;
+}
+@media(max-width:690px){
+ .patch-cz-view-modes{grid-column:1/-1;grid-row:2;margin:0}
+ .patch-cz-view-modes+.patch-cz-photo{grid-row:3 / span 2}
+ .patch-cz-view-modes~.patch-cz-preview-bottom{grid-row:3}
+ .patch-cz-view-modes~.patch-cz-preview-note{grid-row:4}
+ .patch-cz-view-modes~.patch-cz-thumbs{grid-row:5}
+ .patch-cz-view-modes~.patch-cz-summary{grid-row:6}
+}
