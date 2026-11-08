@@ -1157,6 +1157,11 @@ const Lanyard = ({
       raf = requestAnimationFrame(tick);
     };
 
+    // PatCh.BaGs overlay adaptation: the original Three.js canvas now fills
+    // the entire hero so swinging cards cannot be clipped at a side-column.
+    // Listen on the parent hero instead: normal links remain clickable because
+    // pointer events are prevented only after the raycast hits the 3D card.
+    const pointerSurface = container.closest('.editorial-hero') || canvas;
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
 
@@ -1176,7 +1181,7 @@ const Lanyard = ({
     };
 
     const setCursor = value => {
-      if (canvas.style.cursor !== value) canvas.style.cursor = value;
+      if (pointerSurface.style.cursor !== value) pointerSurface.style.cursor = value;
     };
 
     const flip = point => {
@@ -1193,6 +1198,8 @@ const Lanyard = ({
 
     const onPointerDown = event => {
       if (!settingsRef.current.interactive || event.button > 0) return;
+      // Never hijack the existing hero checkout and collection links.
+      if (event.target instanceof Element && event.target.closest('a,button,input,textarea,select,[role="button"]')) return;
       toPointer(event);
       const hit = pickCard();
       if (!hit) return;
@@ -1204,7 +1211,7 @@ const Lanyard = ({
         target: hit.point.clone()
       };
       press = { x: event.clientX, y: event.clientY, time: performance.now(), point: hit.point.clone() };
-      canvas.setPointerCapture?.(event.pointerId);
+      pointerSurface.setPointerCapture?.(event.pointerId);
       setCursor('grabbing');
       event.preventDefault();
       start();
@@ -1229,23 +1236,24 @@ const Lanyard = ({
       sim.grab = null;
       if (press && event.type === 'pointerup' && performance.now() - press.time < 450) flip(press.point);
       press = null;
-      canvas.releasePointerCapture?.(event.pointerId);
+      pointerSurface.releasePointerCapture?.(event.pointerId);
       setCursor(hovering && event.pointerType !== 'touch' ? 'grab' : '');
       start();
     };
 
     const onTouchStart = event => {
       if (!settingsRef.current.interactive || event.touches.length !== 1) return;
+      if (event.target instanceof Element && event.target.closest('a,button,input,textarea,select,[role="button"]')) return;
       toPointer(event.touches[0]);
       if (pickCard()) event.preventDefault();
     };
 
-    canvas.addEventListener('pointerdown', onPointerDown);
-    canvas.addEventListener('pointermove', onPointerMove);
-    canvas.addEventListener('pointerup', onPointerUp);
-    canvas.addEventListener('pointercancel', onPointerUp);
-    canvas.addEventListener('lostpointercapture', onPointerUp);
-    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+    pointerSurface.addEventListener('pointerdown', onPointerDown);
+    pointerSurface.addEventListener('pointermove', onPointerMove);
+    pointerSurface.addEventListener('pointerup', onPointerUp);
+    pointerSurface.addEventListener('pointercancel', onPointerUp);
+    pointerSurface.addEventListener('lostpointercapture', onPointerUp);
+    pointerSurface.addEventListener('touchstart', onTouchStart, { passive: false });
 
     const resize = () => {
       view.width = Math.max(1, container.clientWidth);
@@ -1278,12 +1286,12 @@ const Lanyard = ({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
-      canvas.removeEventListener('pointerdown', onPointerDown);
-      canvas.removeEventListener('pointermove', onPointerMove);
-      canvas.removeEventListener('pointerup', onPointerUp);
-      canvas.removeEventListener('pointercancel', onPointerUp);
-      canvas.removeEventListener('lostpointercapture', onPointerUp);
-      canvas.removeEventListener('touchstart', onTouchStart);
+      pointerSurface.removeEventListener('pointerdown', onPointerDown);
+      pointerSurface.removeEventListener('pointermove', onPointerMove);
+      pointerSurface.removeEventListener('pointerup', onPointerUp);
+      pointerSurface.removeEventListener('pointercancel', onPointerUp);
+      pointerSurface.removeEventListener('lostpointercapture', onPointerUp);
+      pointerSurface.removeEventListener('touchstart', onTouchStart);
       [bodyMesh, frontMesh, backMesh, ring, clampMesh, eyelet, band].forEach(mesh => mesh.geometry?.dispose());
       [frontMaterial, backMaterial, edgeMaterial, metalMaterial, bandMaterial].forEach(material => material.dispose());
       [frontTexture, backTexture, strapTexture, grain, weave].forEach(texture => texture.dispose());
