@@ -22,8 +22,9 @@
       finish:'matte',
       cornerRadius:0.29,
       size:window.matchMedia('(max-width: 680px)').matches?0.37:0.53,
-      anchor:'patch-right',
-      strapLength:0.8,
+      anchor:'patch-hero-right',
+      // A shorter mobile strap keeps the badge above the Hero heading and CTA.
+      strapLength:window.matchMedia('(max-width: 680px)').matches?0.21:0.44,
       strapColor:'#7f9879',
       strapWidth:0.6,
       metal:'gold',
