@@ -149,3 +149,935 @@ html[lang="ar"] .patch-footer-opening{direction:rtl}
  .brand>span{font-size:15px}
  .bag-button{padding-inline:8px}
 }
+
+
+/* ─────────────────────────────────────────────────────────────
+   True bilingual art direction.
+   English remains the original left-to-right composition.
+   Arabic receives its own RTL composition, not only translated text.
+   ───────────────────────────────────────────────────────────── */
+html[lang="ar"] body{
+ direction:rtl;
+ font-family:"Cairo",var(--sans);
+ letter-spacing:normal;
+}
+html[lang="ar"] :is(h1,h2,h3,h4,p,small,label,button,a,span,figcaption,blockquote){
+ letter-spacing:normal;
+}
+html[lang="ar"] :is(h1,h2,h3,h4){line-height:1.4}
+html[lang="ar"] .topline{
+ direction:rtl;
+ letter-spacing:0;
+ text-transform:none;
+ font-size:10px;
+}
+html[lang="ar"] .nav-wrap{
+ direction:rtl;
+}
+html[lang="ar"] .brand{
+ direction:ltr;
+ text-align:left;
+ flex:none;
+}
+html[lang="ar"] .brand>span,
+html[lang="ar"] .footer-brand{
+ direction:ltr;
+ unicode-bidi:isolate;
+}
+html[lang="ar"] .brand small{
+ direction:rtl;
+ letter-spacing:0;
+ text-align:right;
+}
+html[lang="ar"] .desktop-nav{
+ direction:rtl;
+ gap:clamp(17px,2.5vw,34px);
+}
+html[lang="ar"] .nav-actions{
+ direction:ltr;
+}
+html[lang="ar"] .patch-lang-toggle{
+ direction:ltr;
+}
+html[lang="ar"] .mobile-nav{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .mobile-nav a,
+html[lang="ar"] .mobile-search-link{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .mobile-nav a span,
+html[lang="ar"] .mobile-search-link span{
+ transform:scaleX(-1);
+}
+html[lang="ar"] .skip-link{
+ left:auto;
+ right:12px;
+ direction:rtl;
+}
+html[lang="ar"] .editorial-hero{
+ direction:rtl;
+}
+html[lang="ar"] .editorial-hero-image{
+ left:-12%;
+ right:auto;
+ -webkit-mask-image:linear-gradient(to left,transparent 0%,rgba(0,0,0,.55) 10%,#000 23%,#000 100%);
+ mask-image:linear-gradient(to left,transparent 0%,rgba(0,0,0,.55) 10%,#000 23%,#000 100%);
+}
+html[lang="ar"] .editorial-hero-vignette{
+ background:
+  linear-gradient(270deg,rgba(23,26,25,.63) 0%,rgba(25,28,27,.49) 28%,rgba(30,31,31,.08) 55%,transparent 78%),
+  linear-gradient(0deg,rgba(14,18,17,.42),transparent 23%);
+}
+html[lang="ar"] .editorial-hero-content.container{
+ direction:rtl;
+ align-items:flex-end;
+ text-align:right;
+}
+html[lang="ar"] .hero-kicker{
+ direction:rtl;
+ justify-content:flex-start;
+ letter-spacing:0;
+ text-transform:none;
+ font-size:11px;
+}
+html[lang="ar"] .hero-kicker-dot{flex:none}
+html[lang="ar"] .editorial-hero h1{
+ direction:rtl;
+ text-align:right;
+ font-size:clamp(62px,6.6vw,108px);
+ line-height:1.34;
+ letter-spacing:0;
+ max-width:49%;
+ text-wrap:balance;
+}
+html[lang="ar"] .editorial-hero h1 em{font-weight:700}
+html[lang="ar"] .patch-hero-lead{
+ direction:rtl;
+ text-align:right;
+ max-width:440px;
+ line-height:2;
+ font-size:clamp(15px,1.35vw,18px);
+}
+html[lang="ar"] .patch-hero-actions{
+ direction:rtl;
+ justify-content:flex-start;
+}
+html[lang="ar"] .patch-hero-actions .hero-cta{
+ direction:rtl;
+ padding:13px 25px 13px 17px;
+ gap:28px;
+ font-family:"Cairo",var(--sans);
+}
+html[lang="ar"] .patch-hero-actions .hero-cta span,
+html[lang="ar"] .patch-hero-secondary span,
+html[lang="ar"] .text-link span,
+html[lang="ar"] .patch-footer-cta>a span,
+html[lang="ar"] .patch-footer-action span,
+html[lang="ar"] .button-icon{
+ transform:scaleX(-1);
+}
+html[lang="ar"] .patch-hero-secondary{
+ font-size:13px;
+}
+html[lang="ar"] .patch-hero-notes{
+ direction:rtl;
+ font-size:11px;
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-hero-vertical{
+ right:auto;
+ left:2.6%;
+ writing-mode:vertical-rl;
+}
+html[lang="ar"] .patch-hero-index{
+ right:auto;
+ left:5%;
+ direction:ltr;
+}
+html[lang="ar"] .editorial-hero-bottom{
+ direction:rtl;
+ letter-spacing:0;
+ text-transform:none;
+}
+html[lang="ar"] .editorial-hero-bottom a{
+ direction:rtl;
+}
+html[lang="ar"] .editorial-hero-bottom a span{
+ transform:none;
+}
+html[lang="ar"] .marquee{
+ direction:rtl;
+}
+html[lang="ar"] .marquee-track{
+ direction:rtl;
+}
+html[lang="ar"] .visual-categories,
+html[lang="ar"] .collection,
+html[lang="ar"] .editorial-feature,
+html[lang="ar"] .lookbook-section,
+html[lang="ar"] .patch-words-section,
+html[lang="ar"] .custom-section,
+html[lang="ar"] .social-section,
+html[lang="ar"] .story-section,
+html[lang="ar"] .site-footer{
+ direction:rtl;
+}
+html[lang="ar"] .category-header{
+ direction:rtl;
+ text-align:right;
+ align-items:flex-end;
+}
+html[lang="ar"] .category-header h2,
+html[lang="ar"] .section-heading h2,
+html[lang="ar"] .feature-top h2,
+html[lang="ar"] .lookbook-head h2,
+html[lang="ar"] .patch-words-head h2,
+html[lang="ar"] .custom-copy h2,
+html[lang="ar"] .social-heading h2,
+html[lang="ar"] .story-copy h2{
+ font-family:"Cairo",var(--sans);
+ font-weight:700;
+ letter-spacing:0;
+ line-height:1.42;
+ text-align:right;
+}
+html[lang="ar"] .category-tiles{
+ direction:rtl;
+}
+html[lang="ar"] .category-tile-caption{
+ left:auto;
+ right:7%;
+ align-items:flex-end;
+ text-align:right;
+ direction:rtl;
+}
+html[lang="ar"] .category-tile-caption small{
+ letter-spacing:0;
+}
+html[lang="ar"] .section-heading{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .section-heading .eyebrow,
+html[lang="ar"] .feature-top .eyebrow,
+html[lang="ar"] .social-heading .eyebrow{
+ direction:rtl;
+ justify-content:flex-start;
+}
+html[lang="ar"] .filters{
+ direction:rtl;
+ justify-content:flex-start;
+}
+html[lang="ar"] .filter-chip{
+ direction:rtl;
+}
+html[lang="ar"] .filter-chip span{
+ margin-left:0;
+ margin-right:9px;
+}
+html[lang="ar"] .products-grid{
+ direction:rtl;
+}
+html[lang="ar"] .product-card,
+html[lang="ar"] .product-info,
+html[lang="ar"] .product-variant-picker{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .product-image-label{
+ left:auto;
+ right:14px;
+ letter-spacing:0;
+}
+html[lang="ar"] .product-photo .photo-count{
+ left:auto;
+ right:15px;
+}
+html[lang="ar"] .product-photo .product-quick{
+ right:auto;
+ left:15px;
+}
+html[lang="ar"] .product-name button{
+ text-align:right;
+}
+html[lang="ar"] .product-add{
+ margin-inline-start:0;
+}
+html[lang="ar"] .product-variant-heading{
+ direction:rtl;
+}
+html[lang="ar"] .product-variant-options{
+ direction:rtl;
+}
+html[lang="ar"] .collection-note{
+ direction:rtl;
+ text-align:center;
+}
+html[lang="ar"] .collection-note a{
+ margin-left:0;
+ margin-right:8px;
+}
+html[lang="ar"] .editorial-feature .feature-top{
+ direction:rtl;
+}
+html[lang="ar"] .feature-grid{
+ direction:rtl;
+}
+html[lang="ar"] .feature-caption{
+ align-items:flex-end;
+ text-align:right;
+ direction:rtl;
+}
+html[lang="ar"] .patch-lookbook-premium .lookbook-head{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .patch-lookbook-premium .lookbook-head>div{
+ text-align:right;
+}
+html[lang="ar"] .patch-lookbook-intro{
+ direction:rtl;
+ text-align:right;
+ line-height:2;
+}
+html[lang="ar"] .patch-lookbook-premium .lookbook-grid{
+ direction:rtl;
+}
+html[lang="ar"] .patch-lookbook-premium .lookbook-frame figcaption{
+ left:auto;
+ right:24px;
+ direction:rtl;
+ text-align:right;
+ letter-spacing:0;
+}
+html[lang="ar"] .lookbook-hotspot-label{
+ direction:rtl;
+}
+html[lang="ar"] .patch-lookbook-footer{
+ direction:rtl;
+ text-align:right;
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-lookbook-footer span::before{
+ order:2;
+}
+html[lang="ar"] .patch-lookbook-controls{
+ direction:ltr;
+}
+html[lang="ar"] .patch-words-inner{
+ direction:rtl;
+}
+html[lang="ar"] .patch-words-head{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .patch-words-head>div{
+ text-align:right;
+}
+html[lang="ar"] .patch-words-head>p{
+ direction:rtl;
+ text-align:right;
+ line-height:2;
+}
+html[lang="ar"] .patch-words-stage{
+ direction:rtl;
+}
+html[lang="ar"] .patch-words-copy{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .patch-review-quote{
+ direction:rtl;
+ text-align:right;
+ font-family:"Cairo",var(--sans);
+ letter-spacing:0;
+ line-height:1.9;
+}
+html[lang="ar"] .patch-review-meta,
+html[lang="ar"] .patch-review-card-label,
+html[lang="ar"] .patch-review-scroll-label{
+ letter-spacing:0;
+ text-align:right;
+}
+html[lang="ar"] .patch-review-controls{
+ direction:rtl;
+}
+html[lang="ar"] .patch-review-count{
+ direction:ltr;
+ padding-left:0;
+ padding-right:14px;
+}
+html[lang="ar"] .patch-words-photo{
+ direction:rtl;
+}
+html[lang="ar"] .patch-review-photo-tag{
+ left:auto;
+ right:17px;
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-review-space .patch-depth-card{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .patch-review-byline{
+ direction:rtl;
+}
+html[lang="ar"] .patch-review-byline small{
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-review-stage-note{
+ letter-spacing:0;
+}
+html[lang="ar"] .custom-inner{
+ direction:rtl;
+}
+html[lang="ar"] .custom-copy{
+ direction:rtl;
+ text-align:right;
+ padding-left:0;
+ padding-right:4%;
+}
+html[lang="ar"] .custom-copy h2{
+ text-align:right;
+}
+html[lang="ar"] .custom-kicker{
+ letter-spacing:0;
+}
+html[lang="ar"] .custom-copy .button{
+ direction:rtl;
+}
+html[lang="ar"] .custom-visual{
+ direction:rtl;
+}
+html[lang="ar"] .custom-image-wrap{
+ transform:rotate(-4deg);
+}
+html[lang="ar"] .handwriting{
+ left:auto;
+ right:2%;
+ transform:rotate(11deg);
+ direction:rtl;
+}
+html[lang="ar"] .social-heading{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .social-gallery{
+ direction:rtl;
+}
+html[lang="ar"] .story-section{
+ direction:rtl;
+}
+html[lang="ar"] .story-photo{
+ order:0;
+}
+html[lang="ar"] .photo-label{
+ left:auto;
+ right:8%;
+ letter-spacing:0;
+}
+html[lang="ar"] .story-copy{
+ direction:rtl;
+ align-items:flex-end;
+ text-align:right;
+}
+html[lang="ar"] .story-copy h2{
+ white-space:normal;
+}
+html[lang="ar"] .story-copy>p:not(.eyebrow){
+ direction:rtl;
+ text-align:right;
+ line-height:2;
+}
+html[lang="ar"] .story-copy .eyebrow{
+ direction:rtl;
+}
+html[lang="ar"] .story-asterisk{
+ right:auto;
+ left:-80px;
+}
+html[lang="ar"] .patch-footer-opening{
+ direction:rtl;
+}
+html[lang="ar"] .patch-footer-cta{
+ border-left:0;
+ border-right:1px solid #d1d9ce;
+ padding:18px 32px 8px 0;
+ text-align:right;
+}
+html[lang="ar"] .patch-footer-cta p{
+ direction:rtl;
+ text-align:right;
+ letter-spacing:0;
+ line-height:1.55;
+}
+html[lang="ar"] .patch-footer-cta>a{
+ direction:rtl;
+}
+html[lang="ar"] .patch-footer-nav{
+ direction:rtl;
+}
+html[lang="ar"] .patch-footer-group{
+ align-items:flex-start;
+ text-align:right;
+}
+html[lang="ar"] .patch-footer-group-label{
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-footer-group>a,
+html[lang="ar"] .patch-footer-action{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .patch-footer-group>a:hover,
+html[lang="ar"] .patch-footer-action:hover{
+ transform:translateX(-3px);
+}
+html[lang="ar"] .patch-footer-follow .patch-social-icons{
+ direction:ltr;
+}
+html[lang="ar"] .patch-footer-follow>p{
+ text-align:right;
+ line-height:1.9;
+}
+html[lang="ar"] .patch-footer-base{
+ direction:rtl;
+ letter-spacing:0;
+}
+html[lang="ar"] .footer-bottom{
+ direction:rtl;
+}
+html[lang="ar"] .drawer,
+html[lang="ar"] .search-modal,
+html[lang="ar"] .product-modal,
+html[lang="ar"] .patch-commerce-layer,
+html[lang="ar"] .patch-commerce-dialog,
+html[lang="ar"] .patch-commerce-content{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .drawer-head,
+html[lang="ar"] .search-heading{
+ direction:rtl;
+}
+html[lang="ar"] .drawer-head h2,
+html[lang="ar"] .search-heading>span,
+html[lang="ar"] .product-modal-info{
+ text-align:right;
+}
+html[lang="ar"] .drawer-body,
+html[lang="ar"] .drawer-bottom,
+html[lang="ar"] .product-modal-info,
+html[lang="ar"] .search-results{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .bag-item,
+html[lang="ar"] .patch-cart-card{
+ direction:rtl;
+}
+html[lang="ar"] .bag-item-body,
+html[lang="ar"] .patch-cart-card>div{
+ text-align:right;
+}
+html[lang="ar"] .patch-cart-card{
+ grid-template-columns:91px minmax(0,1fr);
+}
+html[lang="ar"] .patch-cart-adjust{
+ direction:rtl;
+}
+html[lang="ar"] .patch-cart-price,
+html[lang="ar"] .patch-live-price,
+html[lang="ar"] .patch-compare-price{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .product-modal{
+ direction:rtl;
+}
+html[lang="ar"] .product-modal-info h2,
+html[lang="ar"] .product-modal-info>p{
+ text-align:right;
+ line-height:1.9;
+}
+html[lang="ar"] .modal-photo-controls{
+ direction:ltr;
+}
+html[lang="ar"] .modal-thumbnails{
+ direction:rtl;
+}
+html[lang="ar"] .product-code,
+html[lang="ar"] .patch-hero-index,
+html[lang="ar"] .patch-review-count,
+
+html[lang="ar"] .patch-commerce-form{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .patch-commerce-form label,
+html[lang="ar"] .patch-commerce-form .patch-pay-option,
+html[lang="ar"] .patch-auth-tabs{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .patch-commerce-form input:not([type="radio"]):not([type="checkbox"]),
+html[lang="ar"] .patch-commerce-form textarea{
+ direction:rtl;
+ text-align:right;
+}
+html[lang="ar"] .patch-commerce-form input[type="email"],
+html[lang="ar"] .patch-commerce-form input[type="tel"],
+html[lang="ar"] .patch-commerce-form input[type="password"]{
+ direction:ltr;
+ text-align:left;
+}
+html[lang="ar"] .patch-pay-option input{
+ margin-left:10px;
+ margin-right:0;
+}
+html[lang="ar"] .patch-checkout-steps{
+ direction:rtl;
+}
+html[lang="ar"] .patch-checkout-line{
+ direction:rtl;
+}
+html[lang="ar"] .patch-checkout-disclaimer,
+html[lang="ar"] .patch-auth-notice{
+ text-align:right;
+ line-height:1.9;
+}
+html[lang="ar"] .patch-commerce-toolbar{
+ direction:rtl;
+}
+html[lang="ar"] .patch-form-submit,
+html[lang="ar"] .patch-action-button{
+ direction:rtl;
+}
+html[lang="ar"] .patch-scroll-progress{
+ direction:ltr;
+}
+html[lang="ar"] .product-info p,
+html[lang="ar"] .patch-compare-price,
+html[lang="ar"] .patch-cart-price{
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-social-icons{
+ direction:ltr;
+}
+html[lang="ar"] input[type="email"],
+html[lang="ar"] input[type="tel"],
+html[lang="ar"] input[type="password"]{
+ direction:ltr;
+ text-align:left;
+}
+@media(min-width:681px){
+ html[lang="ar"] .editorial-hero-content.container{
+  margin-left:auto;
+  margin-right:auto;
+  padding-left:0;
+  padding-right:0;
+ }
+}
+@media(min-width:681px) and (max-width:1199px){
+ html[lang="ar"] .editorial-hero-image{
+  left:-7%;
+  right:auto;
+  -webkit-mask-image:linear-gradient(to left,transparent,#000 23%,#000 100%);
+  mask-image:linear-gradient(to left,transparent,#000 23%,#000 100%);
+ }
+ html[lang="ar"] .editorial-hero h1{
+  max-width:49%;
+  font-size:clamp(48px,5.7vw,74px);
+ }
+}
+@media(max-width:900px){
+ html[lang="ar"] .nav-wrap{direction:rtl}
+ html[lang="ar"] .mobile-nav{direction:rtl}
+ html[lang="ar"] .category-header{
+  align-items:flex-end;
+  text-align:right;
+ }
+ html[lang="ar"] .patch-words-stage{
+  direction:rtl;
+ }
+}
+@media(max-width:680px){
+ html[lang="ar"] .editorial-hero-image{
+  left:0;
+  right:0;
+  object-position:48% 44%;
+  -webkit-mask-image:none;
+  mask-image:none;
+ }
+ html[lang="ar"] .editorial-hero-vignette{
+  background:linear-gradient(0deg,rgba(12,18,14,.79),rgba(12,18,14,.18) 66%,rgba(12,18,14,.04));
+ }
+ html[lang="ar"] .editorial-hero-content{
+  align-items:flex-end;
+  text-align:right;
+  direction:rtl;
+  padding:0 0 91px;
+ }
+ html[lang="ar"] .hero-kicker{
+  font-size:9px;
+  letter-spacing:0;
+  line-height:1.8;
+ }
+ html[lang="ar"] .editorial-hero h1{
+  max-width:100%;
+  font-size:clamp(43px,10.2vw,65px);
+  line-height:1.42;
+  letter-spacing:0;
+  margin-bottom:16px;
+ }
+ html[lang="ar"] .patch-hero-lead{
+  max-width:100%;
+  font-size:13px;
+  line-height:1.95;
+  margin:0 0 17px;
+ }
+ html[lang="ar"] .patch-hero-actions{
+  flex-direction:column;
+  align-items:flex-start;
+  gap:8px;
+ }
+ html[lang="ar"] .patch-hero-actions .hero-cta{
+  padding:9px 17px 9px 10px;
+  gap:17px;
+ }
+ html[lang="ar"] .patch-hero-notes{
+  justify-content:flex-start;
+  margin-top:17px;
+  font-size:9px;
+  gap:9px;
+ }
+ html[lang="ar"] .editorial-hero-bottom{
+  direction:rtl;
+  left:18px;
+  right:18px;
+  letter-spacing:0;
+ }
+ html[lang="ar"] .editorial-hero-bottom>a{
+  direction:rtl;
+ }
+ html[lang="ar"] .category-header{
+  align-items:flex-end;
+  text-align:right;
+ }
+ html[lang="ar"] .category-header h2,
+ html[lang="ar"] .collection .section-heading h2,
+ html[lang="ar"] .editorial-feature .feature-top h2,
+ html[lang="ar"] .patch-lookbook-premium .lookbook-head h2,
+ html[lang="ar"] .patch-words-head h2,
+ html[lang="ar"] .custom-copy h2,
+ html[lang="ar"] .social-heading h2,
+ html[lang="ar"] .story-copy h2{
+  font-size:clamp(37px,9.3vw,53px);
+  line-height:1.48;
+ }
+ html[lang="ar"] .category-tile-caption{
+  right:7%;
+  left:auto;
+ }
+ html[lang="ar"] .product-image-label{
+  top:9px;
+  right:8px;
+ }
+ html[lang="ar"] .product-photo .photo-count{
+  right:8px;
+  left:auto;
+ }
+ html[lang="ar"] .product-photo .product-quick{
+  left:8px;
+  right:auto;
+ }
+ html[lang="ar"] .product-info{
+  align-items:flex-start;
+  text-align:right;
+ }
+ html[lang="ar"] .patch-lookbook-premium .lookbook-frame figcaption{
+  right:14px;
+  left:14px;
+  font-size:9px;
+ }
+ html[lang="ar"] .patch-lookbook-footer{
+  text-align:right;
+ }
+ html[lang="ar"] .patch-words-copy{
+  text-align:right;
+ }
+ html[lang="ar"] .patch-review-controls{
+  direction:rtl;
+ }
+ html[lang="ar"] .custom-copy{
+  padding:63px 10px 16px;
+  text-align:right;
+ }
+ html[lang="ar"] .custom-visual{
+  direction:rtl;
+ }
+ html[lang="ar"] .handwriting{
+  right:7%;
+  left:auto;
+  font-size:30px;
+ }
+ html[lang="ar"] .social-heading{
+  align-items:flex-end;
+  text-align:right;
+ }
+ html[lang="ar"] .story-copy{
+  align-items:flex-end;
+  text-align:right;
+ }
+ html[lang="ar"] .story-copy h2{
+  white-space:normal;
+ }
+ html[lang="ar"] .patch-footer-cta{
+  border-right:0;
+  padding:18px 0 0;
+  border-top:1px solid #d4dcd1;
+ }
+ html[lang="ar"] .patch-footer-base{
+  text-align:right;
+ }
+ html[lang="ar"] .patch-cart-card{
+  grid-template-columns:77px minmax(0,1fr);
+ }
+ html[lang="ar"] .patch-commerce-content{
+  text-align:right;
+ }
+}
+@media(max-width:400px){
+ html[lang="ar"] .brand>span{font-size:15px}
+ html[lang="ar"] .nav-actions{direction:ltr}
+ html[lang="ar"] .editorial-hero h1{font-size:clamp(40px,10vw,56px)}
+}
+
+/* Directional controls and content-flow details. */
+html[lang="ar"] .patch-scroll-progress>span{transform-origin:right}
+html[lang="ar"] [data-lookbook-direction],
+html[lang="ar"] [data-patch-review-prev],
+html[lang="ar"] [data-patch-review-next],
+html[lang="ar"] .modal-photo-controls button{
+ transform:scaleX(-1);
+}
+html[lang="ar"] .patch-hero-secondary span{
+ display:inline-block;
+}
+html[lang="ar"] .patch-cart-card>img{
+ grid-column:1;
+}
+html[lang="ar"] .patch-cart-card>div{
+ grid-column:2;
+}
+html[lang="ar"] .patch-commerce-form input[type="checkbox"],
+html[lang="ar"] .patch-commerce-form input[type="radio"]{
+ margin-inline:0 9px;
+}
+html[lang="ar"] .patch-words-copy .patch-quote-glyph{
+ align-self:flex-start;
+}
+html[lang="ar"] .patch-review-card-top{
+ direction:rtl;
+}
+html[lang="ar"] .patch-review-sparkles{
+ direction:ltr;
+}
+
+/* Keep overlays and floating actions balanced in the RTL composition. */
+html[lang="ar"] .product-close,
+html[lang="ar"] .patch-commerce-close{
+ right:auto;
+ left:18px;
+}
+html[lang="ar"] #patchWhatsappFab{
+ right:auto;
+ left:22px;
+}
+html[lang="ar"] .lookbook-frame-number{
+ direction:ltr;
+ unicode-bidi:isolate;
+}
+html[lang="ar"] .patch-footer-base>span:first-child{
+ direction:rtl;
+}
+html[lang="ar"] .patch-footer-base>span:first-child #year{
+ direction:ltr;
+ unicode-bidi:isolate;
+}
+html[lang="ar"] .patch-review-count{
+ unicode-bidi:isolate;
+}
+html[lang="ar"] .patch-commerce-close{
+ left:16px;
+}
+
+/* The Arabic shopping bag opens from the same side as its header control. */
+html[lang="ar"] .drawer{
+ right:auto;
+ left:0;
+ transform:translateX(-102%);
+ box-shadow:15px 0 55px rgba(0,0,0,.07);
+}
+html[lang="ar"] .drawer.open{transform:translateX(0)}
+
+/* Arabic font stack for components that define their own English display font. */
+html[lang="ar"] :is(
+ .bag-button,.button,.filter-chip,.product-name,.product-info small,.product-info p,
+ .product-variant-picker,.product-variant-note,.drawer-eyebrow,.drawer-head h2,
+ .empty-bag h3,.empty-bag p,.bag-item h3,.bag-item-body small,.bag-item-body button,
+ .patch-cart-card h3,.patch-cart-card small,.patch-cart-price,.search-field input,
+ .search-heading>span,.product-modal-info h2,.product-modal-info p,.modal-meta,
+ .patch-kicker,.patch-commerce-content h2,.patch-commerce-intro,.patch-commerce-form,
+ .patch-form-submit,.patch-action-button,.patch-checkout-steps,.patch-auth-notice,
+ .patch-checkout-disclaimer,.patch-pay-option,.patch-review-photo-tag,
+ .patch-review-card-label,.patch-review-stage-note,.patch-review-scroll-label,
+ .patch-whatsapp-label,.patch-footer-eyebrow,.patch-footer-group-label,
+ .patch-footer-group>a,.patch-footer-action
+){
+ font-family:"Cairo",var(--sans);
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-cart-card small,
+html[lang="ar"] .bag-item-body small{
+ direction:rtl;
+ text-align:right;
+ unicode-bidi:plaintext;
+}
+html[lang="ar"] .product-name{
+ line-height:1.55;
+}
+html[lang="ar"] .product-modal-info h2,
+html[lang="ar"] .drawer-head h2,
+html[lang="ar"] .empty-bag h3{
+ line-height:1.5;
+}
+html[lang="ar"] .patch-commerce-form input,
+html[lang="ar"] .patch-commerce-form textarea{
+ font-family:"Cairo",var(--sans);
+}
+
+html[lang="ar"] .patch-review-space .patch-depth-card .quote{
+ font-family:"Cairo",var(--sans);
+ font-size:clamp(20px,2.4vw,31px);
+ line-height:1.8;
+ letter-spacing:0;
+}
+html[lang="ar"] .patch-review-byline strong{
+ font-family:"Cairo",var(--sans);
+ letter-spacing:0;
+}
+
+@media(max-width:680px){
+ html[lang="ar"] .patch-review-space .patch-depth-card .quote{
+  font-size:clamp(18px,4.8vw,22px);
+  line-height:1.65;
+ }
+ html[lang="ar"] .product-modal-info h2{
+  font-size:clamp(29px,8vw,39px);
+  line-height:1.55;
+ }
+}

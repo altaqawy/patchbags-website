@@ -27,19 +27,32 @@ let activeImageIndex=0;
 // Optional live catalog — created and edited through the owner's secure backend.
 // Existing editorial images remain in place until the owner activates items.
 function cleanCatalogText(value,max=240){return String(value??'').replace(/[<>"'&]/g,'').slice(0,max)}
+function storeLanguage(){return document.documentElement.lang==='ar'?'ar':'en'}
+function storeTranslate(value){const text=String(value??'');return storeLanguage()==='ar'?(window.PATCH_LANGUAGE?.translate?.(text)||text):text}
+function productName(p){return storeLanguage()==='ar'?(p.nameAr||storeTranslate(p.name)):p.name}
+function productDescription(p){return storeLanguage()==='ar'?(p.descriptionAr||storeTranslate(p.description)):p.description}
+function productLabel(p){return storeLanguage()==='ar'?(p.labelAr||storeTranslate(p.label)):p.label}
+function productTag(p){return storeLanguage()==='ar'?(p.tagAr||storeTranslate(p.tag)):p.tag}
+function productColor(value){return storeTranslate(value)}
+function displayMoney(minor){
+ const amount=new Intl.NumberFormat(storeLanguage()==='ar'?'ar-EG':'en-EG',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(minor)/100);
+ return amount+(storeLanguage()==='ar'?' ج.م':' EGP');
+}
+function photoCount(count){return storeLanguage()==='ar'?(count===1?'صورة واحدة':count+' صور'):(count+' photos')}
+
 function pricedLine(p){
  const price=Number(p.priceMinor);
  if(!Number.isFinite(price)||price<=0)return '<p>Details & pricing on request</p>';
- const now=(price/100).toFixed(2)+' EGP',was=Number(p.compareAtMinor);
+ const now=displayMoney(price),was=Number(p.compareAtMinor);
  return '<p class="patch-live-price">'+now+'</p>'+
-  (was>price?'<p class="patch-compare-price"><del>'+(was/100).toFixed(2)+' EGP</del><span>Save '+Math.round((1-price/was)*100)+'%</span></p>':'');
+  (was>price?'<p class="patch-compare-price"><del>'+displayMoney(was)+'</del><span>'+(storeLanguage()==='ar'?'خصم ':'Save ')+Math.round((1-price/was)*100)+'%</span></p>':'');
 }
 function applyOwnerCatalog(data){
  if(!data||!Array.isArray(data.products))return;
  for(const row of data.products){
   const id=String(row.id||'');
   if(!/^PB-[0-9]{2,4}$/.test(id)||!row.active||Number(row.price_minor)<=0)continue;
-  const name=cleanCatalogText(row.title,200),description=cleanCatalogText(row.description,3000);
+  const name=cleanCatalogText(row.title,200),nameAr=cleanCatalogText(row.title_ar,200),description=cleanCatalogText(row.description,3000),descriptionAr=cleanCatalogText(row.description_ar,3000);
   let cover=String(row.image_url||'');
   if(!cover.startsWith('https://')&&!cover.startsWith('assets/'))cover='';
   const photos=(Array.isArray(row.media)?row.media:[])
@@ -48,10 +61,13 @@ function applyOwnerCatalog(data){
   const existing=products.find(p=>p.id===id);
   const gallery=photos.length?Array.from(new Set([image,...photos])):(existing?.images||[image]);
   const category=/^[a-z0-9-]{2,50}$/.test(String(row.category_slug||''))?row.category_slug:'bags';
+  const categoryRow=(data.categories||[]).find(c=>c.slug===category)||{};
   const update={
-   id,name,description,category,image,images:gallery,
-   label:cleanCatalogText((data.categories||[]).find(c=>c.slug===category)?.name_en||category,80).toUpperCase(),
+   id,name,nameAr,description,descriptionAr,category,image,images:gallery,
+   label:cleanCatalogText(categoryRow.name_en||category,80).toUpperCase(),
+   labelAr:cleanCatalogText(categoryRow.name_ar||'',80),
    tag:cleanCatalogText(row.badge||'Handmade',40),
+   tagAr:cleanCatalogText(row.badge_ar||'',40),
    priceMinor:Number(row.price_minor),compareAtMinor:row.compare_at_minor?Number(row.compare_at_minor):null,
    mediaExtras:(Array.isArray(row.media)?row.media:[]).filter(a=>['video','model'].includes(a?.type)&&typeof a.url==='string'&&a.url.startsWith('https://')).slice(0,12)
   };
@@ -63,7 +79,7 @@ function applyOwnerCatalog(data){
   const slug=String(category.slug||'');
   if(!/^[a-z0-9-]{2,50}$/.test(slug)||filters.querySelector('[data-filter="'+slug+'"]'))continue;
   const btn=document.createElement('button');btn.type='button';btn.className='filter-chip';btn.dataset.filter=slug;
-  btn.setAttribute('aria-pressed','false');btn.textContent=cleanCatalogText(category.name_en||category.name_ar,70);
+  btn.setAttribute('aria-pressed','false');btn.dataset.nameEn=cleanCatalogText(category.name_en||category.name_ar,70);btn.dataset.nameAr=cleanCatalogText(category.name_ar||'',70);btn.textContent=storeLanguage()==='ar'?(btn.dataset.nameAr||btn.dataset.nameEn):btn.dataset.nameEn;
   btn.addEventListener('click',()=>{
    currentFilter=slug;
    document.querySelectorAll('.filter-chip').forEach(chip=>{const chosen=chip===btn;chip.classList.toggle('active',chosen);chip.setAttribute('aria-pressed',String(chosen))});
@@ -114,18 +130,18 @@ function renderColorPicker(root,selectedId,modal=false){
  const family=colorFamilyByRoot.get(root);
  if(!family)return '';
  const chosen=family.options.find(option=>option.id===selectedId)||family.options[0];
- const name=(products.find(p=>p.id===root)||{}).name||'product';
+ const rootProduct=products.find(p=>p.id===root)||{};const name=productName(rootProduct)||'product';
  return '<div class="product-variant-picker'+(modal?' is-modal':'')+'" data-color-group="'+root+'">'+
-  '<div class="product-variant-heading"><span class="product-variant-kicker">COLOR</span>'+
-  '<strong class="product-variant-color">'+chosen.color+'</strong></div>'+
-  '<div class="product-variant-options" role="group" aria-label="Choose color for '+name+'">'+
+  '<div class="product-variant-heading"><span class="product-variant-kicker">'+storeTranslate('COLOR')+'</span>'+
+  '<strong class="product-variant-color">'+productColor(chosen.color)+'</strong></div>'+
+  '<div class="product-variant-options" role="group" aria-label="'+(storeLanguage()==='ar'?'اختاري لونًا لـ ':'Choose color for ')+name+'">'+
   family.options.map(option=>'<button type="button" class="product-variant-swatch" '+
    'data-color-family="'+root+'" data-color-option="'+option.id+'" '+
-   'aria-label="Show '+option.color+' color" title="'+option.color+'" '+
+   'aria-label="'+(storeLanguage()==='ar'?'عرض اللون ':'Show ')+productColor(option.color)+(storeLanguage()==='ar'?'':' color')+'" title="'+productColor(option.color)+'" '+
    'aria-pressed="'+(option.id===chosen.id)+'" style="--swatch-color:'+option.hex+';'+(option.pattern?'--swatch-pattern:'+option.pattern:'')+'">'+
    '<span class="product-variant-dot" aria-hidden="true"></span></button>').join('')+
   '</div>'+
-  (modal?'<p class="product-variant-note">Photos show the selected color. Availability is confirmed by the studio.</p>':'')+
+  (modal?'<p class="product-variant-note">'+storeTranslate('Photos show the selected color. Availability is confirmed by the studio.')+'</p>':'')+
   '</div>';
 }
 function updateColorCard(root){
@@ -135,20 +151,20 @@ function updateColorCard(root){
  if(!card||!p||!family)return;
  card.dataset.selectedProduct=p.id;
  const main=$('.primary-photo',card),hover=$('.hover-photo',card),count=$('.photo-count',card);
- if(main){main.src=p.image;main.alt=p.name;main.classList.remove('product-variant-fade');void main.offsetWidth;main.classList.add('product-variant-fade')}
+ if(main){main.src=p.image;main.alt=productName(p);main.classList.remove('product-variant-fade');void main.offsetWidth;main.classList.add('product-variant-fade')}
  if(hover){hover.src=p.images[1]||p.image;hover.hidden=p.images.length<2}
- if(count){count.hidden=p.images.length<2;count.textContent=p.images.length+' photos'}
- const tag=$('.product-image-label',card);if(tag)tag.textContent=p.tag;
- const label=$('.product-info small',card);if(label)label.textContent=p.label;
- const name=$('.product-name [data-detail]',card);if(name)name.textContent=p.name;
+ if(count){count.hidden=p.images.length<2;count.textContent=photoCount(p.images.length)}
+ const tag=$('.product-image-label',card);if(tag)tag.textContent=productTag(p);
+ const label=$('.product-info small',card);if(label)label.textContent=productLabel(p);
+ const name=$('.product-name [data-detail]',card);if(name)name.textContent=productName(p);
  $$('[data-detail]',card).forEach(button=>{
   button.dataset.detail=p.id;
-  if(button.classList.contains('product-quick'))button.setAttribute('aria-label','View '+p.name);
+  if(button.classList.contains('product-quick'))button.setAttribute('aria-label',(storeLanguage()==='ar'?'عرض ':'View ')+productName(p));
  });
  const add=$('[data-add]',card);
- if(add){add.dataset.add=p.id;add.setAttribute('aria-label','Add '+p.name+' to your picks')}
+ if(add){add.dataset.add=p.id;add.setAttribute('aria-label',(storeLanguage()==='ar'?'إضافة ':'Add ')+productName(p)+(storeLanguage()==='ar'?' إلى حقيبتك':' to your picks'))}
  const color=$('.product-variant-color',card);
- if(color)color.textContent=family.options.find(o=>o.id===p.id)?.color||'';
+ if(color)color.textContent=productColor(family.options.find(o=>o.id===p.id)?.color||'');
  $$('[data-color-option]',card).forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.colorOption===p.id)));
  card.dispatchEvent(new CustomEvent('patch:variant-changed',{bubbles:true,detail:{root,productId:p.id}}));
 }
@@ -168,8 +184,8 @@ let toastTimer=null;
 function toast(message){const el=byId('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);}
 function persist(){try {localStorage.setItem('patchbags_enquiry',JSON.stringify(picks));}catch(e){} updatePicks();}
 function updatePicks(){byId('bagCount').textContent=picks.length;byId('drawerCount').textContent=`(${picks.length})`;
- const wrapper=byId('bagItems');if(!picks.length){wrapper.innerHTML='<div class="empty-bag"><span>✳</span><h3>Beautiful things belong here.</h3><p>Save a few favorites, then send the studio an enquiry.</p></div>';return;}
- wrapper.innerHTML=picks.map(id=>{const p=products.find(p=>p.id===id);return `<article class="bag-item"><img src="${p.image}" alt="${p.name}"><div class="bag-item-body"><div><h3>${p.name}</h3><small>${p.label} · ${p.id}</small></div><button type="button" data-remove="${p.id}">Remove piece</button></div></article>`}).join('');
+ const wrapper=byId('bagItems');if(!picks.length){wrapper.innerHTML='<div class="empty-bag"><span>✳</span><h3>'+storeTranslate('Your bag starts here.')+'</h3><p>'+storeTranslate('Find a piece you love, then come back here.')+'</p></div>';return;}
+ wrapper.innerHTML=picks.map(id=>{const p=products.find(p=>p.id===id);return `<article class="bag-item"><img src="${p.image}" alt="${productName(p)}"><div class="bag-item-body"><div><h3>${productName(p)}</h3><small>${productLabel(p)} · ${p.id}</small></div><button type="button" data-remove="${p.id}">${storeTranslate('Remove piece')}</button></div></article>`}).join('');
  $$('[data-remove]',wrapper).forEach(button=>button.addEventListener('click',()=>removePick(button.dataset.remove)));
 }
 function addPick(id){if(!picks.includes(id)){picks.push(id);persist();toast('Added to your enquiry list ♡')}else{toast('Already in your picks ♡')}}
@@ -181,15 +197,15 @@ function renderProducts(){
   const p=getDisplayedVariant(base.id)||base;
   return '<article class="product-card" data-color-card="'+base.id+'" data-selected-product="'+p.id+'" style="animation-delay:'+Math.min(i,5)*55+'ms">'+
     '<div class="product-photo">'+
-    '<img class="primary-photo" src="'+p.image+'" alt="'+p.name+'" loading="lazy" decoding="async">'+
+    '<img class="primary-photo" src="'+p.image+'" alt="'+productName(p)+'" loading="lazy" decoding="async">'+
     '<img class="hover-photo" src="'+(p.images[1]||p.image)+'" alt="" loading="lazy" decoding="async" '+(p.images.length>1?'':'hidden')+'>'+
-    '<span class="photo-count" '+(p.images.length>1?'':'hidden')+'>'+p.images.length+' photos</span>'+
-    '<span class="product-image-label">'+p.tag+'</span>'+
-    '<button class="product-quick" type="button" aria-label="View '+p.name+'" data-detail="'+p.id+'">↗</button></div>'+
-    '<div class="product-info"><div><small>'+p.label+'</small>'+
-    '<h3 class="product-name"><button type="button" data-detail="'+p.id+'">'+p.name+'</button></h3>'+
+    '<span class="photo-count" '+(p.images.length>1?'':'hidden')+'>'+photoCount(p.images.length)+'</span>'+
+    '<span class="product-image-label">'+productTag(p)+'</span>'+
+    '<button class="product-quick" type="button" aria-label="'+(storeLanguage()==='ar'?'عرض ':'View ')+productName(p)+'" data-detail="'+p.id+'">↗</button></div>'+
+    '<div class="product-info"><div><small>'+productLabel(p)+'</small>'+
+    '<h3 class="product-name"><button type="button" data-detail="'+p.id+'">'+productName(p)+'</button></h3>'+
     pricedLine(p)+renderColorPicker(base.id,p.id)+'</div>'+
-    '<button class="product-add" type="button" data-add="'+p.id+'" aria-label="Add '+p.name+' to your picks">+</button></div>'+
+    '<button class="product-add" type="button" data-add="'+p.id+'" aria-label="'+(storeLanguage()==='ar'?'إضافة '+productName(p)+' إلى حقيبتك':'Add '+productName(p)+' to your picks')+'">+</button></div>'+
     '</article>';
  }).join('');
  $$('[data-detail]',grid).forEach(button=>button.addEventListener('click',()=>showProduct(button.dataset.detail)));
@@ -210,10 +226,10 @@ function closeDialog(immediate=false){if(!activeDialog)return;const name=activeD
 function setGalleryImage(index){
  const p=products.find(p=>p.id===activeProduct);if(!p)return;
  activeImageIndex=(index+p.images.length)%p.images.length;
- const photo=byId('modalPhoto');photo.src=p.images[activeImageIndex];photo.alt=`${p.name} — view ${activeImageIndex+1} of ${p.images.length}`;
+ const photo=byId('modalPhoto');photo.src=p.images[activeImageIndex];photo.alt=storeLanguage()==='ar'?`${productName(p)} — الصورة ${activeImageIndex+1} من ${p.images.length}`:`${productName(p)} — view ${activeImageIndex+1} of ${p.images.length}`;
  byId('modalImageStatus').textContent=`${activeImageIndex+1} / ${p.images.length}`;
  const thumbWrap=byId('modalThumbnails');
- thumbWrap.innerHTML=p.images.map((src,i)=>`<button class="modal-thumb ${i===activeImageIndex?'active':''}" data-image-index="${i}" type="button" aria-label="View photo ${i+1} of ${p.name}" aria-pressed="${i===activeImageIndex}"><img src="${src}" alt="" loading="lazy"></button>`).join('');
+ thumbWrap.innerHTML=p.images.map((src,i)=>`<button class="modal-thumb ${i===activeImageIndex?'active':''}" data-image-index="${i}" type="button" aria-label="${storeLanguage()==='ar'?'عرض الصورة ':'View photo '}${i+1}${storeLanguage()==='ar'?' من ':' of '}${productName(p)}" aria-pressed="${i===activeImageIndex}"><img src="${src}" alt="" loading="lazy"></button>`).join('');
  $$('[data-image-index]',thumbWrap).forEach(button=>button.addEventListener('click',()=>setGalleryImage(+button.dataset.imageIndex)));
  byId('modalPrevPhoto').hidden=p.images.length<2;byId('modalNextPhoto').hidden=p.images.length<2;
  thumbWrap.hidden=p.images.length<2;
@@ -222,9 +238,9 @@ function populateProductModal(id){
  const p=products.find(p=>p.id===id);
  if(!p)return;
  activeProduct=p.id;
- byId('modalTitle').textContent=p.name;
- byId('modalDescription').textContent=p.description;
- byId('modalCode').textContent='PIECE '+p.id;
+ byId('modalTitle').textContent=productName(p);
+ byId('modalDescription').textContent=productDescription(p);
+ byId('modalCode').textContent=(storeLanguage()==='ar'?'قطعة ':'PIECE ')+p.id;
  const priceEl=byId('modalPricing');
  if(priceEl)priceEl.innerHTML=pricedLine(p);
  const root=colorRootById.get(id);
@@ -244,11 +260,11 @@ function populateProductModal(id){
    }
    if(item.type==='model'){
     const area=document.createElement('div');area.className='patch-modal-model';
-    const label=document.createElement('p');label.textContent='Explore the 3D product model';area.appendChild(label);
+    const label=document.createElement('p');label.textContent=storeTranslate('Explore the 3D product model');area.appendChild(label);
     const model=document.createElement('model-viewer');
     model.setAttribute('src',item.url);model.setAttribute('camera-controls','');model.setAttribute('auto-rotate','');
-    model.setAttribute('alt','Interactive 3D product model');area.appendChild(model);
-    const link=document.createElement('a');link.href=item.url;link.rel='noopener noreferrer';link.target='_blank';link.textContent='Open original 3D model ↗';
+    model.setAttribute('alt',storeTranslate('Interactive 3D product model'));area.appendChild(model);
+    const link=document.createElement('a');link.href=item.url;link.rel='noopener noreferrer';link.target='_blank';link.textContent=storeTranslate('Open original 3D model ↗');
     area.appendChild(link);extras.appendChild(area);
    }
   }
@@ -262,12 +278,33 @@ function showProduct(id){
  if(activeDialog!=='product')openDialog('product');
 }
 
-function renderSearch(term=''){const words=term.trim().toLocaleLowerCase();const found=products.filter(p=>(p.name+' '+p.label+' '+p.description).toLocaleLowerCase().includes(words));byId('searchResults').innerHTML=found.length?found.map(p=>`<button class="search-result" type="button" data-search-product="${p.id}"><img src="${p.image}" alt=""><span><strong>${p.name}</strong><small>${p.label}</small></span></button>`).join(''):'<p class="search-empty">No matches yet. Try “bag”, “book” or “pouch”.</p>';$$('[data-search-product]',byId('searchResults')).forEach(el=>el.addEventListener('click',()=>showProduct(el.dataset.searchProduct)));}
-async function copyEnquiry(){if(!picks.length){toast('Choose a piece from the collection first');return;}const details=picks.map(id=>{const p=products.find(p=>p.id===id);return `• ${p.name} (${p.id})`;}).join('\n');const message=`Hello PatCh.BaGs! ♡\nI'm interested in these handmade pieces:\n${details}\nCould you please share the prices, available colors, and order details? Thank you!`;
+function normalizeSearchText(value){return String(value||'').toLocaleLowerCase().normalize('NFKD').replace(/[\u064B-\u065F\u0670]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[^\p{L}\p{N}]+/gu,' ').trim()}
+function renderSearch(term=''){
+ const words=normalizeSearchText(term);
+ const aliases=[['شنطه','bag tote crossbody'],['شنط','bags totes'],['حقيبه','bag tote crossbody'],['حقائب','bags totes'],['كروس','crossbody'],['جراب','pouch sleeve'],['جرابات','pouches sleeves'],['محفظه','pouch'],['موبايل','phone pouch'],['هاتف','phone pouch'],['كتاب','book sleeve'],['كتب','books sleeve'],['اكسسوار','accessory'],['اكسسوارات','accessories'],['مخصص','personalized initial custom'],['مخصصه','personalized custom'],['يدوي','handmade'],['قطن','cotton rope'],['وردي','pink blush'],['عاجي','ivory'],['خردلي','mustard']];
+ const expanded=aliases.filter(([ar])=>words.includes(ar)).map(([,en])=>en);
+ const found=products.filter(p=>{
+  const corpus=normalizeSearchText([p.name,p.nameAr,p.label,p.labelAr,p.description,p.descriptionAr,p.category,productName(p),productLabel(p),productDescription(p)].join(' '));
+  return !words||corpus.includes(words)||expanded.some(alias=>alias.split(' ').some(term=>corpus.includes(term)));
+ });
+ byId('searchResults').innerHTML=found.length?found.map(p=>'<button class="search-result" type="button" data-search-product="'+p.id+'"><img src="'+p.image+'" alt=""><span><strong>'+productName(p)+'</strong><small>'+productLabel(p)+'</small></span></button>').join(''):'<p class="search-empty">'+storeTranslate('No matches yet. Try “bag”, “book” or “pouch”.')+'</p>';
+ $('[data-search-product]',byId('searchResults')).forEach(el=>el.addEventListener('click',()=>showProduct(el.dataset.searchProduct)));
+}
+async function copyEnquiry(){
+ if(!picks.length){toast('Choose a piece from the collection first');return;}
+ const details=picks.map(id=>{const p=products.find(p=>p.id===id);return '• '+productName(p)+' ('+p.id+')';}).join('\n');
+ const message=storeLanguage()==='ar'?'مرحبًا PatCh.BaGs ♡\nأرغب في الاستفسار عن القطع التالية:\n'+details+'\nمن فضلكم أرسلوا لي الأسعار والألوان المتاحة وتفاصيل الطلب. شكرًا لكم.':'Hello PatCh.BaGs! ♡\nI\'m interested in these handmade pieces:\n'+details+'\nCould you please share the prices, available colors, and order details? Thank you!';
  let success=false;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(message);success=true;}else{const area=document.createElement('textarea');area.value=message;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();success=document.execCommand('copy');area.remove();}}catch(e){}
  if(success)toast('Enquiry copied — paste it into your Instagram message');else{window.prompt('Copy this enquiry and send it on Instagram:',message)}
 }
 function setup(){byId('year').textContent=new Date().getFullYear();renderProducts();updatePicks();
+ document.addEventListener('patch:language-changed',()=>{
+  document.querySelectorAll('.filter-chip[data-name-en]').forEach(btn=>{btn.textContent=storeLanguage()==='ar'?(btn.dataset.nameAr||btn.dataset.nameEn):btn.dataset.nameEn});
+  renderProducts();updatePicks();
+  if(activeDialog==='product'&&activeProduct)populateProductModal(activeProduct);
+  if(activeDialog==='search')renderSearch(byId('searchInput')?.value||'');
+ });
+
  const count=byId('allPiecesCount');if(count)count.textContent=String(collectionProducts().length).padStart(2,'0');
  byId('modalPrevPhoto').addEventListener('click',()=>setGalleryImage(activeImageIndex-1));
  byId('modalNextPhoto').addEventListener('click',()=>setGalleryImage(activeImageIndex+1));

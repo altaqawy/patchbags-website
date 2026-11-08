@@ -11,9 +11,11 @@
   const label=card.querySelector('.product-info p');
   if(!label)return;
   const price=Number(product?.price_minor);
+  const arabic=document.documentElement.lang==='ar';
+  const amount=new Intl.NumberFormat(arabic?'ar-EG':'en-EG',{minimumFractionDigits:2,maximumFractionDigits:2}).format(price/100);
   label.textContent=product?.active && Number.isFinite(price) && price>0
-   ?(price/100).toFixed(2)+' EGP'
-   :'Details & pricing on request';
+   ?amount+(arabic?' ج.م':' EGP')
+   :(arabic?'التفاصيل والسعر عند الاستفسار':'Details & pricing on request');
  }
  function refreshVisiblePrices(){
   document.querySelectorAll('.product-card').forEach(updatePrice);
@@ -33,6 +35,7 @@
  reload().catch(()=>{});
  // Swatches retain a distinct original SKU; repaint any backend-supplied price
  // after the photo/color changes rather than leaving the previous shade's price.
+ document.addEventListener('patch:language-changed',refreshVisiblePrices);
  document.addEventListener('patch:variant-changed',event=>{
   const card=event.target.closest?.('.product-card');
   if(card)updatePrice(card);

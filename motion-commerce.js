@@ -16,6 +16,10 @@ const icon=(name)=>({
 const mini=(name)=>'<span class="patch-mini-icon">'+icon(name)+'</span>';
 const escaped=(value)=>String(value).replace(/[&<>"']/g,chr=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[chr]));
 const byId=(id)=>document.getElementById(id);
+const commerceLanguage=()=>document.documentElement.lang==='ar'?'ar':'en';
+const commerceTranslate=value=>commerceLanguage()==='ar'?(window.PATCH_LANGUAGE?.translate?.(String(value))||String(value)):String(value);
+const commerceProductName=p=>commerceLanguage()==='ar'?(p.nameAr||commerceTranslate(p.name)):p.name;
+const commerceProductLabel=p=>commerceLanguage()==='ar'?(p.labelAr||commerceTranslate(p.label)):p.label;
 const config=window.PATCH_STORE_CONFIG||{};
 const authReady=()=>/^https:\/\/[^/]+/i.test(config.supabaseUrl||'') && String(config.supabasePublishableKey||'').length>12;
 const authClient=()=>authReady()&&window.supabase?.createClient?window.PATCH_SUPABASE_CLIENT||(window.PATCH_SUPABASE_CLIENT=window.supabase.createClient(config.supabaseUrl,config.supabasePublishableKey,{
@@ -138,7 +142,7 @@ function setQuantity(id,n){if(!products.some(p=>p.id===id))return;if(n<=0)delete
 function announce(msg){
  const target=byId('toast');
  if(!target)return;
- target.textContent=msg;target.classList.add('show');
+ target.textContent=commerceTranslate(msg);target.classList.add('show');
  clearTimeout(announce.timer);announce.timer=setTimeout(()=>target.classList.remove('show'),3100);
 }
 function renderCart(){
@@ -147,34 +151,34 @@ function renderCart(){
  if(byId('drawerCount'))byId('drawerCount').textContent='('+total+')';
  const area=byId('bagItems');if(!area)return;
  if(!total){
-  area.innerHTML='<div class="patch-cart-empty">'+mini('bag')+'<h3>Your bag starts here.</h3><p>Find a piece you love, then come back here.</p></div>';
+  area.innerHTML='<div class="patch-cart-empty">'+mini('bag')+'<h3>'+commerceTranslate('Your bag starts here.')+'</h3><p>'+commerceTranslate('Find a piece you love, then come back here.')+'</p></div>';
  }else{
   area.innerHTML=cartList().map(({product:p,quantity:q})=>'<article class="patch-cart-card">'+
-    '<img loading="lazy" src="'+escaped(p.image)+'" alt="'+escaped(p.name)+'">'+
-    '<div><small>'+escaped(p.label)+'</small><h3>'+escaped(p.name)+'</h3>'+
-    '<p class="patch-cart-price">Price confirmed with the studio</p>'+
-    '<div class="patch-cart-adjust" aria-label="Adjust '+escaped(p.name)+' quantity">'+
-    '<button type="button" data-patch-minus="'+p.id+'" aria-label="Decrease '+escaped(p.name)+' quantity">−</button>'+
-    '<output aria-label="Quantity">'+q+'</output>'+
-    '<button type="button" data-patch-plus="'+p.id+'" aria-label="Increase '+escaped(p.name)+' quantity">+</button>'+
-    '<button type="button" class="patch-cart-remove" data-patch-remove="'+p.id+'">Remove</button>'+
+    '<img loading="lazy" src="'+escaped(p.image)+'" alt="'+escaped(commerceProductName(p))+'">'+
+    '<div><small>'+escaped(commerceProductLabel(p))+'</small><h3>'+escaped(commerceProductName(p))+'</h3>'+
+    '<p class="patch-cart-price">'+commerceTranslate('Price confirmed with the studio')+'</p>'+
+    '<div class="patch-cart-adjust" aria-label="'+(commerceLanguage()==='ar'?'تعديل كمية ':'Adjust ')+escaped(commerceProductName(p))+(commerceLanguage()==='ar'?'':' quantity')+'">'+
+    '<button type="button" data-patch-minus="'+p.id+'" aria-label="'+(commerceLanguage()==='ar'?'تقليل كمية ':'Decrease ')+escaped(commerceProductName(p))+(commerceLanguage()==='ar'?'':' quantity')+'">−</button>'+
+    '<output aria-label="'+commerceTranslate('Quantity')+'">'+q+'</output>'+
+    '<button type="button" data-patch-plus="'+p.id+'" aria-label="'+(commerceLanguage()==='ar'?'زيادة كمية ':'Increase ')+escaped(commerceProductName(p))+(commerceLanguage()==='ar'?'':' quantity')+'">+</button>'+
+    '<button type="button" class="patch-cart-remove" data-patch-remove="'+p.id+'">'+commerceTranslate('Remove')+'</button>'+
     '</div></div></article>').join('');
  }
  const checkout=byId('patchStartCheckout');if(checkout)checkout.disabled=!total;
 }
 function upgradeBag(){
  const drawer=byId('bagDrawer');if(!drawer)return;
- const title=$('.drawer-head h2',drawer);if(title&&title.firstChild)title.firstChild.textContent='Your bag ';
- const eyebrow=$('.drawer-eyebrow',drawer);if(eyebrow)eyebrow.textContent='THE PATCH EDIT';
+ const title=$('.drawer-head h2',drawer);if(title&&title.firstChild)title.firstChild.textContent=commerceLanguage()==='ar'?'حقيبة التسوق ':'Your bag ';
+ const eyebrow=$('.drawer-eyebrow',drawer);if(eyebrow)eyebrow.textContent=commerceTranslate('THE PATCH EDIT');
  const bottom=$('.drawer-bottom',drawer);
  if(bottom&&!byId('patchStartCheckout')){
-  const note=$('p',bottom);if(note)note.textContent='Prices and delivery are confirmed with the studio before any payment is requested.';
+  const note=$('p',bottom);if(note)note.textContent=commerceTranslate('Prices and delivery are confirmed with the studio before any payment is requested.');
   const checkout=document.createElement('button');
   checkout.type='button';checkout.id='patchStartCheckout';checkout.className='patch-action-button patch-cart-checkout';
-  checkout.innerHTML=mini('bag')+' Continue to checkout <span>↗</span>';
+  checkout.innerHTML=mini('bag')+' '+commerceTranslate('Continue to checkout')+' <span>↗</span>';
   const old=byId('copyEnquiry');
   if(old)bottom.insertBefore(checkout,old);else bottom.appendChild(checkout);
-  if(old)old.textContent='Copy bag enquiry ↗';
+  if(old)old.textContent=commerceTranslate('Copy bag enquiry ↗');
  }
  renderCart();
 }
@@ -259,14 +263,14 @@ async function signOut(){
  loadCart();renderCart();updateAccountCopy();closeModal();announce('Signed out');
 }
 function updateAccountCopy(){
- const el=byId('patchAccountStatus');if(el)el.textContent=authSession?'You are signed in. Your cart is saved on this device.':'Explore our handmade collection. Secure accounts are being prepared.';
+ const el=byId('patchAccountStatus');if(el)el.textContent=commerceTranslate(authSession?'You are signed in. Your cart is saved on this device.':'Explore our handmade collection. Secure accounts are being prepared.');
 }
 function checkoutBody(){
  return '<p class="patch-kicker">THE PATCH BAG / CHECKOUT</p>'+
   '<h2 id="patchCommerceTitle">Almost yours.</h2>'+
   '<div class="patch-checkout-steps"><span class="active">01 / Your picks</span><span class="active">02 / Delivery</span><span class="active">03 / Payment</span></div>'+
   '<div class="patch-checkout-items">'+cartList().map(({product:p,quantity:q})=>
-   '<div class="patch-checkout-line"><img src="'+escaped(p.image)+'" alt=""><strong>'+escaped(p.name)+'</strong><span>× '+q+'</span></div>').join('')+'</div>'+
+   '<div class="patch-checkout-line"><img src="'+escaped(p.image)+'" alt=""><strong>'+escaped(commerceProductName(p))+'</strong><span>× '+q+'</span></div>').join('')+'</div>'+
   '<p class="patch-auth-notice">Prices, delivery and totals are quoted by the studio. This page does not charge you or place an order automatically.</p>'+
   '<form id="patchCheckoutForm" class="patch-commerce-form">'+
   '<label>Full name<input required autocomplete="name" name="name" type="text" maxlength="100" placeholder="Your name"></label>'+
@@ -304,14 +308,23 @@ async function copyText(s){
 }
 function enquiryText(details){
  const fields=details||{};
- let rows=cartList().map(({product,quantity})=>'• '+product.name+' ('+product.id+') × '+quantity).join('\n');
- let msg='Hello PatCh.BaGs ♡\nI would like to ask about these handmade pieces:\n'+rows;
- if(fields.name)msg+='\n\nName: '+fields.name;
- if(fields.email)msg+='\nEmail: '+fields.email;
- if(fields.phone)msg+='\nPhone: '+fields.phone;
- if(fields.city)msg+='\nCity: '+fields.city;
- if(fields.notes)msg+='\nNotes: '+fields.notes;
- return msg+'\n\nCould you please confirm current prices, delivery cost, available colors and payment options? Thank you!';
+ const rows=cartList().map(({product,quantity})=>'• '+commerceProductName(product)+' ('+product.id+') × '+quantity).join('\\n');
+ if(commerceLanguage()==='ar'){
+  let msg='مرحبًا PatCh.BaGs ♡\\nأرغب في الاستفسار عن القطع التالية:\\n'+rows;
+  if(fields.name)msg+='\\n\\nالاسم: '+fields.name;
+  if(fields.email)msg+='\\nالبريد الإلكتروني: '+fields.email;
+  if(fields.phone)msg+='\\nرقم الهاتف: '+fields.phone;
+  if(fields.city)msg+='\\nالمدينة: '+fields.city;
+  if(fields.notes)msg+='\\nملاحظات: '+fields.notes;
+  return msg+'\\n\\nيرجى تأكيد الأسعار الحالية وتكلفة التوصيل والألوان المتاحة وطرق الدفع. شكرًا لكم!';
+ }
+ let msg='Hello PatCh.BaGs ♡\\nI would like to ask about these handmade pieces:\\n'+rows;
+ if(fields.name)msg+='\\n\\nName: '+fields.name;
+ if(fields.email)msg+='\\nEmail: '+fields.email;
+ if(fields.phone)msg+='\\nPhone: '+fields.phone;
+ if(fields.city)msg+='\\nCity: '+fields.city;
+ if(fields.notes)msg+='\\nNotes: '+fields.notes;
+ return msg+'\\n\\nCould you please confirm current prices, delivery cost, available colors and payment options? Thank you!';
 }
 async function copyRequest(details){
  const content=enquiryText(details),ok=await copyText(content);
@@ -425,6 +438,11 @@ function setupCommerce(){
  enhanceMotion();
  updateAccountCopy();
  initializeCustomerAuth().catch(()=>{});
+ document.addEventListener('patch:language-changed',()=>{
+  renderCart();upgradeBag();updateAccountCopy();
+  const lines=$('.patch-checkout-line strong');
+  cartList().forEach((item,index)=>{if(lines[index])lines[index].textContent=commerceProductName(item.product)});
+ });
  document.addEventListener('click',e=>{
   const target=e.target instanceof Element?e.target:null;if(!target)return;
   /* The old storefront's add handlers use one-item enquiry lists.
