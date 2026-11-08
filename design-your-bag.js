@@ -277,11 +277,11 @@ function mount(){
  layer.addEventListener('input',handleInput);
  // Touch gestures on photos never intercept the regular editor's scrolling.
  layer.addEventListener('touchstart',e=>{
-  if(!e.target.closest('.patch-cz-photo'))return;
+  if(viewMode!=='photo'||!e.target.closest('.patch-cz-photo'))return;
   touchX={x:e.changedTouches[0].clientX,y:e.changedTouches[0].clientY};
  },{passive:true});
  layer.addEventListener('touchend',e=>{
-  if(!touchX)return;
+  if(!touchX||viewMode!=='photo')return;
   const dx=e.changedTouches[0].clientX-touchX.x,dy=e.changedTouches[0].clientY-touchX.y;
   touchX=null;
   if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.5)return;
