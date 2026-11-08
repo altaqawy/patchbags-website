@@ -317,7 +317,7 @@ function scheduleLocalization(){
 }
 function initLocalization(){
  document.querySelectorAll('[data-patch-lang]').forEach(btn=>{
-  btn.addEventListener('click',()=>setLocale(btn.dataset.patchLang));
+  btn.addEventListener('click',()=>{const compact=window.matchMedia('(max-width:400px)').matches&&btn.closest('.patch-lang-toggle-header');setLocale(compact?(locale==='ar'?'en':'ar'):btn.dataset.patchLang)});
  });
  setLocale(locale,false);
  const obs=new MutationObserver(mutations=>{
