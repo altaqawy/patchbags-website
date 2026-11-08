@@ -113,7 +113,7 @@
 .patch-cz-custom-swatch{background:#eee5e4;font-size:18px;color:#657f6d}
 .patch-cz-muted{font-size:10px;line-height:1.7;color:#839083;margin:11px 0 0}
 .patch-cz-choices{display:flex;flex-wrap:wrap;gap:8px}
-.patch-cz-choice{font:600 11px/1.6 inherit;color:#536353;background:#f8f8f4;border:1px solid #d9ded6;border-radius:4px;padding:11px 13px;cursor:pointer}
+.patch-cz-choice{font:600 11px/1.6 var(--pb-ui-en,Manrope,system-ui);color:#536353;background:#f8f8f4;border:1px solid #d9ded6;border-radius:4px;padding:11px 13px;cursor:pointer}
 .patch-cz-choice.selected{background:#334837;color:#fff;border-color:#334837}
 .patch-cz-control{display:flex;flex-direction:column;gap:8px;color:#465748;font-size:11px;font-weight:700;line-height:1.5}
 .patch-cz-control input,.patch-cz-control textarea{
