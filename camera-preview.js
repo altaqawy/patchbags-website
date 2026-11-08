@@ -31,7 +31,24 @@
   disclaimer:['Illustrative overlay, not true AR. No surface tracking, distance measurement or verified physical scale.','دي معاينة تركيب يدوي مش واقع معزز حقيقي. مفيش تثبيت على الأرض أو قياس مسافات أو حجم فعلي مؤكد.'],
   positioning:['Place the bag manually','حطي الشنطة في المكان اللي يناسبك'],
   product:['Crescent handbag preview','معاينة شنطة كروس'],
-  help:['If your phone does not support AR, this mode uses the camera without AR hardware.','حتى لو موبايلك مش بيدعم AR، الوضع ده بيستخدم الكاميرا من غير حساسات AR.']
+  help:['If your phone does not support AR, this mode uses the camera without AR hardware.','حتى لو موبايلك مش بيدعم AR، الوضع ده بيستخدم الكاميرا من غير حساسات AR.'],
+  modeScene:['In your space','في المكان'],
+  modeHand:['In your hand','في إيدك'],
+  tryHand:['Hand Assist · experimental','تتبع الإيد · تجريبي'],
+  stopHand:['Stop hand tracking','إيقاف تتبع الإيد'],
+  handLoading:['Loading hand detection on your device…','بنحمّل خاصية اكتشاف الإيد على جهازك…'],
+  handSearching:['Show your hand clearly to the camera','اظهري إيدك بوضوح قدام الكاميرا'],
+  handTracking:['Hand detected · approximate placement','تم اكتشاف الإيد · التمركز تقريبي'],
+  handMissing:['Hand not found. You can move the bag manually.','مش ظاهر إيد واضحة، تقدري تحركي الشنطة بنفسك'],
+  handError:['Hand tracking unavailable. Manual placement still works.','تتبع الإيد مش متاح، والتحريك اليدوي شغّال'],
+  handUnavailable:['Turn on the camera before starting hand tracking.','شغّلي الكاميرا قبل استخدام تتبع الإيد'],
+  presetHand:['Held in hand','ممسوكة بالإيد'],
+  presetShoulder:['Near shoulder','قريبة من الكتف'],
+  presetFront:['In front','أمام الجسم'],
+  presetHint:['Approximate position only · move the handle to fit your hand','مكان تقريبي · حركي المقبض علشان الشنطة تكون ناحية إيدك'],
+  shade:['Preview color','لون المعاينة'],
+  light:['Lighting','الإضاءة'],
+  sample:['3D color is illustrative, not a verified material match. No physical size or hand occlusion is guaranteed.','ألوان المجسم توضيحية ومش مطابقة مؤكدة للخامة. الحجم والتداخل مع الإيد مش محاكاة فعلية.']
  };
  const ar=()=>document.documentElement.lang==='ar';
  const t=key=>translations[key]?.[ar()?1:0]||key;
@@ -39,13 +56,43 @@
  const limit=(n,min,max)=>Math.max(min,Math.min(max,n));
  let layer=null,video=null,viewer=null,stage=null,frame=null,stream=null,prevFocus=null,scrollLock='';
  let serial=0,facing='environment',pos={x:0,y:0,scale:1},drag=null,current=null,statusKey='loading';
+ let mode='scene',light='studio',previewSku='PB-04',tracking=false,handState='';
  const safeURL=input=>{
   try{
    const url=new URL(String(input||''),document.baseURI);
    return url.protocol==='https:'&&/\.gl(?:b|tf)$/i.test(url.pathname)?url.href:null;
   }catch(_){return null}
  };
- const productTitle=()=>{
+ const looks=()=>window.PATCH_BAG_LOOKS;
+ const hand=()=>window.PATCH_HAND_ASSIST;
+ const colorKeys=['PB-04','PB-05','PB-06'];
+ function setHandState(key){
+  handState=key||'';
+  const text=q('[data-cp-hand-status]');
+  if(text)text.textContent=handState?t(handState):'';
+  const toggle=q('[data-cp-hand-toggle]');
+  if(toggle)toggle.textContent=t(tracking?'stopHand':'tryHand');
+ }
+ function applyLook(){
+  if(!viewer||!current)return;
+  looks()?.apply(viewer,{productId:previewSku,light});
+  const card=q('[data-cp-color-name]');
+  if(card)card.textContent=looks()?.localize(previewSku)||'';
+  layer?.querySelectorAll('[data-cp-color]').forEach(button=>{
+   const yes=button.dataset.cpColor===previewSku;
+   button.setAttribute('aria-pressed',String(yes));
+   button.classList.toggle('selected',yes);
+  });
+  layer?.querySelectorAll('[data-cp-light]').forEach(button=>{
+   button.setAttribute('aria-pressed',String(button.dataset.cpLight===light));
+  });
+ }
+ function stopHand(){
+  tracking=false;
+  hand()?.stop();
+  if(handState)setHandState('');
+ }
+ function productTitle=()=>{
   const fallback=current?.name||t('product');
   if(!current?.productId||typeof products==='undefined')return fallback;
   const item=products.find(p=>p.id===current.productId);
@@ -60,6 +107,8 @@
   const name=q('[data-cp-product]');if(name)name.textContent=productTitle();
   if(viewer)viewer.setAttribute('alt',productTitle());
   if(!layer.hidden)status(statusKey);
+  setHandState(handState);
+  applyLook();
  }
  function status(key){
   statusKey=key;
@@ -77,6 +126,7 @@
   const range=q('[data-cp-size]');if(range)range.value=String(Math.round(pos.scale*100));
  }
  function stopCamera(){
+  stopHand();
   if(video){video.pause();video.srcObject=null}
   if(stream){stream.getTracks().forEach(track=>track.stop());stream=null}
  }
@@ -112,6 +162,7 @@
    const track=stream.getVideoTracks()[0];
    track?.addEventListener('ended',()=>{if(ticket===serial){stopCamera();status('unavailable')}},{once:true});
    status('ready');
+   if(mode==='hand'&&!tracking)setHandState('handSearching');
   }catch(err){
    if(ticket!==serial)return;
    stopCamera();
