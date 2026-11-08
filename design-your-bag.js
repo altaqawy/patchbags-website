@@ -321,25 +321,43 @@ function handleInput(e){
 function handleClick(e){
  const target=e.target.closest('button,[data-cz-close]');if(!target)return;
  if(target.hasAttribute('data-cz-close')){close();return}
- if(target.dataset.czProduct){state.productId=target.dataset.czProduct;state.colorMode='photo';state.customColor='';render();return}
- if(target.dataset.czColor){state.productId=target.dataset.czColor;state.colorMode='photo';state.customColor='';render();return}
+ if(target.dataset.czPhoto){
+  const count=photos(currentProduct()).length;
+  if(count>1){photoIndex=(photoIndex+Number(target.dataset.czPhoto)+count)%count;render();}
+  return;
+ }
+ if(target.hasAttribute('data-cz-thumb')){photoIndex=Number(target.dataset.czThumb)||0;render();return}
+ if(target.dataset.czProduct){state.productId=target.dataset.czProduct;state.colorMode='photo';state.customColor='';photoIndex=0;render();return}
+ if(target.dataset.czColor){state.productId=target.dataset.czColor;state.colorMode='photo';state.customColor='';photoIndex=0;render();return}
  if(target.hasAttribute('data-cz-custom-color')){state.colorMode='custom';render();layer.querySelector('[data-cz-input="customColor"]')?.focus();return}
  if(target.dataset.czMaterial){state.material=target.dataset.czMaterial;render();return}
  if(target.dataset.czSize){state.size=target.dataset.czSize;render();return}
+ if(target.dataset.czLetterStyle){state.letterStyle=target.dataset.czLetterStyle;render();return}
+ if(target.dataset.czLetterPosition){state.letterPosition=target.dataset.czLetterPosition;render();return}
+ if(target.dataset.czEdit){edit(target.dataset.czEdit);return}
+ if(target.hasAttribute('data-cz-cancel')){editingId=null;state={...state,id:''};render();return}
  if(target.dataset.czQty){state.qty=Math.min(5,Math.max(1,state.qty+Number(target.dataset.czQty)));render();return}
  if(target.hasAttribute('data-cz-save')){
   if(state.colorMode==='custom'&&!state.customColor.trim()){notify(T('errors'));layer.querySelector('[data-cz-input="customColor"]')?.focus();return}
-  if(saved.length>=LIMIT){notify(T('max'));return}
-  const id='cz-'+(window.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.floor(Math.random()*1e5));
+  if(!editingId&&saved.length>=LIMIT){notify(T('max'));return}
+  const id=editingId||'cz-'+(window.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.floor(Math.random()*1e5));
   const record=safeDesign({...state,id});
   if(!record)return;
-  saved=[...saved,record];
-  if(!write()){saved=saved.filter(d=>d.id!==id);notify(T('offline'));return}
-  render();notify(T('savedDone'));
-  // No online/payment cart API is called; these are request-only designs.
+  const before=saved,wasEditing=Boolean(editingId);
+  saved=editingId?saved.map(d=>d.id===editingId?record:d):[...saved,record];
+  if(!write()){saved=before;notify(T('offline'));return}
+  editingId=null;state={...record,id:''};
+  render();notify(T(wasEditing?'updateDone':'savedDone'));
+  // Custom requests cannot be treated as stock or charged through product checkout.
   return;
  }
- if(target.dataset.czRemove){saved=saved.filter(d=>d.id!==target.dataset.czRemove);write();render();return}
+ if(target.dataset.czRemove){
+  const before=saved;
+  saved=saved.filter(d=>d.id!==target.dataset.czRemove);
+  if(!write()){saved=before;notify(T('offline'))}
+  if(editingId===target.dataset.czRemove){editingId=null;state=base()}
+  render();return;
+ }
  if(target.dataset.czCopy){const d=saved.find(d=>d.id===target.dataset.czCopy);if(d)copyText(formatRequests([d])).then(ok=>{if(ok)notify(T('copied'));else prompt(T('copy'),formatRequests([d]))});return}
  if(target.hasAttribute('data-cz-copy-all')){copyText(formatRequests(saved)).then(ok=>{if(ok)notify(T('copied'));else prompt(T('copy'),formatRequests(saved))});}
 }
@@ -349,7 +367,9 @@ function syncProductCards(){
   const sku=card.dataset.selectedProduct||card.dataset.colorCard;
   if(!product(sku))return;
   const info=card.querySelector('.product-info>div');
-  if(!info||info.querySelector('[data-cz-open]'))return;
+  if(!info)return;
+  const existing=info.querySelector('[data-cz-open]');
+  if(existing){existing.dataset.czOpen=sku;return}
   const b=document.createElement('button');
   b.type='button';b.className='patch-cz-card-link';b.dataset.czOpen=sku;b.dataset.czOrigin='card';
   b.textContent=T('open')+' ↗';
@@ -389,6 +409,7 @@ function setup(){
   if(!layer||layer.hidden)return;
   if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();close();return}
   if(e.key!=='Tab')return;
+  e.stopImmediatePropagation(); // background product modal must not trap focus
   const nodes=[...layer.querySelectorAll('button:not([disabled]):not([hidden]),input:not([disabled]),textarea:not([disabled])')]
    .filter(el=>el.getClientRects().length);
   if(!nodes.length)return;
@@ -401,6 +422,7 @@ function setup(){
   syncProductCards();
   new MutationObserver(muts=>{if(muts.some(m=>m.addedNodes.length))syncProductCards()}).observe(grid,{childList:true});
  }
+ document.addEventListener('patch:variant-changed',syncProductCards);
  const modalTitle=document.getElementById('modalTitle');
  if(modalTitle)new MutationObserver(syncModal).observe(modalTitle,{childList:true,characterData:true,subtree:true});
  syncModal();
@@ -415,8 +437,14 @@ function setup(){
 window.PATCH_CUSTOMIZER={
  list:()=>saved.map(d=>({...d})),
  count:()=>saved.reduce((sum,d)=>sum+d.qty,0),
- remove:id=>{saved=saved.filter(d=>d.id!==id);write();if(layer&&!layer.hidden)render()},
- open,formatRequests,description
+ remove:id=>{
+  const before=saved;
+  saved=saved.filter(d=>d.id!==id);
+  if(!write()){saved=before;notify(T('offline'))}
+  if(editingId===id){editingId=null;state=base()}
+  if(layer&&!layer.hidden)render();
+ },
+ open,edit,formatRequests,description
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);
 else setup();
