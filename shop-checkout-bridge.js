@@ -22,7 +22,11 @@
  async function reload(){
   const r=await fetch(endpoint+'/api/catalog',{cache:'no-store'});
   if(!r.ok)throw Error('Could not load payment availability');
-  const data=await r.json();methods=new Set((data.methods||[]).filter(x=>x.enabled).map(x=>x.method));catalogMap=new Map((data.products||[]).map(x=>[x.id,x]));
+  const data=await r.json();
+  // A protected admin can publish new items, photos, categories and discounts.
+  // Reuse the existing product cards and their current visual design.
+  if(typeof window.PATCH_APPLY_CATALOG==='function')window.PATCH_APPLY_CATALOG(data);
+  methods=new Set((data.methods||[]).filter(x=>x.enabled).map(x=>x.method));catalogMap=new Map((data.products||[]).map(x=>[x.id,x]));
   document.querySelectorAll('#patchCheckoutForm input[name=payment]').forEach(radio=>{if(accepted.has(radio.value)){radio.disabled=!methods.has(radio.value);radio.closest('label')?.classList.toggle('disabled',radio.disabled)}});
  refreshVisiblePrices();
  }
