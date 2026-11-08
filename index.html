@@ -22,7 +22,14 @@
 <link href="layout-polish.css" rel="stylesheet"/>
 <link href="three-d-motion.css" rel="stylesheet"/>
 <link href="whatsapp-spark.css" rel="stylesheet"/>
-<link href="signature-lanyard.css" rel="stylesheet"/>
+<link href="reactbits-lanyard.css" rel="stylesheet"/>
+<script type="importmap">
+{"imports":{
+ "react":"https://esm.sh/react@19.2.0",
+ "react-dom/client":"https://esm.sh/react-dom@19.2.0/client?external=react",
+ "three":"https://esm.sh/three@0.180.0"
+}}
+</script>
 <link href="social-icons.css" rel="stylesheet"/></head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -58,6 +65,18 @@
 </nav>
 </header>
 <main id="main">
+<section id="patchReactBitsStrip" class="patch-reactbits-strip" aria-labelledby="patchReactBitsTitle">
+ <div id="patchReactBitsMount" class="patch-reactbits-lanyard-mount" aria-label="Original React Bits interactive 3D hanging PatCh.BaGs tag"></div>
+ <div class="patch-reactbits-loading" aria-hidden="true"><img src="assets/patch-logo.png" alt=""></div>
+ <div class="patch-reactbits-info">
+  <p class="patch-reactbits-eyebrow">THE SIGNATURE TAG / PATCH.BAGS</p>
+  <h2 id="patchReactBitsTitle">Made with <em>heart.</em></h2>
+  <p>Our signature detail, hanging from the very top. Grab it, swing it, or tap to see the other side.</p>
+ </div>
+ <div class="patch-reactbits-bottom"><span class="patch-reactbits-caption">DRAG · SWING · FLIP</span><a class="patch-reactbits-explore" href="#collection">Explore the collection <span aria-hidden="true">↗</span></a></div>
+ <p class="patch-reactbits-unavailable" role="status">The 3D tag is unavailable on this device. You can still explore the collection below.</p>
+</section>
+
 <section aria-labelledby="heroTitle" class="hero editorial-hero" id="home">
 <img alt="Handmade striped cotton cord bag, designed and made in Alexandria" class="editorial-hero-image" fetchpriority="high" src="assets/woven-stripe-tote.webp"/>
 <div class="editorial-hero-vignette"></div>
@@ -137,50 +156,7 @@
   </div>
  </div>
 </section>
-<section class="patch-lanyard-section" id="patchLanyard" aria-labelledby="patchLanyardTitle">
-  <div class="patch-lanyard-container">
-    <div class="patch-lanyard-copy">
-      <p class="patch-lanyard-eyebrow">THE LITTLE DETAILS / PATCH.BAGS</p>
-      <h2 id="patchLanyardTitle">A signature <em>touch.</em></h2>
-      <p class="patch-lanyard-description">Every piece carries a little story. Meet our signature tag — handmade inspiration, a cotton cord, and a whole lot of heart.</p>
-      <div class="patch-lanyard-actions">
-        <a class="patch-lanyard-link" href="#collection">Explore the collection <span aria-hidden="true">↗</span></a>
-        <span class="patch-lanyard-hint">Drag to swing · Tap to turn</span>
-      </div>
-    </div>
-    <div class="patch-lanyard-playground" id="patchLanyardStage" aria-label="Interactive hanging handmade signature tag">
-      <svg class="patch-lanyard-strap" viewBox="0 0 500 440" preserveAspectRatio="none" aria-hidden="true">
-        <path class="strap-under" d="M 250 10 C 250 66, 250 96, 250 134"></path>
-        <path class="strap-fiber" d="M 250 10 C 250 66, 250 96, 250 134"></path>
-        <path class="strap-stitch" d="M 250 10 C 250 66, 250 96, 250 134"></path>
-      </svg>
-      <span class="patch-lanyard-anchor" aria-hidden="true"></span>
-      <div class="patch-lanyard-rig" role="group" aria-label="PatCh.BaGs hanging tag. Drag it, or use the Flip tag button." tabindex="0">
-        <span class="patch-lanyard-clip" aria-hidden="true"></span>
-        <div class="patch-lanyard-card">
-          <div class="patch-lanyard-face patch-lanyard-front">
-            <span class="patch-lanyard-slot" aria-hidden="true"></span>
-            <div class="patch-lanyard-brand-mark"><img src="assets/patch-logo.png" loading="lazy" alt=""></div>
-            <h3 class="patch-lanyard-brand-name">PatCh.BaGs</h3>
-            <p class="patch-lanyard-small">HANDMADE STUDIO</p>
-            <p class="patch-lanyard-face-bottom">CRAFTED WITH CARE · ALEXANDRIA</p>
-          </div>
-          <div class="patch-lanyard-face patch-lanyard-back">
-            <span class="patch-lanyard-slot" aria-hidden="true"></span>
-            <p class="patch-lanyard-small">A LITTLE NOTE FROM US</p>
-            <blockquote>Made with heart.<br>Carried with love.</blockquote>
-            <a class="patch-lanyard-back-link" href="#collection" tabindex="-1">Explore the collection ↗</a>
-            <p class="patch-lanyard-face-bottom">PATCh.BAGS / MADE JUST FOR YOU</p>
-          </div>
-        </div>
-      </div>
-      <div class="patch-lanyard-tools">
-        <span>INTERACTIVE TAG / DRAG & SWING</span>
-        <button type="button" data-patch-lanyard-flip aria-pressed="false" aria-label="Flip the hanging tag">Flip tag ↻</button>
-      </div>
-    </div>
-  </div>
-</section>
+
 <section class="custom-section" id="custom">
 <div class="container custom-inner">
 <div class="custom-copy reveal"><span class="custom-kicker">JUST FOR YOU ✳</span><h2>Make it <em>personal.</em></h2><a class="button button-light" href="https://www.instagram.com/patch.bags.nbd/" rel="noopener noreferrer" target="_blank">Ask about custom pieces <span class="button-icon">↗</span></a></div>
@@ -219,7 +195,7 @@
 <script defer="" src="shop-config.js"></script>
 <script defer="" src="motion-commerce.js"></script>
 <script defer="" src="three-d-motion.js"></script>
-<script defer="" src="signature-lanyard.js"></script>
+<script type="module" src="reactbits/lanyard-mount.js"></script>
 <script defer="" src="shop-checkout-bridge.js"></script>
 </body>
 </html>
