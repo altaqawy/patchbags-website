@@ -15,6 +15,8 @@ const currentProduct=()=>product(state.productId)||cat()[0]||null;
 const roots=()=>cat().filter(p=>typeof colorRootById==='undefined'||!colorRootById.has(p.id)||colorRootById.get(p.id)===p.id);
 const rootId=id=>(typeof colorRootById!=='undefined'&&colorRootById.get(id))||id;
 const photos=p=>Array.isArray(p?.images)&&p.images.length?p.images.slice(0,12):[p?.image].filter(Boolean);
+const availableModel=p=>Array.isArray(p?.mediaExtras)?
+ p.mediaExtras.find(m=>m?.type==='model'&&typeof m.url==='string'&&/^https:\/\//i.test(m.url)&&/\.gl(?:b|tf)(?:[?#]|$)/i.test(m.url))?.url:null;
 const families=()=>typeof productColorFamilies!=='undefined'?productColorFamilies:[];
 const choices=id=>{
  const family=families().find(f=>f.options.some(option=>option.id===id));
@@ -49,7 +51,7 @@ const write=()=>{
 const base=()=>({id:'',productId:cat()[0]?.id||'PB-01',material:'as_shown',size:'as_shown',colorMode:'photo',customColor:'',monogram:'',letterStyle:'classic',letterPosition:'lower',notes:'',qty:1});
 let state=base();
 let layer=null,body=null,prevFocus=null,prevOverflow='';
-let photoIndex=0,editingId=null,touchX=null;
+let photoIndex=0,editingId=null,touchX=null,viewMode='photo';
 const tr={
  kicker:['DESIGN YOUR BAG / PATCH STUDIO','صمّمي حقيبتك / استوديو باتش'],
  title:['Made yours.','قطعة على ذوقك.'],
@@ -118,7 +120,11 @@ const tr={
  explorePhotos:['Tap the thumbnails to see real angles of this piece.','اضغطي على الصور المصغرة وشوفي الشنطة من زوايا مختلفة.'],
  chooseStyle:['CHOOSE A SHAPE','اختاري شكل الشنطة'],
  previewSummary:['Your choices are updated as you design. Availability and final execution require confirmation.','اختياراتك بتتحدث مع التصميم. إمكانية التنفيذ والسعر النهائي بعد التأكيد.'],
- reviewSaved:['Review saved requests','راجعي تصميماتك المحفوظة']
+ reviewSaved:['Review saved requests','راجعي تصميماتك المحفوظة'],
+ photosTab:['Photos','الصور'],
+ modelTab:['3D model','نموذج 3D'],
+ modelPreview:['Original 3D model provided by the studio','نموذج ثلاثي الأبعاد أصلي من الاستوديو'],
+ modelHelp:['Rotate with your finger or mouse. The studio must confirm the final design.','لفّي النموذج باللمس أو الماوس، والتصميم النهائي بعد تأكيد الاستوديو.']
 };
 const T=k=>{const v=tr[k];return v? v[ar()?1:0]:k};
 const materialLabel=v=>tr.materialOptions.find(x=>x[0]===v)?.[ar()?2:1]||v;
@@ -189,6 +195,8 @@ function render(){
  layer.lang=locale;layer.dir=ar()?'rtl':'ltr';
  const list=roots();
  const imageList=photos(p);
+ const model=availableModel(p);
+ if(!model)viewMode='photo';
  photoIndex=Math.max(0,Math.min(photoIndex,imageList.length-1));
  const optionList=choices(p.id);
  const colorGroup=optionList.map(v=>{
