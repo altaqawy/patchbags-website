@@ -67,6 +67,7 @@ function applyOwnerCatalog(data){
    label:cleanCatalogText(categoryRow.name_en||category,80).toUpperCase(),
    labelAr:cleanCatalogText(categoryRow.name_ar||'',80),
    tag:cleanCatalogText(row.badge||'Handmade',40),
+   tagAr:cleanCatalogText(row.badge_ar||'',40),
    priceMinor:Number(row.price_minor),compareAtMinor:row.compare_at_minor?Number(row.compare_at_minor):null,
    mediaExtras:(Array.isArray(row.media)?row.media:[]).filter(a=>['video','model'].includes(a?.type)&&typeof a.url==='string'&&a.url.startsWith('https://')).slice(0,12)
   };
