@@ -84,19 +84,27 @@
   lightQuality:['Fast','سريع'],
   balancedQuality:['Balanced','متوازن'],
   detailQuality:['Precise','دقيق'],
-  trackingPerformance:['Actual performance','الأداء الفعلي']
+  trackingPerformance:['Actual performance','الأداء الفعلي'],
+  cameraMode:['Camera display','طريقة عرض الكاميرا'],
+  cameraNative:['Normal','عادية'],
+  cameraCanvas:['Compatibility','متوافقة'],
+  cameraCanvasFailed:['Alternative camera display unavailable, using normal video','العرض البديل للكاميرا مش متاح، رجعنا للعرض العادي'],
+  modelWaiting:['Loading 3D model… the real bag photo remains available','جارٍ تحميل المجسم… صورة الشنطة الحقيقية متاحة'],
+  cpuOptimized:['Body tracking paused automatically to make hand tracking smoother','اتوقف تتبع الجسم مؤقتًا علشان تتبع الإيد يبقى أسرع'],
+  workerFallback:['Worker fallback','سبب الرجوع للمعالجة العادية']
  };
  const ar=()=>document.documentElement.lang==='ar';
  const t=key=>translations[key]?.[ar()?1:0]||key;
  const q=(sel,root=layer)=>root?.querySelector(sel);
  const limit=(n,min,max)=>Math.max(min,Math.min(max,n));
- let layer=null,video=null,viewer=null,stage=null,frame=null,stream=null,prevFocus=null,scrollLock='',photo=null;
+ let layer=null,video=null,viewer=null,stage=null,frame=null,stream=null,prevFocus=null,scrollLock='',photo=null,compositor=null;
  let serial=0,facing='environment',pos={x:0,y:0,scale:1},drag=null,current=null,statusKey='loading';
  let mode='scene',light='studio',previewSku='PB-04',tracking=false,handState='';
  let occlusion=null,overlay=null,fingerOverlay=true,palmWidthCm=8.5,gripState='';
  let bodyTracking=true,showPoints=true,autoTrack=true,bodyState='',trackingError='',diagnosticState='';
  let carryPreset='hand',qualityPreference='auto',performanceStats='';
  let visual='photo',automaticVisual=true,modelReady=false;
+ let cameraDisplay='native',workerFallback='',autoOptimized=false,slowReports=0,modelTimer=0;
  const safeURL=input=>{
   try{
    const url=new URL(String(input||''),document.baseURI);
@@ -131,6 +139,17 @@
   if(text)text.textContent=handState?t(handState):'';
   const toggle=q('[data-cp-hand-toggle]');
   if(toggle)toggle.textContent=t(tracking?'stopHand':'tryHand');
+ }
+ function setCameraDisplay(next){
+  cameraDisplay=next==='canvas'?'canvas':'native';
+  if(cameraDisplay==='canvas'&&stream){
+   if(!compositor?.start(chosenQuality().name))cameraDisplay='native';
+  }else compositor?.stop();
+  if(stage)stage.dataset.videoRender=
+   cameraDisplay==='canvas'&&compositor?.isActive()?'canvas':'native';
+  layer?.querySelectorAll('[data-cp-camera-display]').forEach(button=>{
+   button.setAttribute('aria-pressed',String(button.dataset.cpCameraDisplay===cameraDisplay));
+  });
  }
  function setVisual(next,{automatic=false}={}){
   if(!automatic)automaticVisual=false;
@@ -201,6 +220,11 @@
    button.setAttribute('aria-pressed',String(button.dataset.cpQuality===qualityPreference)));
   const body=q('[data-cp-body-status]');if(body)body.textContent=bodyState?t(bodyState):'';
   const perf=q('[data-cp-performance]');if(perf)perf.textContent=performanceStats;
+  const engine=q('[data-cp-engine-note]');if(engine)engine.textContent=workerFallback?
+    t('workerFallback')+': '+workerFallback:'';
+  layer.querySelectorAll('[data-cp-camera-display]').forEach(button=>{
+   button.setAttribute('aria-pressed',String(button.dataset.cpCameraDisplay===cameraDisplay));
+  });
   const diag=q('[data-cp-diagnostic]');
   if(diag)diag.textContent=trackingError?(t('diagnosticError')+' · '+trackingError):(diagnosticState?t(diagnosticState):'');
   const grip=q('[data-cp-grip-state]');if(grip)grip.textContent=gripState?t(gripState):'';
@@ -301,12 +325,26 @@
    },
    onDiagnostics:info=>{
     if(!tracking)return;
+    if(info.part==='fallback'){
+     workerFallback=String(info.reason||'Unavailable').slice(0,110);
+     refreshDiagnostic();return;
+    }
     if(info.part==='live'){
      const ms=Number(info.inferenceMs)||0;
      const fps=Number(info.fps)||0;
      performanceStats=(info.mode==='worker'?'Worker':'Main thread')+
       (ms?' · '+Math.round(ms)+' ms':'')+
       (fps?' · '+fps.toFixed(1)+' measured fps':' · measuring…');
+     if(info.mode==='main'&&qualityPreference==='auto'&&bodyTracking&&!autoOptimized){
+      slowReports=ms>=90?slowReports+1:0;
+      if(slowReports>=2){
+       autoOptimized=true;bodyTracking=false;
+       const cb=q('[data-cp-track-body]');if(cb)cb.checked=false;
+       workerFallback=t('cpuOptimized');
+       stopHand();autoTrack=true;toggleHand();
+       return;
+      }
+     }
     }else if(info.status==='ready'){
      diagnosticState='diagnosticReady';
     }else if(diagnosticState!=='handWorking'){
@@ -335,6 +373,7 @@
   if(!started&&tracking){tracking=false;setHandState('handError')}
  }
  function stopCamera(){
+  compositor?.stop();
   stopHand();
   if(video){video.pause();video.srcObject=null}
   if(stream){stream.getTracks().forEach(track=>track.stop());stream=null}
@@ -372,6 +411,7 @@
    const track=stream.getVideoTracks()[0];
    track?.addEventListener('ended',()=>{if(ticket===serial){stopCamera();status('unavailable')}},{once:true});
    status('ready');
+   setCameraDisplay(cameraDisplay);
    if(mode==='hand'&&!tracking&&autoTrack){
     setHandState('handSearching');
     toggleHand();
@@ -396,7 +436,7 @@
       '<h2 id="patchCpHeading" data-cp-i18n="title"></h2>'+
       '<span class="patch-cp-product" data-cp-product></span>'+
      '</div><button class="patch-cp-close" data-cp-close type="button" data-cp-label="close" aria-label="Close">×</button></header>'+
-    '<div class="patch-cp-stage" data-camera="off">'+
+    '<div class="patch-cp-stage" data-camera="off" data-video-render="native">'+
       '<video class="patch-cp-video" autoplay muted playsinline webkit-playsinline></video>'+
       '<div class="patch-cp-scene-backdrop" aria-hidden="true"></div>'+
       '<span class="patch-cp-watermark" data-cp-i18n="manual"></span>'+
@@ -410,6 +450,9 @@
     '<div class="patch-cp-toolbar">'+
       '<div class="patch-cp-modes" role="group"><button type="button" data-cp-mode="scene" aria-pressed="true" data-cp-i18n="modeScene"></button><button type="button" data-cp-mode="hand" aria-pressed="false" data-cp-i18n="modeHand"></button></div>'+
       '<div class="patch-cp-visual-toggle" role="group"><button type="button" data-cp-visual="photo" aria-pressed="true" data-cp-i18n="visualPhoto"></button><button type="button" data-cp-visual="model" aria-pressed="false" data-cp-i18n="visual3D"></button></div>'+
+      '<div class="patch-cp-display-modes"><span data-cp-i18n="cameraMode"></span>'+
+       '<div role="group"><button type="button" data-cp-camera-display="native" aria-pressed="true" data-cp-i18n="cameraNative"></button>'+
+        '<button type="button" data-cp-camera-display="canvas" aria-pressed="false" data-cp-i18n="cameraCanvas"></button></div></div>'+
       '<div class="patch-cp-hand-panel">'+
        '<div class="patch-cp-presets" role="group">'+
         '<button type="button" data-cp-preset="hand" aria-pressed="true" data-cp-i18n="presetHand"></button>'+
@@ -430,6 +473,7 @@
        '</div>'+
        '<span class="patch-cp-body-status" data-cp-body-status role="status"></span>'+
        '<div class="patch-cp-live-diagnostic" role="status"><b data-cp-i18n="diagnosticsTitle"></b><span data-cp-diagnostic></span>'+
+       '<small class="patch-cp-engine-note" data-cp-engine-note></small>'+
         '<small data-cp-performance></small>'+
         '<a href="tracking-lab.html" target="_blank" rel="noopener noreferrer" data-cp-i18n="testTracking"></a></div>'+
        '<span class="patch-cp-grip-status" data-cp-grip-state aria-live="off"></span>'+
@@ -474,9 +518,18 @@
   document.body.appendChild(layer);
   video=q('video');viewer=q('model-viewer');stage=q('.patch-cp-stage');frame=q('.patch-cp-model-frame');
   photo=q('.patch-cp-photo-fallback');
+  compositor=window.PATCH_CAMERA_COMPOSITOR?.mount({
+   stage,video,
+   onFailure:message=>{
+    cameraDisplay='native';
+    const text=q('[data-cp-engine-note]');
+    if(text)text.textContent=t('cameraCanvasFailed')+': '+message;
+   }
+  })||null;
   occlusion=window.PATCH_GRIP_OCCLUSION?.mount({stage,video})||null;
   overlay=window.PATCH_TRACKING_OVERLAY?.mount({stage})||null;
   viewer.addEventListener('load',()=>{
+   clearTimeout(modelTimer);modelTimer=0;
    modelReady=true;applyLook();
    // Low-power phones start with the real photograph to avoid a blank or
    // opaque WebGL surface. 3D remains one tap away.
@@ -488,6 +541,7 @@
    if(visual==='photo')setVisual('model',{automatic:true});
   });
   viewer.addEventListener('error',()=>{
+   clearTimeout(modelTimer);modelTimer=0;
    modelReady=false;automaticVisual=true;setVisual('photo',{automatic:true});
    const info=q('[data-cp-status]');if(info)info.textContent=t('modelFailed');
   });
@@ -497,7 +551,15 @@
    if(event.target.closest('[data-cp-retry]')){startCamera();return}
    if(event.target.closest('[data-cp-reset]')){stopHand();setMode(mode);return}
    const visualChoice=event.target.closest('[data-cp-visual]');
-   if(visualChoice){setVisual(visualChoice.dataset.cpVisual);return}
+   if(visualChoice){
+    setVisual(visualChoice.dataset.cpVisual);
+    if(visual==='model'&&!modelReady){
+     const output=q('[data-cp-status]');if(output)output.textContent=t('modelWaiting');
+    }
+    return
+   }
+   const displayChoice=event.target.closest('[data-cp-camera-display]');
+   if(displayChoice){setCameraDisplay(displayChoice.dataset.cpCameraDisplay);return}
    const modeChoice=event.target.closest('[data-cp-mode]');
    if(modeChoice){setMode(modeChoice.dataset.cpMode);return}
    const presetChoice=event.target.closest('[data-cp-preset]');
@@ -585,6 +647,8 @@
   previewSku=looks()?.COLORS[params.productId]?params.productId:'PB-04';
   light='studio';tracking=false;handState='';gripState='';
   autoTrack=true;qualityPreference='auto';performanceStats='';
+  workerFallback='';autoOptimized=false;slowReports=0;
+  cameraDisplay=/Android/i.test(navigator.userAgent||'')?'canvas':'native';
   bodyTracking=!Boolean(window.matchMedia?.('(max-width: 690px)')?.matches);
   showPoints=true;
   trackingError='';diagnosticState='';bodyState='';
@@ -603,6 +667,12 @@
   }
   setVisual(photo?.getAttribute('src')?'photo':'model',{automatic:true});document.body.style.overflow='hidden';
   viewer.src=url;viewer.setAttribute('poster',params.poster||'');
+  clearTimeout(modelTimer);
+  modelTimer=setTimeout(()=>{
+   if(layer?.hidden||modelReady)return;
+   if(visual==='model'){automaticVisual=true;setVisual('photo',{automatic:true});
+    const msg=q('[data-cp-status]');if(msg)msg.textContent=t('modelFailed')}
+  },12000);
   setMode(params.mode||'scene');
   translate();applyPosition();q('.patch-cp-dialog').focus({preventScroll:true});
   startCamera(); // Requests permission only after a user clicks Camera Preview.
@@ -610,7 +680,8 @@
  }
  function close(){
   if(!layer||layer.hidden)return;
-  ++serial;stopCamera();layer.hidden=true;current=null;drag=null;
+  ++serial;clearTimeout(modelTimer);modelTimer=0;
+  stopCamera();layer.hidden=true;current=null;drag=null;
   viewer.removeAttribute('src');
   document.body.style.overflow=scrollLock;
   if(prevFocus?.isConnected)prevFocus.focus({preventScroll:true});
