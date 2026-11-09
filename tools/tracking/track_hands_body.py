@@ -89,6 +89,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-pose", action="store_true",
                         help="Use hand tracking only on slower computers")
     parser.add_argument("--hands", type=int, default=2, choices=(1, 2))
+    parser.add_argument("--pose-every", type=int, default=3,
+                        help="Run expensive body detection every N frames (default: 3)")
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=720)
     parser.add_argument("--max-frames", type=int, default=0,
@@ -134,6 +136,8 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if not 0.05 <= args.smoothing <= 1.0:
         raise SystemExit("--smoothing must be between 0.05 and 1.0")
+    if args.pose_every < 1:
+        raise SystemExit("--pose-every must be >= 1")
     hands_model, pose_model = require_models(args.models, args.no_pose)
     try:
         import cv2
@@ -181,6 +185,7 @@ def main(argv: list[str] | None = None) -> int:
     frame_id = 0
     last_timestamp = -1
     hand_filter, pose_filter = EMA(args.smoothing), EMA(args.smoothing)
+    last_pose_points: list[list[dict[str, float]]] = []
     last_loop_time = time.perf_counter()
     fps_ema = 0.0
     if args.jsonl:
@@ -211,12 +216,16 @@ def main(argv: list[str] | None = None) -> int:
                 last_timestamp = timestamp
                 image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
                 hand_result = hand_detector.detect_for_video(image, timestamp)
-                pose_result = (pose_detector.detect_for_video(image, timestamp)
-                               if pose_detector else None)
+                # Body inference is slower than hand tracking; reuse the last
+                # body landmarks for intermediate frames rather than blocking
+                # the camera pipeline with an unnecessary second inference.
+                if pose_detector and frame_id % args.pose_every == 0:
+                    pose_result = pose_detector.detect_for_video(image, timestamp)
+                    last_pose_points = pose_filter.smooth(
+                        pose_result.pose_landmarks if pose_result else []
+                    )
                 detected_hands = hand_filter.smooth(hand_result.hand_landmarks)
-                detected_pose = pose_filter.smooth(
-                    pose_result.pose_landmarks if pose_result else []
-                )
+                detected_pose = last_pose_points
 
                 now = time.perf_counter()
                 measured_fps = 1.0 / max(1e-5, now - last_loop_time)

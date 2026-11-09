@@ -22,13 +22,15 @@ border:1px solid #ffffffa8;border-radius:10px;background:#153a2ed8;color:white;p
 button{border:1px solid #3d6549;border-radius:100px;background:#36583e;color:white;padding:12px 19px;font:700 13px/1.4 inherit;cursor:pointer}
 button.secondary{background:transparent;color:#2e5338}button:disabled{opacity:.5;cursor:not-allowed}
 label{display:inline-flex;align-items:center;gap:6px;font-size:13px;margin-inline-start:7px;color:#4b644e}
+select{font:650 13px system-ui;border:1px solid #bccdb8;border-radius:8px;padding:8px;background:#fff;color:#315339}
 input{accent-color:#3c6549}
 .info{background:#fff;padding:15px 18px;border-radius:11px;border:1px solid #dce4d8;line-height:1.9;margin-top:12px;overflow-wrap:anywhere}
 .info b{color:#2c5338}.info p{margin:2px 0;font-size:13px}.info code{font-size:11px;direction:ltr;unicode-bidi:plaintext;display:block}
 .privacy{font-size:11px;color:#6e806e;line-height:1.8;margin-top:12px}
 @media(min-width:700px){.hero{aspect-ratio:16/9}}
 </style>
-<script defer src="hand-assist.js?v=4.8"></script>
+<script defer src="tracking-performance.js?v=4.9"></script>
+<script defer src="hand-assist.js?v=4.9"></script>
 <script defer src="tracking-visualizer.js?v=4.8"></script>
 </head>
 <body><div class="shell">
@@ -42,6 +44,7 @@ input{accent-color:#3c6549}
 <div class="controls">
 <button id="start">ابدأ التتبع</button>
 <button id="stop" class="secondary" disabled>إيقاف الكاميرا</button>
+<label><span>الأداء</span> <select id="quality" aria-label="جودة التتبع"><option value="auto">تلقائي</option><option value="light">سريع</option><option value="balanced">متوازن</option><option value="detail">دقيق</option></select></label>
 <label><input id="pose" type="checkbox" checked> تتبع الجسم والكتفين</label>
 <label><input id="mirror" type="checkbox" checked> كاميرا أمامية</label>
 </div>
@@ -85,6 +88,7 @@ async function start(){
   active=true;counter.textContent='الكاميرا تعمل · تحميل نماذج التتبع';
   const ok=await window.PATCH_HAND_ASSIST?.start({
    video,stage,isFront:()=>by('mirror').checked,withPose:by('pose').checked,
+   quality:by('quality').value,
    onAnchor(){},onHand:hand=>{
     handCount++;canvas?.hands(hand.allHands||hand.points);
     counter.textContent='الإيد متتبعة · '+handCount+' تحديث · 21 نقطة';
@@ -103,7 +107,9 @@ async function start(){
     loading:'تحميل نموذج الجسم',searching:'البحث عن الجسم',
     tracking:'33 نقطة ظاهرة',noBody:'الجسم مش ظاهر بالكامل',error:'نموذج الجسم غير متاح'
    })[state]||state),
-   onDiagnostics:info=>print('modelState',(info.status==='ready'?'جاهز: ':'تحميل: ')+(info.part||'')+' '+(info.host||'')),
+   onDiagnostics:info=>print('modelState',info.part==='live'
+    ?(info.mode==='worker'?'عامل مستقل':'الخيط الرئيسي')+' · '+Math.round(info.inferenceMs||0)+' ms · '+Math.round(1000/(info.handIntervalMs||115))+' fps'
+    :(info.status==='ready'?'جاهز: ':'تحميل: ')+(info.part||'')+' '+(info.host||'')),
    onError:error=>print('errorState',(error.part||'')+': '+error.detail)
   });
   if(!ok&&thisRun===token){

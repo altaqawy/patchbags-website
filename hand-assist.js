@@ -36,7 +36,7 @@
    return response?.ok&&!(response.headers?.get('content-type')||'').includes('text/html');
   }catch(_){return false}
  }
- async function createHands(onProgress){
+ async function createHands(onProgress,settings={maxHands:1}){
   let last;
   const models=[...(await localSource(LOCAL_HAND)?[LOCAL_HAND]:[]),HAND_MODEL];
   for(const host of PACKAGES){
@@ -50,7 +50,7 @@
      try{
       const detector=await timeout(lib.HandLandmarker.createFromOptions(wasm,{
        baseOptions:{modelAssetPath:modelURL,delegate:'CPU'},
-       runningMode:'VIDEO',numHands:2,
+       runningMode:'VIDEO',numHands:settings.maxHands||1,
        minHandDetectionConfidence:.55,minHandPresenceConfidence:.50,minTrackingConfidence:.52
       }),26000,'Hand model');
       return {host,lib,wasm,detector};
@@ -68,7 +68,9 @@
  }
  async function createPose(session,resources){
   let last;
-  const bodySources=[...(await localSource(LOCAL_POSE)?[LOCAL_POSE]:[]),...POSE_MODELS];
+  const libraryPose=session.settings?.poseModel==='lite'
+  ?[POSE_MODELS[1],POSE_MODELS[0]]:POSE_MODELS;
+  const bodySources=[...(session.settings?.poseModel==='full'&&await localSource(LOCAL_POSE)?[LOCAL_POSE]:[]),...libraryPose];
   for(const modelURL of bodySources){
    if(active!==session)return null;
    session.onPoseState?.('loading');
@@ -130,7 +132,11 @@
   const {video,stage,frame,isFront,getCalibration}=session;
   const candidates=landmarks?.filter(x=>x?.length===21)||[];
   if(!candidates.length){session.missed++;
-   if(session.missed>=4){session.state('noHand');if(session.missed===4)session.onLost?.()}
+   if(session.missed>=4){
+    session.state('noHand');
+    if(session.missed===4){session.onLost?.();session.previousPoints=null;
+     session.previous=null;session.motion?.reset()}
+   }
    return;
   }
   const mappedHands=candidates.map(x=>mapped(x,video,stage,isFront)).filter(Boolean);
@@ -175,24 +181,148 @@
    scale:rawScale,tilt:clamp(adjusted*.21,-7,7),
    gripX:grip.x,gripY:grip.y
   };
-  if(session.previous){
-   for(const key of ['x','y','scale','tilt'])desired[key]=mix(session.previous[key],desired[key],.24);
-  }
-  session.previous=desired;
-  session.onAnchor?.(desired);
+  const stabilized=session.motion?.apply(desired,performance.now())||desired;
+  session.previous=stabilized;
+  session.onAnchor?.(stabilized);
   session.onHand?.({...base,points,allHands:mappedHands.map(x=>x.points),grip,
    palmPx:gripPalm,pinching});
   session.state('tracking');
  }
+ function deliverPose(session,points,world){
+  if(active!==session)return;
+  if(points?.length>=33){
+   const geometry=mapped(points,session.video,session.stage,session.isFront);
+   if(!geometry)return;
+   const shoulder=geometry.points[11],other=geometry.points[12];
+   const hips=[geometry.points[23],geometry.points[24]];
+   const anchor=shoulder?.visibility>other?.visibility?shoulder:other;
+   session.onPose?.({...geometry,shoulder:anchor,hips,worldLandmarks:world||[]});
+   session.onPoseState?.('tracking');
+  }else{
+   session.onPose?.(null);
+   session.onPoseState?.('noBody');
+  }
+ }
+ async function tryWorker(session){
+  if(typeof Worker!=='function'||typeof createImageBitmap!=='function')return false;
+  let worker;
+  try{worker=new Worker(new URL('tracking-worker.js?v=4.9',document.baseURI),{type:'module'})}
+  catch(_){return false}
+  session.worker=worker;
+  let initial=true,waiter=null,busy=false,capturing=false;
+  session.cancelWorker=()=>{
+   if(initial){initial=false;waiter?.reject(Error('Tracking session cancelled'))}
+  };
+  const ready=new Promise((resolve,reject)=>{waiter={resolve,reject}});
+  const setFailure=error=>{
+   const message=String(error?.message||error||'Worker not available');
+   if(initial){initial=false;waiter?.reject(new Error(message));return}
+   if(active===session){
+    session.onError?.({part:'hand',detail:message.slice(0,140)});
+    session.state('error');stop();session.onLost?.();
+   }
+  };
+  worker.onerror=event=>{event?.preventDefault?.();setFailure(event?.message||'Worker start failure')};
+  worker.onmessage=event=>{
+   if(active!==session)return;
+   const data=event.data||{};
+   if(data.type==='progress'){
+    session.onDiagnostics?.({part:data.part,host:data.host,status:'loading'});
+   }else if(data.type==='init-error'){
+    setFailure(data.message||'Model unavailable in worker');
+   }else if(data.type==='ready'){
+    initial=false;
+    session.workerReady=true;
+    session.state('searching');
+    session.onDiagnostics?.({part:'hand',host:data.host,status:'ready',mode:'worker'});
+    waiter?.resolve(true);
+   }else if(data.type==='pose-ready'){
+    session.onPoseState?.('searching');
+   }else if(data.type==='pose-error'){
+    session.onPoseState?.('error');
+    session.onError?.({part:'body',detail:data.message});
+   }else if(data.type==='result'){
+    busy=false;
+    if(data.notReady)return;
+    const now=performance.now();
+    session.budget.observe(Number(data.inferenceMs)||0,now);
+    processHand(session,data.hand,session);
+    session.countHand++;
+    if(data.pose!==null){
+     deliverPose(session,data.pose,data.world);
+     session.countPose++;
+    }
+    if(now-session.lastReport>=900){
+     session.lastReport=now;
+     session.onDiagnostics?.({
+      part:'live',status:session.lastState,mode:'worker',
+      inferenceMs:session.budget.inferenceMs,
+      handIntervalMs:session.budget.handMs,
+      handFrames:session.countHand,poseFrames:session.countPose
+     });
+    }
+   }else if(data.type==='frame-error'){
+    busy=false;
+    setFailure(data.message||'Worker frame error');
+   }
+  };
+  worker.postMessage({type:'init',settings:session.settings,withPose:session.withPose});
+  let timer;
+  try{
+   await Promise.race([
+    ready,
+    new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Worker model load timed out')),40000)})
+   ]);
+   if(active!==session)return false;
+  }catch(_){
+   if(session.worker===worker){worker.terminate();session.worker=null}
+   return false;
+  }finally{clearTimeout(timer)}
+  let lastFrame=-1,lastPose=0,seq=0,failures=0;
+  const loop=now=>{
+   if(active!==session||session.worker!==worker)return;
+   session.raf=requestAnimationFrame(loop);
+   if(busy||capturing||document.hidden||session.video.readyState<2)return;
+   if(now-lastFrame<session.budget.handMs)return;
+   if(session.video.currentTime===session.prevVideoTime)return;
+   lastFrame=now;
+   session.prevVideoTime=session.video.currentTime;
+   capturing=true;
+   createImageBitmap(session.video).then(bitmap=>{
+    capturing=false;
+    if(active!==session||session.worker!==worker){bitmap.close?.();return}
+    busy=true;
+    const poseDue=Boolean(session.withPose&&now-lastPose>=session.budget.poseMs);
+    if(poseDue)lastPose=now;
+    try{worker.postMessage({
+     type:'frame',bitmap,seq:++seq,timestamp:performance.now(),poseDue
+    },[bitmap])}catch(error){
+     busy=false;bitmap.close?.();setFailure(error);
+    }
+   }).catch(error=>{
+    capturing=false;
+    if(active!==session)return;
+    if(++failures>=4)setFailure('Cannot transfer camera frames: '+error?.message);
+   });
+  };
+  session.startedAt=performance.now();
+  session.raf=requestAnimationFrame(loop);
+  return true;
+ }
  async function start({
   video,stage,frame,isFront,onAnchor,onHand,onLost,onState,onPose,onPoseState,onError,
-  onDiagnostics,getCalibration,withPose=false
+  onDiagnostics,getCalibration,withPose=false,quality='auto'
  }={}){
   stop();
+  const perf=window.PATCH_TRACKING_PERFORMANCE;
+  const settings=perf?.profile(quality)||{name:'balanced',handMs:115,poseMs:600,maxHands:1,poseModel:'lite'};
+  const budget=perf?.makeBudget(settings)||{handMs:settings.handMs,poseMs:settings.poseMs,inferenceMs:0,observe(){}};
   const session={id:++generation,video,stage,frame,isFront,getCalibration,onAnchor,onHand,
    onLost,onPose,onPoseState,onError,onDiagnostics,missed:0,previous:null,
    previousPoints:null,previousGrip:null,handDetector:null,poseDetector:null,
-   raf:0,atHand:0,atPose:0,countHand:0,countPose:0,startedAt:0,lastState:''};
+   raf:0,atHand:0,atPose:0,countHand:0,countPose:0,startedAt:0,lastState:'',
+   settings,budget,withPose,worker:null,workerReady:false,
+   motion:perf?.makeMotionFilter()||null,lastReport:0,cancelWorker:null};
   session.state=key=>{
    if(active===session&&session.lastState!==key){
     session.lastState=key;onState?.(key);
@@ -203,9 +333,11 @@
   try{
    await videoReady(video);
    if(active!==session)return false;
+   if(await tryWorker(session))return true;
+   if(active!==session)return false;
    const resources=await createHands((part,host)=>{
     if(active===session)onDiagnostics?.({part,host,status:'loading'});
-   });
+   },settings);
    if(active!==session){resources.detector.close?.();return false}
    session.handDetector=resources.detector;
    session.state('searching');
@@ -223,10 +355,12 @@
     if(active!==session)return;
     session.raf=requestAnimationFrame(tick);
     if(!video.videoWidth||video.readyState<2||document.hidden)return;
-    if(now-session.atHand>=110){
+    if(now-session.atHand>=session.budget.handMs){
      session.atHand=now;
      try{
+      const begin=performance.now();
       const raw=session.handDetector.detectForVideo(video,now);
+      session.budget.observe(performance.now()-begin,now);
       processHand(session,raw?.landmarks,session);
       session.countHand++;
      }catch(error){
@@ -237,7 +371,7 @@
       return;
      }
     }
-    if(session.poseDetector&&now-session.atPose>=350){
+    if(session.poseDetector&&now-session.atPose>=session.budget.poseMs){
      session.atPose=now;
      try{
       const result=session.poseDetector.detectForVideo(video,now);
@@ -264,9 +398,12 @@
       session.poseDetector=null;
      }
     }
-    if(now-session.startedAt>1500&&now-session.startedAt<2200){
+    if(now-session.lastReport>=1000){
+     session.lastReport=now;
      onDiagnostics?.({
-      part:'live',status:session.lastState,
+      part:'live',status:session.lastState,mode:'main',
+      inferenceMs:session.budget.inferenceMs,
+      handIntervalMs:session.budget.handMs,
       handFrames:session.countHand,poseFrames:session.countPose,
       videoWidth:video.videoWidth,videoHeight:video.videoHeight
      });
@@ -287,6 +424,11 @@
   const session=active;active=null;
   if(!session)return;
   if(session.raf)cancelAnimationFrame(session.raf);
+  session.cancelWorker?.();
+  if(session.worker){
+   try{session.worker.postMessage({type:'stop'})}catch(_){}
+   session.worker.terminate();session.worker=null;
+  }
   try{session.handDetector?.close?.()}catch(_){}
   try{session.poseDetector?.close?.()}catch(_){}
  }
