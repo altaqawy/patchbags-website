@@ -10,6 +10,8 @@
   'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22'
  ];
  const HAND_MODEL='https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+ const LOCAL_HAND='assets/models/hand_landmarker.task';
+ const LOCAL_POSE='assets/models/pose_landmarker_full.task';
  const POSE_MODELS=[
   'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
   'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task'
@@ -27,8 +29,16 @@
    new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label+' timed out')),ms)})
   ]).finally(()=>clearTimeout(timer));
  }
+ async function localSource(path){
+  if(typeof fetch!=='function')return false;
+  try{
+   const response=await timeout(fetch(path,{method:'HEAD',cache:'force-cache'}),3500,'Local model');
+   return response?.ok&&!(response.headers?.get('content-type')||'').includes('text/html');
+  }catch(_){return false}
+ }
  async function createHands(onProgress){
   let last;
+  const models=[...(await localSource(LOCAL_HAND)?[LOCAL_HAND]:[]),HAND_MODEL];
   for(const host of PACKAGES){
    onProgress?.('sdk',host);
    try{
@@ -36,14 +46,19 @@
     if(!lib?.HandLandmarker||!lib?.FilesetResolver)throw Error('MediaPipe exports missing');
     const wasm=await timeout(lib.FilesetResolver.forVisionTasks(host+'/wasm'),14000,'WASM');
     onProgress?.('hand-model',host);
-    const detector=await timeout(lib.HandLandmarker.createFromOptions(wasm,{
-     baseOptions:{modelAssetPath:HAND_MODEL,delegate:'CPU'},
-     runningMode:'VIDEO',numHands:2,
-     minHandDetectionConfidence:.55,
-     minHandPresenceConfidence:.50,
-     minTrackingConfidence:.52
-    }),26000,'Hand model');
-    return {host,lib,wasm,detector};
+    for(const modelURL of models){
+     try{
+      const detector=await timeout(lib.HandLandmarker.createFromOptions(wasm,{
+       baseOptions:{modelAssetPath:modelURL,delegate:'CPU'},
+       runningMode:'VIDEO',numHands:2,
+       minHandDetectionConfidence:.55,minHandPresenceConfidence:.50,minTrackingConfidence:.52
+      }),26000,'Hand model');
+      return {host,lib,wasm,detector};
+     }catch(error){
+      last=error;
+      console.warn('[Patch Tracker] Hand model source failed:',modelURL,normalizeError(error));
+     }
+    }
    }catch(error){
     last=error;
     console.warn('[Patch Tracker] Hand model load failed:',host,normalizeError(error));
@@ -53,7 +68,8 @@
  }
  async function createPose(session,resources){
   let last;
-  for(const modelURL of POSE_MODELS){
+  const bodySources=[...(await localSource(LOCAL_POSE)?[LOCAL_POSE]:[]),...POSE_MODELS];
+  for(const modelURL of bodySources){
    if(active!==session)return null;
    session.onPoseState?.('loading');
    try{
