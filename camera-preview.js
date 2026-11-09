@@ -96,6 +96,15 @@
   return Number.isFinite(width)&&width>=12&&width<=80?width:41.7;
  };
  const colorKeys=['PB-04','PB-05','PB-06'];
+ function refreshDiagnostic(){
+  if(!layer)return;
+  const slot=q('[data-cp-diagnostic]');
+  if(slot)slot.textContent=trackingError
+   ?t('diagnosticError')+' · '+trackingError
+   :(diagnosticState?t(diagnosticState):'');
+  const body=q('[data-cp-body-status]');
+  if(body)body.textContent=bodyState?t(bodyState):'';
+ }
  function setHandState(key){
   handState=key||'';
   const text=q('[data-cp-hand-status]');
@@ -319,7 +328,14 @@
         '<button type="button" data-cp-preset="shoulder" aria-pressed="false" data-cp-i18n="presetShoulder"></button>'+
         '<button type="button" data-cp-preset="front" aria-pressed="false" data-cp-i18n="presetFront"></button></div>'+
        '<button type="button" data-cp-hand-toggle class="patch-cp-hand-toggle"></button>'+
+       '<button type="button" data-cp-retry-tracking class="patch-cp-hand-toggle" data-cp-i18n="retryTracking"></button>'+
        '<span class="patch-cp-hand-message" data-cp-hand-status role="status"></span>'+
+       '<div class="patch-cp-tracking-options">'+
+        '<label><input type="checkbox" data-cp-track-body checked><span data-cp-i18n="trackBody"></span></label>'+
+        '<label><input type="checkbox" data-cp-show-points checked><span data-cp-i18n="trackPoints"></span></label>'+
+       '</div>'+
+       '<span class="patch-cp-body-status" data-cp-body-status role="status"></span>'+
+       '<div class="patch-cp-live-diagnostic" role="status"><b data-cp-i18n="diagnosticsTitle"></b><span data-cp-diagnostic></span></div>'+
        '<span class="patch-cp-grip-status" data-cp-grip-state aria-live="off"></span>'+
        '<div class="patch-cp-calibration"><label class="patch-cp-palm-measure"><span data-cp-i18n="palmSize"></span>'+
         '<input type="range" data-cp-palm-cm min="6.5" max="11" step="0.5" value="8.5">'+
@@ -328,6 +344,7 @@
         '<span data-cp-i18n="fingerOverlap"></span></label></div>'+
        '<small data-cp-i18n="sizeEstimate"></small>'+
        '<small data-cp-i18n="overlapNote"></small>'+
+       '<small data-cp-i18n="bodyNote"></small>'+
       '</div>'+
       '<p class="patch-cp-guide" data-cp-i18n="guide"></p>'+
       '<div class="patch-cp-looks"><div class="patch-cp-looks-row"><div class="patch-cp-looks-group">'+
@@ -361,6 +378,7 @@
   document.body.appendChild(layer);
   video=q('video');viewer=q('model-viewer');stage=q('.patch-cp-stage');frame=q('.patch-cp-model-frame');
   occlusion=window.PATCH_GRIP_OCCLUSION?.mount({stage,video})||null;
+  overlay=window.PATCH_TRACKING_OVERLAY?.mount({stage})||null;
   viewer.addEventListener('load',applyLook);
   viewer.addEventListener('error',()=>{const info=q('[data-cp-status]');if(info)info.textContent=t('missing3d')});
   layer.addEventListener('click',event=>{
@@ -373,6 +391,10 @@
    const presetChoice=event.target.closest('[data-cp-preset]');
    if(presetChoice){stopHand();preset(presetChoice.dataset.cpPreset);setHandState('handSearching');return}
    if(event.target.closest('[data-cp-hand-toggle]')){toggleHand();return}
+   if(event.target.closest('[data-cp-retry-tracking]')){
+    stopHand();autoTrack=true;trackingError='';diagnosticState='';
+    refreshDiagnostic();toggleHand();return;
+   }
    const colorChoice=event.target.closest('[data-cp-color]');
    if(colorChoice){previewSku=colorChoice.dataset.cpColor;applyLook();return}
    const lightChoice=event.target.closest('[data-cp-light]');
@@ -387,6 +409,14 @@
   q('[data-cp-palm-cm]').addEventListener('input',event=>{
    palmWidthCm=limit(Number(event.target.value)||8.5,6.5,11);
    const val=q('[data-cp-palm-value]');if(val)val.textContent=palmWidthCm.toFixed(1)+' cm';
+  });
+  q('[data-cp-track-body]').addEventListener('change',event=>{
+   bodyTracking=Boolean(event.target.checked);
+   if(tracking){stopHand();autoTrack=true;toggleHand()}
+  });
+  q('[data-cp-show-points]').addEventListener('change',event=>{
+   showPoints=Boolean(event.target.checked);
+   overlay?.setVisible(showPoints);
   });
   q('[data-cp-occlusion]').addEventListener('change',event=>{
    fingerOverlay=Boolean(event.target.checked);
@@ -420,6 +450,11 @@
   current={productId:params.productId||'',name:params.name||''};pos={x:0,y:0,scale:1};facing='environment';
   previewSku=looks()?.COLORS[params.productId]?params.productId:'PB-04';
   light='studio';tracking=false;handState='';gripState='';
+  autoTrack=true;bodyTracking=true;showPoints=true;
+  trackingError='';diagnosticState='';bodyState='';
+  if(q('[data-cp-track-body]'))q('[data-cp-track-body]').checked=true;
+  if(q('[data-cp-show-points]'))q('[data-cp-show-points]').checked=true;
+  overlay?.setVisible(true);overlay?.clear();
   palmWidthCm=8.5;fingerOverlay=true;
   if(q('[data-cp-palm-cm]'))q('[data-cp-palm-cm]').value='8.5';
   if(q('[data-cp-occlusion]'))q('[data-cp-occlusion]').checked=true;
