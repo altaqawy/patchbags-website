@@ -474,7 +474,7 @@ html[lang="ar"] .patch-cp-visual-toggle button{
 }
 .patch-cp-camera-canvas[hidden]{display:none!important}
 .patch-cp-stage[data-video-render="canvas"] .patch-cp-video{
- opacity:0!important;visibility:hidden!important;
+ opacity:0!important;visibility:visible!important;
 }
 .patch-cp-stage[data-video-render="canvas"] .patch-cp-camera-canvas{
  visibility:visible!important;
