@@ -275,8 +275,7 @@
    ]);
    if(active!==session)return false;
   }catch(_){
-   worker.terminate();
-   if(session.worker===worker)session.worker=null;
+   if(session.worker===worker){worker.terminate();session.worker=null}
    return false;
   }finally{clearTimeout(timer)}
   let lastFrame=-1,lastPose=0,seq=0,failures=0;
