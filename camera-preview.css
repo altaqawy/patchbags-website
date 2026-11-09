@@ -191,3 +191,90 @@ html[lang="ar"] .patch-cp-status{direction:rtl}
  .patch-cp-actions button{min-height:28px;padding:5px 9px}
  .patch-cp-disclaimer{font-size:9px}
 }
+
+
+/* V4.5 + V4.6 — warm editorial rendering and in-hand interaction */
+.patch-cp-stage[data-mode="hand"] .patch-cp-watermark{
+ background:rgba(72,93,69,.78);
+}
+.patch-cp-modes{
+ display:flex;justify-content:center;gap:5px;
+ padding:4px;background:#e8ede5;border-radius:100px;
+ margin-inline:auto;max-width:100%;
+}
+.patch-cp-modes button{
+ border:0;border-radius:100px;background:transparent;color:#5c705d;
+ padding:9px 20px;font:700 12px/1.4 var(--pb-ui-en,Manrope,sans-serif);
+ cursor:pointer;min-width:110px
+}
+.patch-cp-modes button[aria-pressed="true"]{
+ background:#334d3d;color:#fff;box-shadow:0 2px 11px #20332828
+}
+.patch-cp-hand-panel{
+ display:none;align-items:center;justify-content:center;flex-wrap:wrap;
+ gap:7px;padding:7px 0 2px;text-align:center;
+}
+.patch-cp-stage[data-mode="hand"] ~ .patch-cp-toolbar .patch-cp-hand-panel{
+ display:flex
+}
+.patch-cp-presets{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.patch-cp-presets button,.patch-cp-hand-toggle{
+ border:1px solid #bdcbbc;border-radius:100px;background:#f5f7f1;
+ padding:7px 12px;color:#446048;cursor:pointer;
+ font:650 10px/1.5 var(--pb-ui-en,Manrope,sans-serif)
+}
+.patch-cp-presets button[aria-pressed="true"]{background:#d9e6d6;border-color:#759678}
+.patch-cp-hand-toggle{background:#e8eee7;border-color:#91ad91;color:#315339}
+.patch-cp-hand-message{font:600 10px/1.4 var(--pb-ui-en,Manrope,sans-serif);color:#49694d}
+.patch-cp-hand-panel small{width:100%;font-size:9px;color:#819080;line-height:1.5}
+.patch-cp-looks{border-top:1px solid #e0e5dc;padding:9px 0 0}
+.patch-cp-looks-row{
+ display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap;
+}
+.patch-cp-looks-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.patch-cp-looks-group>span{
+ font:700 10px/1.5 var(--pb-ui-en,Manrope,sans-serif);color:#677c69
+}
+.patch-cp-swatches{display:flex;gap:7px}
+.patch-cp-swatches button{
+ width:23px;height:23px;border-radius:50%;
+ border:2px solid #fafbf5;
+ outline:1px solid #a6b1a1;
+ background:var(--cp-swatch);cursor:pointer
+}
+.patch-cp-swatches button[aria-pressed="true"]{
+ outline:2px solid #3d6248;
+ box-shadow:0 0 0 3px #dcebdd
+}
+.patch-cp-looks-group strong{font-size:10px;color:#536b57;line-height:1.5}
+.patch-cp-lights{display:flex;gap:3px}
+.patch-cp-lights button{
+ border:1px solid #d0dcd0;border-radius:100px;background:transparent;
+ color:#537057;padding:6px 10px;cursor:pointer;
+ font:650 10px/1.4 var(--pb-ui-en,Manrope,sans-serif)
+}
+.patch-cp-lights button[aria-pressed="true"]{
+ background:#3e5944;color:#fff;border-color:#3e5944
+}
+.patch-cp-sample{margin:6px 0 0;font-size:9px;line-height:1.5;color:#94776e;text-align:center}
+html[lang="ar"] .patch-cp-layer :is(
+ .patch-cp-modes button,.patch-cp-presets button,.patch-cp-hand-toggle,
+ .patch-cp-hand-message,.patch-cp-looks-group>span,.patch-cp-looks-group strong,
+ .patch-cp-lights button,.patch-cp-sample
+){font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);letter-spacing:0}
+@media(max-width:690px){
+ .patch-cp-toolbar{max-height:min(48dvh,405px);overflow-y:auto;overscroll-behavior:contain}
+ .patch-cp-modes button{font-size:11px;padding:7px 13px;min-width:98px}
+ .patch-cp-looks-row{gap:7px}
+ .patch-cp-presets button,.patch-cp-hand-toggle{font-size:9px;padding:6px 9px}
+ .patch-cp-looks-group>span{font-size:9px}
+ .patch-cp-looks-group strong{font-size:9px}
+ .patch-cp-lights button{font-size:9px;padding:5px 9px}
+ .patch-cp-looks{padding-top:6px}
+ .patch-cp-sample{font-size:8px}
+}
+@media(max-height:570px) and (orientation:landscape){
+ .patch-cp-toolbar{max-height:53dvh;padding:6px 10px}
+ .patch-cp-hand-panel{padding:0}
+ .patch-cp-privacy,.patch-cp-sample{display:none}
+}

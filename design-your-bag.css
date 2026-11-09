@@ -562,3 +562,45 @@ html[lang="ar"] .patch-cz-camera-entry{
  }
  .patch-cz-camera-entry span{font-size:15px}
 }
+
+
+/* V4.5: edit-safe lighting controls for the 3D reference. */
+.patch-cz-studio-light{
+ margin:13px 0;padding:12px 14px;border-radius:5px;
+ border:1px solid #d7ded3;background:#ecf0e9;
+}
+.patch-cz-studio-light>span{
+ display:block;color:#617963;font:700 10px/1.5 var(--pb-ui-en,Manrope,sans-serif);
+ letter-spacing:.06em;margin-bottom:8px
+}
+.patch-cz-studio-light>div{display:flex;gap:6px;flex-wrap:wrap}
+.patch-cz-studio-light button{
+ background:#f8f8f4;border:1px solid #c8d7c5;border-radius:100px;
+ padding:7px 13px;color:#4d664f;font:700 10px/1.5 var(--pb-ui-en,Manrope,sans-serif);
+ cursor:pointer
+}
+.patch-cz-studio-light button[aria-pressed="true"]{background:#36513d;border-color:#36513d;color:#fff}
+.patch-cz-studio-light small{display:block;color:#8d766f;font-size:10px;line-height:1.8;margin-top:9px}
+.patch-cz-preview-actions{
+ position:absolute;z-index:10;bottom:11px;inset-inline-end:11px;
+ display:flex;flex-direction:column;align-items:flex-end;gap:7px;max-width:85%
+}
+.patch-cz-preview-actions .patch-cz-camera-entry{
+ position:static;inset:auto;max-width:100%;
+ box-sizing:border-box;white-space:normal;min-height:35px;
+ box-shadow:0 5px 15px rgba(21,41,27,.18)
+}
+.patch-cz-preview-actions .patch-cz-hand-entry{
+ background:#35533d;color:#fff;border-color:#436b4c
+}
+.patch-cz-preview-actions .patch-cz-hand-entry:hover{background:#496b50}
+html[lang="ar"] .patch-cz-studio-light :is(span,button,small){
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
+ letter-spacing:0
+}
+@media(max-width:690px){
+ .patch-cz-studio-light{padding:10px}
+ .patch-cz-studio-light button{padding:6px 10px;font-size:9px}
+ .patch-cz-preview-actions{bottom:6px;inset-inline-end:6px;gap:4px}
+ .patch-cz-preview-actions .patch-cz-camera-entry{font-size:9px;padding:6px 8px;min-height:27px}
+}
