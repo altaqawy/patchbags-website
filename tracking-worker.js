@@ -5,6 +5,7 @@
  */
 'use strict';
 let hands=null,pose=null,version='',running=false,handFrames=0,poseFrames=0;
+const canvas=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(1,1):null;
 const MODELS={
  hand:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
  full:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task',
@@ -38,6 +39,7 @@ async function setup(settings,withPose){
     try{
      hands=await sdk.HandLandmarker.createFromOptions(wasm,{
       baseOptions:{modelAssetPath:model,delegate:'CPU'},
+      ...(canvas?{canvas}:{}),
       runningMode:'VIDEO',numHands:settings.maxHands||1,
       minHandDetectionConfidence:.55,minHandPresenceConfidence:.52,minTrackingConfidence:.56
      });
@@ -53,7 +55,7 @@ async function setup(settings,withPose){
        try{
         emit('progress',{part:'body-model',host});
         pose=await sdk.PoseLandmarker.createFromOptions(wasm,{
-         baseOptions:{modelAssetPath:url,delegate:'CPU'},runningMode:'VIDEO',
+         baseOptions:{modelAssetPath:url,delegate:'CPU'},...(canvas?{canvas}:{}),runningMode:'VIDEO',
          numPoses:1,minPoseDetectionConfidence:.54,minPosePresenceConfidence:.52,
          minTrackingConfidence:.56,outputSegmentationMasks:false
         });
@@ -96,7 +98,7 @@ self.onmessage=async event=>{
     poseFrames++;
    }
    emit('result',{
-    seq:data.seq,hand:handResult?.landmarks||[],
+    seq:data.seq,timestamp,hand:handResult?.landmarks||[],
     pose:posePoints,world:worldPoints,
     inferenceMs:Math.round((performance.now()-begin)*10)/10,
     handFrames,poseFrames
