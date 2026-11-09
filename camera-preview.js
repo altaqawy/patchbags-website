@@ -73,6 +73,12 @@
  };
  const looks=()=>window.PATCH_BAG_LOOKS;
  const hand=()=>window.PATCH_HAND_ASSIST;
+ const bagWidthCm=()=>{
+  const item=typeof products!=='undefined'&&Array.isArray(products)
+   ?products.find(p=>p.id===current?.productId):null;
+  const width=Number(item?.dimensionsCm?.width??item?.measurements?.widthCm??item?.dimensions?.widthCm);
+  return Number.isFinite(width)&&width>=12&&width<=80?width:41.7;
+ };
  const colorKeys=['PB-04','PB-05','PB-06'];
  function setHandState(key){
   handState=key||'';
@@ -142,8 +148,10 @@
  function applyPosition(){
   if(!frame||!stage)return;
   const w=stage.clientWidth||360,h=stage.clientHeight||560;
-  pos.x=limit(pos.x,-w*.37,w*.37);
-  pos.y=limit(pos.y,-h*.31,h*.31);
+  const horizontal=mode==='hand'?w*.46:w*.37;
+  const vertical=mode==='hand'?h*.48:h*.31;
+  pos.x=limit(pos.x,-horizontal,horizontal);
+  pos.y=limit(pos.y,-vertical,vertical);
   frame.style.setProperty('--cp-x',pos.x+'px');
   frame.style.setProperty('--cp-y',pos.y+'px');
   frame.style.setProperty('--cp-scale',String(pos.scale));
@@ -179,7 +187,7 @@
   occlusion?.setEnabled(fingerOverlay);
   const started=await hand().start({
    video,stage,frame,isFront:()=>facing==='user',
-   getCalibration:()=>({palmCm:palmWidthCm,bagCm:41.7}),
+   getCalibration:()=>({palmCm:palmWidthCm,bagCm:bagWidthCm()}),
    onAnchor:point=>{
     if(!tracking||mode!=='hand')return;
     pos={...point};applyPosition();
