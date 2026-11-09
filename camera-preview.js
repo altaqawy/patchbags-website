@@ -72,7 +72,13 @@
   diagnosticError:['Tracker could not start. Try Chrome, allow downloads, then Retry tracking.','تعذر بدء التتبع. جرّبي Chrome واتأكدي من الإنترنت واضغطي إعادة تشغيل التتبع'],
   retryTracking:['Retry tracking','إعادة تشغيل التتبع'],
   bodyNote:['Pose tracking requires a visible upper body; it is optional on slower phones.','تتبع الجسم يحتاج ظهور الجزء العلوي، وممكن تقفليه على الموبايلات الضعيفة.'],
-  testTracking:['Open hand & body diagnostic test','افتح اختبار تتبع الإيد والجسم']
+  testTracking:['Open hand & body diagnostic test','افتح اختبار تتبع الإيد والجسم'],
+  trackQuality:['Tracking quality','جودة التتبع'],
+  autoQuality:['Auto','تلقائي'],
+  lightQuality:['Fast','سريع'],
+  balancedQuality:['Balanced','متوازن'],
+  detailQuality:['Precise','دقيق'],
+  trackingPerformance:['Actual performance','الأداء الفعلي']
  };
  const ar=()=>document.documentElement.lang==='ar';
  const t=key=>translations[key]?.[ar()?1:0]||key;
@@ -83,7 +89,7 @@
  let mode='scene',light='studio',previewSku='PB-04',tracking=false,handState='';
  let occlusion=null,overlay=null,fingerOverlay=true,palmWidthCm=8.5,gripState='';
  let bodyTracking=true,showPoints=true,autoTrack=true,bodyState='',trackingError='',diagnosticState='';
- let carryPreset='hand';
+ let carryPreset='hand',qualityPreference='auto',performanceStats='';
  const safeURL=input=>{
   try{
    const url=new URL(String(input||''),document.baseURI);
@@ -92,6 +98,8 @@
  };
  const looks=()=>window.PATCH_BAG_LOOKS;
  const hand=()=>window.PATCH_HAND_ASSIST;
+ const chosenQuality=()=>window.PATCH_TRACKING_PERFORMANCE?.profile(qualityPreference)||
+  {idealWidth:960,idealHeight:540,maxFps:10};
  const bagWidthCm=()=>{
   const item=typeof products!=='undefined'&&Array.isArray(products)
    ?products.find(p=>p.id===current?.productId):null;
@@ -165,7 +173,10 @@
    if(x)button.textContent=ar()?x.ar:x.en;
   });
   setHandState(handState);
+  layer.querySelectorAll('[data-cp-quality]').forEach(button=>
+   button.setAttribute('aria-pressed',String(button.dataset.cpQuality===qualityPreference)));
   const body=q('[data-cp-body-status]');if(body)body.textContent=bodyState?t(bodyState):'';
+  const perf=q('[data-cp-performance]');if(perf)perf.textContent=performanceStats;
   const diag=q('[data-cp-diagnostic]');
   if(diag)diag.textContent=trackingError?(t('diagnosticError')+' · '+trackingError):(diagnosticState?t(diagnosticState):'');
   const grip=q('[data-cp-grip-state]');if(grip)grip.textContent=gripState?t(gripState):'';
@@ -225,7 +236,7 @@
   occlusion?.setEnabled(fingerOverlay);
   const started=await hand().start({
    video,stage,frame,isFront:()=>facing==='user',
-   withPose:bodyTracking,
+   withPose:bodyTracking,quality:qualityPreference,
    getCalibration:()=>({palmCm:palmWidthCm,bagCm:bagWidthCm()}),
    onAnchor:point=>{
     if(!tracking||mode!=='hand'||carryPreset==='shoulder')return;
@@ -266,7 +277,17 @@
    },
    onDiagnostics:info=>{
     if(!tracking)return;
-    diagnosticState=info.status==='ready'?'diagnosticReady':'diagnosticLoading';
+    if(info.part==='live'){
+     const ms=Number(info.inferenceMs)||0;
+     const interval=Number(info.handIntervalMs)||chosenQuality().handMs||115;
+     performanceStats=(info.mode==='worker'?'Worker':'Main thread')+
+      (ms?' · '+Math.round(ms)+' ms':'')+
+      ' · ~'+Math.round(1000/interval)+' fps';
+    }else if(info.status==='ready'){
+     diagnosticState='diagnosticReady';
+    }else if(diagnosticState!=='handWorking'){
+     diagnosticState='diagnosticLoading';
+    }
     refreshDiagnostic();
    },
    onError:info=>{
@@ -305,8 +326,9 @@
     next=await navigator.mediaDevices.getUserMedia({
      audio:false,video:{
       facingMode:{ideal:facing},
-      width:{ideal:1280},height:{ideal:720},
-      frameRate:{ideal:24,max:30}
+      width:{ideal:chosenQuality().idealWidth},
+      height:{ideal:chosenQuality().idealHeight},
+      frameRate:{ideal:chosenQuality().maxFps*2,max:30}
      }
     });
    }catch(firstError){
@@ -370,12 +392,19 @@
        '<button type="button" data-cp-hand-toggle class="patch-cp-hand-toggle"></button>'+
        '<button type="button" data-cp-retry-tracking class="patch-cp-hand-toggle" data-cp-i18n="retryTracking"></button>'+
        '<span class="patch-cp-hand-message" data-cp-hand-status role="status"></span>'+
+       '<div class="patch-cp-quality"><span data-cp-i18n="trackQuality"></span><div role="group">'+
+        '<button type="button" data-cp-quality="auto" data-cp-i18n="autoQuality" aria-pressed="true"></button>'+
+        '<button type="button" data-cp-quality="light" data-cp-i18n="lightQuality" aria-pressed="false"></button>'+
+        '<button type="button" data-cp-quality="balanced" data-cp-i18n="balancedQuality" aria-pressed="false"></button>'+
+        '<button type="button" data-cp-quality="detail" data-cp-i18n="detailQuality" aria-pressed="false"></button>'+
+       '</div></div>'+
        '<div class="patch-cp-tracking-options">'+
         '<label><input type="checkbox" data-cp-track-body checked><span data-cp-i18n="trackBody"></span></label>'+
         '<label><input type="checkbox" data-cp-show-points checked><span data-cp-i18n="trackPoints"></span></label>'+
        '</div>'+
        '<span class="patch-cp-body-status" data-cp-body-status role="status"></span>'+
        '<div class="patch-cp-live-diagnostic" role="status"><b data-cp-i18n="diagnosticsTitle"></b><span data-cp-diagnostic></span>'+
+        '<small data-cp-performance></small>'+
         '<a href="tracking-lab.html" target="_blank" rel="noopener noreferrer" data-cp-i18n="testTracking"></a></div>'+
        '<span class="patch-cp-grip-status" data-cp-grip-state aria-live="off"></span>'+
        '<div class="patch-cp-calibration"><label class="patch-cp-palm-measure"><span data-cp-i18n="palmSize"></span>'+
@@ -441,6 +470,18 @@
     else setHandState('handSearching');
     return
    }
+   const qualityButton=event.target.closest('[data-cp-quality]');
+   if(qualityButton){
+    const next=qualityButton.dataset.cpQuality;
+    if(['auto','light','balanced','detail'].includes(next)&&next!==qualityPreference){
+     qualityPreference=next;
+     layer.querySelectorAll('[data-cp-quality]').forEach(button=>
+      button.setAttribute('aria-pressed',String(button.dataset.cpQuality===qualityPreference)));
+     performanceStats='';refreshDiagnostic();
+     if(stream)startCamera();
+    }
+    return;
+   }
    if(event.target.closest('[data-cp-hand-toggle]')){toggleHand();return}
    if(event.target.closest('[data-cp-retry-tracking]')){
     stopHand();autoTrack=true;trackingError='';diagnosticState='';
@@ -501,7 +542,7 @@
   current={productId:params.productId||'',name:params.name||''};pos={x:0,y:0,scale:1};facing='environment';
   previewSku=looks()?.COLORS[params.productId]?params.productId:'PB-04';
   light='studio';tracking=false;handState='';gripState='';
-  autoTrack=true;
+  autoTrack=true;qualityPreference='auto';performanceStats='';
   bodyTracking=!Boolean(window.matchMedia?.('(max-width: 690px)')?.matches);
   showPoints=true;
   trackingError='';diagnosticState='';bodyState='';
