@@ -7,6 +7,12 @@
  const translations={
   title:['See it in your space','شوفيها في مكانك'],
   handTitle:['See it in your hand','شوفيها في إيدك'],
+  visual3D:['3D model','المجسم 3D'],
+  visualPhoto:['Real product photo','صورة الشنطة الحقيقية'],
+  photoFallback:['Photo preview enabled to keep the bag visible','تم تشغيل صورة المنتج علشان الشنطة تفضل ظاهرة'],
+  modelReady:['3D model is ready','مجسم 3D جاهز'],
+  modelFailed:['3D rendering unavailable; product photo remains visible','عرض 3D مش متاح حاليًا، وصورة المنتج ظاهرة'],
+  cameraVisibility:['If the camera looks black in a screenshot, check the live phone screen; some devices restrict screenshotting camera surfaces.','لو الكاميرا بتظهر سوداء في لقطة الشاشة، راجع العرض المباشر على الموبايل؛ بعض الأجهزة بتمنع تصوير الكاميرا داخل اللقطات.'],
   kicker:['PATCH BAGS / CAMERA STUDIO','باتش باجز / استوديو الكاميرا'],
   manual:['MANUAL CAMERA PREVIEW','معاينة يدوية بالكاميرا'],
   close:['Close preview','إغلاق المعاينة'],
@@ -84,12 +90,13 @@
  const t=key=>translations[key]?.[ar()?1:0]||key;
  const q=(sel,root=layer)=>root?.querySelector(sel);
  const limit=(n,min,max)=>Math.max(min,Math.min(max,n));
- let layer=null,video=null,viewer=null,stage=null,frame=null,stream=null,prevFocus=null,scrollLock='';
+ let layer=null,video=null,viewer=null,stage=null,frame=null,stream=null,prevFocus=null,scrollLock='',photo=null;
  let serial=0,facing='environment',pos={x:0,y:0,scale:1},drag=null,current=null,statusKey='loading';
  let mode='scene',light='studio',previewSku='PB-04',tracking=false,handState='';
  let occlusion=null,overlay=null,fingerOverlay=true,palmWidthCm=8.5,gripState='';
  let bodyTracking=true,showPoints=true,autoTrack=true,bodyState='',trackingError='',diagnosticState='';
  let carryPreset='hand',qualityPreference='auto',performanceStats='';
+ let visual='photo',automaticVisual=true,modelReady=false;
  const safeURL=input=>{
   try{
    const url=new URL(String(input||''),document.baseURI);
@@ -124,6 +131,21 @@
   if(text)text.textContent=handState?t(handState):'';
   const toggle=q('[data-cp-hand-toggle]');
   if(toggle)toggle.textContent=t(tracking?'stopHand':'tryHand');
+ }
+ function setVisual(next,{automatic=false}={}){
+  if(!automatic)automaticVisual=false;
+  visual=next==='model'?'model':'photo';
+  if(!photo?.getAttribute('src'))visual='model';
+  if(stage)stage.dataset.visual=visual;
+  if(viewer){
+   viewer.style.opacity=visual==='model'?'1':'0';
+   viewer.style.pointerEvents=visual==='model'?'auto':'none';
+   viewer.setAttribute('aria-hidden',String(visual!=='model'));
+  }
+  if(photo)photo.hidden=visual!=='photo';
+  layer?.querySelectorAll('[data-cp-visual]').forEach(button=>{
+   button.setAttribute('aria-pressed',String(button.dataset.cpVisual===visual));
+  });
  }
  function applyLook(){
   if(!viewer||!current)return;
@@ -281,10 +303,10 @@
     if(!tracking)return;
     if(info.part==='live'){
      const ms=Number(info.inferenceMs)||0;
-     const interval=Number(info.handIntervalMs)||chosenQuality().handMs||115;
+     const fps=Number(info.fps)||0;
      performanceStats=(info.mode==='worker'?'Worker':'Main thread')+
       (ms?' · '+Math.round(ms)+' ms':'')+
-      ' · ~'+Math.round(1000/interval)+' fps';
+      (fps?' · '+fps.toFixed(1)+' measured fps':' · measuring…');
     }else if(info.status==='ready'){
      diagnosticState='diagnosticReady';
     }else if(diagnosticState!=='handWorking'){
@@ -330,7 +352,7 @@
       facingMode:{ideal:facing},
       width:{ideal:chosenQuality().idealWidth},
       height:{ideal:chosenQuality().idealHeight},
-      frameRate:{ideal:chosenQuality().maxFps*2,max:30}
+      frameRate:{ideal:24,max:30}
      }
     });
    }catch(firstError){
@@ -381,11 +403,13 @@
       '<div class="patch-cp-model-frame">'+
        '<button class="patch-cp-drag-handle" type="button" data-cp-handle data-cp-label="move">✥ <span data-cp-i18n="move"></span></button>'+
        '<model-viewer class="patch-cp-model" camera-controls touch-action="pan-y" environment-image="neutral" shadow-intensity="0" exposure="1.0" interaction-prompt="none" loading="eager"></model-viewer>'+
+       '<img class="patch-cp-photo-fallback" alt="" decoding="async" hidden>'+
       '</div>'+
       '<p class="patch-cp-status" data-cp-status role="status" aria-live="polite"></p>'+
     '</div>'+
     '<div class="patch-cp-toolbar">'+
       '<div class="patch-cp-modes" role="group"><button type="button" data-cp-mode="scene" aria-pressed="true" data-cp-i18n="modeScene"></button><button type="button" data-cp-mode="hand" aria-pressed="false" data-cp-i18n="modeHand"></button></div>'+
+      '<div class="patch-cp-visual-toggle" role="group"><button type="button" data-cp-visual="photo" aria-pressed="true" data-cp-i18n="visualPhoto"></button><button type="button" data-cp-visual="model" aria-pressed="false" data-cp-i18n="visual3D"></button></div>'+
       '<div class="patch-cp-hand-panel">'+
        '<div class="patch-cp-presets" role="group">'+
         '<button type="button" data-cp-preset="hand" aria-pressed="true" data-cp-i18n="presetHand"></button>'+
@@ -449,15 +473,31 @@
    '</section>';
   document.body.appendChild(layer);
   video=q('video');viewer=q('model-viewer');stage=q('.patch-cp-stage');frame=q('.patch-cp-model-frame');
+  photo=q('.patch-cp-photo-fallback');
   occlusion=window.PATCH_GRIP_OCCLUSION?.mount({stage,video})||null;
   overlay=window.PATCH_TRACKING_OVERLAY?.mount({stage})||null;
-  viewer.addEventListener('load',applyLook);
-  viewer.addEventListener('error',()=>{const info=q('[data-cp-status]');if(info)info.textContent=t('missing3d')});
+  viewer.addEventListener('load',()=>{
+   modelReady=true;applyLook();
+   // Low-power phones start with the real photograph to avoid a blank or
+   // opaque WebGL surface. 3D remains one tap away.
+   if(automaticVisual&&chosenQuality().name!=='light'&&
+      !window.matchMedia?.('(max-width: 690px)')?.matches)
+    setVisual('model',{automatic:true});
+  });
+  photo?.addEventListener('error',()=>{
+   if(visual==='photo')setVisual('model',{automatic:true});
+  });
+  viewer.addEventListener('error',()=>{
+   modelReady=false;automaticVisual=true;setVisual('photo',{automatic:true});
+   const info=q('[data-cp-status]');if(info)info.textContent=t('modelFailed');
+  });
   layer.addEventListener('click',event=>{
    if(event.target.closest('[data-cp-close]')){close();return}
    if(event.target.closest('[data-cp-flip]')){facing=facing==='environment'?'user':'environment';startCamera();return}
    if(event.target.closest('[data-cp-retry]')){startCamera();return}
    if(event.target.closest('[data-cp-reset]')){stopHand();setMode(mode);return}
+   const visualChoice=event.target.closest('[data-cp-visual]');
+   if(visualChoice){setVisual(visualChoice.dataset.cpVisual);return}
    const modeChoice=event.target.closest('[data-cp-mode]');
    if(modeChoice){setMode(modeChoice.dataset.cpMode);return}
    const presetChoice=event.target.closest('[data-cp-preset]');
@@ -555,7 +595,13 @@
   if(q('[data-cp-palm-cm]'))q('[data-cp-palm-cm]').value='8.5';
   if(q('[data-cp-occlusion]'))q('[data-cp-occlusion]').checked=true;
   occlusion?.setEnabled(true);occlusion?.clear();
-  statusKey='loading';stage.dataset.camera='off';layer.hidden=false;document.body.style.overflow='hidden';
+  statusKey='loading';stage.dataset.camera='off';layer.hidden=false;
+  automaticVisual=true;modelReady=false;
+  if(photo){
+   photo.removeAttribute('src');
+   if(params.poster)photo.setAttribute('src',params.poster);
+  }
+  setVisual(photo?.getAttribute('src')?'photo':'model',{automatic:true});document.body.style.overflow='hidden';
   viewer.src=url;viewer.setAttribute('poster',params.poster||'');
   setMode(params.mode||'scene');
   translate();applyPosition();q('.patch-cp-dialog').focus({preventScroll:true});
