@@ -51,6 +51,19 @@ python tools/tracking/track_hands_body.py \
 
 Python **cannot run directly on GitHub Pages**, so it is an offline developer/training/evaluation toolkit, not a server automatically used by every mobile shopper. Browser tracking uses on-device JavaScript/WASM.
 
+## Optional same-origin model hosting (if Google model downloads fail)
+
+The browser tracker first checks these public paths, **if** you later upload the two model bundles:
+
+```text
+assets/models/hand_landmarker.task
+assets/models/pose_landmarker_full.task
+```
+
+The files come from `python tools/tracking/download_models.py`, and can be manually uploaded to those GitHub directory paths using Add file → Upload files. The browser will then use local models first, falling back to official Google-hosted model URLs. The JavaScript/WASM package itself still needs an available CDN unless separately bundled.
+
+Don't upload any personal videos or hand landmark JSONL outputs. Those remain local/private.
+
 ## Important accuracy limits
 
 - MediaPipe's **21/33 landmarks** are estimates, not measured 3D distances. Exact handbag size still requires physical product measurements, phone depth calibration and/or supported native AR.
