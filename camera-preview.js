@@ -303,10 +303,10 @@
     if(!tracking)return;
     if(info.part==='live'){
      const ms=Number(info.inferenceMs)||0;
-     const interval=Number(info.handIntervalMs)||chosenQuality().handMs||115;
+     const fps=Number(info.fps)||0;
      performanceStats=(info.mode==='worker'?'Worker':'Main thread')+
       (ms?' · '+Math.round(ms)+' ms':'')+
-      ' · ~'+Math.round(1000/interval)+' fps';
+      (fps?' · '+fps.toFixed(1)+' measured fps':' · measuring…');
     }else if(info.status==='ready'){
      diagnosticState='diagnosticReady';
     }else if(diagnosticState!=='handWorking'){
