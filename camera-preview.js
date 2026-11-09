@@ -161,7 +161,9 @@
    viewer.style.pointerEvents=visual==='model'?'auto':'none';
    viewer.setAttribute('aria-hidden',String(visual!=='model'));
   }
-  if(photo)photo.hidden=visual!=='photo';
+  // Keep the real product image visible during any delayed 3D load.
+  // Never present an empty rectangle while model-viewer initializes.
+  if(photo)photo.hidden=visual==='model'&&(modelReady||!photo.getAttribute('src'));
   layer?.querySelectorAll('[data-cp-visual]').forEach(button=>{
    button.setAttribute('aria-pressed',String(button.dataset.cpVisual===visual));
   });
@@ -531,6 +533,7 @@
   viewer.addEventListener('load',()=>{
    clearTimeout(modelTimer);modelTimer=0;
    modelReady=true;applyLook();
+   setVisual(visual,{automatic:true});
    // Low-power phones start with the real photograph to avoid a blank or
    // opaque WebGL surface. 3D remains one tap away.
    if(automaticVisual&&chosenQuality().name!=='light'&&
