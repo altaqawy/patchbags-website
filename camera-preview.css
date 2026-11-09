@@ -376,3 +376,10 @@ html[lang="ar"] .patch-cp-live-diagnostic{
  .patch-cp-body-status{font-size:9px}
  .patch-cp-live-diagnostic{padding:6px 8px;font-size:9px}
 }
+
+.patch-cp-live-diagnostic a{
+ display:inline-block;align-self:center;margin-top:2px;
+ color:#315d40;text-underline-offset:3px;
+ font-weight:750;font-size:11px;line-height:1.6;
+}
+.patch-cp-live-diagnostic a:focus-visible{outline:3px solid #84b47d;outline-offset:3px}
