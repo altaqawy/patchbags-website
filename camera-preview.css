@@ -420,3 +420,45 @@ html[lang="ar"] .patch-cp-quality button{
  .patch-cp-quality>div{width:100%;justify-content:center}
  .patch-cp-quality button{padding:6px 9px;font-size:10px;flex:1}
 }
+
+
+/* V4.9 — visual failsafe for devices where an embedded GLB renders black. */
+.patch-cp-model{position:relative;z-index:1;transition:opacity .18s ease}
+.patch-cp-photo-fallback{
+ position:absolute;inset:0;width:100%;height:100%;z-index:2;
+ object-fit:contain;object-position:center;
+ background:transparent!important;
+ pointer-events:none;user-select:none;
+ filter:drop-shadow(0 14px 13px rgba(19,37,22,.27));
+}
+.patch-cp-photo-fallback[hidden]{display:none!important}
+.patch-cp-stage[data-visual="photo"] .patch-cp-model{
+ opacity:0!important;pointer-events:none!important
+}
+.patch-cp-stage[data-visual="photo"] .patch-cp-video{
+ visibility:visible!important;opacity:1!important
+}
+.patch-cp-visual-toggle{
+ display:flex;justify-content:center;gap:5px;flex-wrap:wrap
+}
+.patch-cp-visual-toggle button{
+ border:1px solid #c4d4c0;background:#f8faf5;color:#3e6145;
+ border-radius:100px;padding:7px 15px;cursor:pointer;
+ font:700 11px/1.5 var(--pb-ui-en,Manrope,system-ui)
+}
+.patch-cp-visual-toggle button[aria-pressed="true"]{
+ background:#395741;color:#fff;border-color:#395741
+}
+.patch-cp-visual-toggle button:focus-visible{
+ outline:3px solid #82b07b;outline-offset:2px
+}
+html[lang="ar"] .patch-cp-visual-toggle button{
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
+ letter-spacing:0
+}
+@media(max-width:690px){
+ .patch-cp-visual-toggle button{padding:6px 12px;font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .patch-cp-model{transition:none}
+}
