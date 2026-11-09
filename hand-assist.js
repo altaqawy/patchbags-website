@@ -210,6 +210,9 @@
   catch(_){return false}
   session.worker=worker;
   let initial=true,waiter=null,busy=false,capturing=false;
+  session.cancelWorker=()=>{
+   if(initial){initial=false;waiter?.reject(Error('Tracking session cancelled'))}
+  };
   const ready=new Promise((resolve,reject)=>{waiter={resolve,reject}});
   const setFailure=error=>{
    const message=String(error?.message||error||'Worker not available');
@@ -241,19 +244,23 @@
    }else if(data.type==='result'){
     busy=false;
     if(data.notReady)return;
-    session.budget.observe(Number(data.inferenceMs)||0,performance.now());
+    const now=performance.now();
+    session.budget.observe(Number(data.inferenceMs)||0,now);
     processHand(session,data.hand,session);
     session.countHand++;
     if(data.pose!==null){
      deliverPose(session,data.pose,data.world);
      session.countPose++;
     }
-    session.onDiagnostics?.({
-     part:'live',status:session.lastState,mode:'worker',
-     inferenceMs:session.budget.inferenceMs,
-     handIntervalMs:session.budget.handMs,
-     handFrames:session.countHand,poseFrames:session.countPose
-    });
+    if(now-session.lastReport>=900){
+     session.lastReport=now;
+     session.onDiagnostics?.({
+      part:'live',status:session.lastState,mode:'worker',
+      inferenceMs:session.budget.inferenceMs,
+      handIntervalMs:session.budget.handMs,
+      handFrames:session.countHand,poseFrames:session.countPose
+     });
+    }
    }else if(data.type==='frame-error'){
     busy=false;
     setFailure(data.message||'Worker frame error');
@@ -316,7 +323,7 @@
    previousPoints:null,previousGrip:null,handDetector:null,poseDetector:null,
    raf:0,atHand:0,atPose:0,countHand:0,countPose:0,startedAt:0,lastState:'',
    settings,budget,withPose,worker:null,workerReady:false,
-   motion:perf?.makeMotionFilter()||null};
+   motion:perf?.makeMotionFilter()||null,lastReport:0,cancelWorker:null};
   session.state=key=>{
    if(active===session&&session.lastState!==key){
     session.lastState=key;onState?.(key);
@@ -392,9 +399,12 @@
       session.poseDetector=null;
      }
     }
-    if(now-session.startedAt>1500&&now-session.startedAt<2200){
+    if(now-session.lastReport>=1000){
+     session.lastReport=now;
      onDiagnostics?.({
-      part:'live',status:session.lastState,
+      part:'live',status:session.lastState,mode:'main',
+      inferenceMs:session.budget.inferenceMs,
+      handIntervalMs:session.budget.handMs,
       handFrames:session.countHand,poseFrames:session.countPose,
       videoWidth:video.videoWidth,videoHeight:video.videoHeight
      });
@@ -415,6 +425,7 @@
   const session=active;active=null;
   if(!session)return;
   if(session.raf)cancelAnimationFrame(session.raf);
+  session.cancelWorker?.();
   if(session.worker){
    try{session.worker.postMessage({type:'stop'})}catch(_){}
    session.worker.terminate();session.worker=null;
