@@ -6,6 +6,7 @@
  const ID='patchCameraPreview';
  const translations={
   title:['See it in your space','شوفيها في مكانك'],
+  handTitle:['See it in your hand','شوفيها في إيدك'],
   kicker:['PATCH BAGS / CAMERA STUDIO','باتش باجز / استوديو الكاميرا'],
   manual:['MANUAL CAMERA PREVIEW','معاينة يدوية بالكاميرا'],
   close:['Close preview','إغلاق المعاينة'],
@@ -67,7 +68,6 @@
  const hand=()=>window.PATCH_HAND_ASSIST;
  const colorKeys=['PB-04','PB-05','PB-06'];
  function setHandState(key){
-  if(key===handState)return;
   handState=key||'';
   const text=q('[data-cp-hand-status]');
   if(text)text.textContent=handState?t(handState):'';
@@ -104,6 +104,7 @@
   if(!layer)return;
   layer.lang=ar()?'ar':'en';layer.dir=ar()?'rtl':'ltr';
   layer.querySelectorAll('[data-cp-i18n]').forEach(el=>{el.textContent=t(el.dataset.cpI18n)});
+  const title=q('#patchCpHeading');if(title)title.textContent=t(mode==='hand'?'handTitle':'title');
   layer.querySelectorAll('[data-cp-label]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.cpLabel)));
   const name=q('[data-cp-product]');if(name)name.textContent=productTitle();
   if(viewer)viewer.setAttribute('alt',productTitle());
@@ -154,6 +155,7 @@
   layer?.querySelectorAll('[data-cp-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.cpMode===mode)));
   if(mode==='hand'){preset('hand');setHandState('handSearching')}
   else preset('front');
+  const title=q('#patchCpHeading');if(title)title.textContent=t(mode==='hand'?'handTitle':'title');
  }
  async function toggleHand(){
   if(tracking){stopHand();setHandState('handSearching');return}
@@ -164,7 +166,11 @@
   const started=await hand().start({
    video,stage,isFront:()=>facing==='user',
    onAnchor:point=>{if(!tracking||mode!=='hand')return;pos={...point};applyPosition()},
-   onState:key=>{if(!tracking)return;setHandState(({loading:'handLoading',searching:'handSearching',tracking:'handTracking',noHand:'handMissing',error:'handError'})[key]||'handError')}
+   onState:key=>{
+    if(!tracking)return;
+    if(key==='error')tracking=false;
+    setHandState(({loading:'handLoading',searching:'handSearching',tracking:'handTracking',noHand:'handMissing',error:'handError'})[key]||'handError');
+   }
   });
   if(!started&&tracking){tracking=false;setHandState('handError')}
  }
