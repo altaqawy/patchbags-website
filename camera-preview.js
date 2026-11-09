@@ -176,12 +176,32 @@
   if(!stream||stage?.dataset.camera!=='on'){setHandState('handUnavailable');return}
   if(!hand()){setHandState('handError');return}
   tracking=true;setHandState('handLoading');
+  occlusion?.setEnabled(fingerOverlay);
   const started=await hand().start({
-   video,stage,isFront:()=>facing==='user',
-   onAnchor:point=>{if(!tracking||mode!=='hand')return;pos={...point};applyPosition()},
+   video,stage,frame,isFront:()=>facing==='user',
+   getCalibration:()=>({palmCm:palmWidthCm,bagCm:41.7}),
+   onAnchor:point=>{
+    if(!tracking||mode!=='hand')return;
+    pos={...point};applyPosition();
+   },
+   onHand:details=>{
+    if(!tracking||mode!=='hand')return;
+    if(fingerOverlay)occlusion?.draw(details);
+    const next=details.pinching?'gripLocked':'gripOpen';
+    if(gripState!==next){
+     gripState=next;
+     const msg=q('[data-cp-grip-state]');
+     if(msg)msg.textContent=t(next);
+    }
+   },
+   onLost:()=>{
+    occlusion?.clear();
+    gripState='';
+    const msg=q('[data-cp-grip-state]');if(msg)msg.textContent='';
+   },
    onState:key=>{
     if(!tracking)return;
-    if(key==='error')tracking=false;
+    if(key==='error'){tracking=false;occlusion?.clear()}
     setHandState(({loading:'handLoading',searching:'handSearching',tracking:'handTracking',noHand:'handMissing',error:'handError'})[key]||'handError');
    }
   });
@@ -363,7 +383,11 @@
   prevFocus=document.activeElement;scrollLock=document.body.style.overflow;
   current={productId:params.productId||'',name:params.name||''};pos={x:0,y:0,scale:1};facing='environment';
   previewSku=looks()?.COLORS[params.productId]?params.productId:'PB-04';
-  light='studio';tracking=false;handState='';
+  light='studio';tracking=false;handState='';gripState='';
+  palmWidthCm=8.5;fingerOverlay=true;
+  if(q('[data-cp-palm-cm]'))q('[data-cp-palm-cm]').value='8.5';
+  if(q('[data-cp-occlusion]'))q('[data-cp-occlusion]').checked=true;
+  occlusion?.setEnabled(true);occlusion?.clear();
   statusKey='loading';stage.dataset.camera='off';layer.hidden=false;document.body.style.overflow='hidden';
   viewer.src=url;viewer.setAttribute('poster',params.poster||'');
   setMode(params.mode||'scene');
