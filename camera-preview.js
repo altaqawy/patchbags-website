@@ -558,6 +558,13 @@
     setVisual(visualChoice.dataset.cpVisual);
     if(visual==='model'&&!modelReady){
      const output=q('[data-cp-status]');if(output)output.textContent=t('modelWaiting');
+     // A person may switch to 3D long after the initial load timeout.
+     clearTimeout(modelTimer);
+     modelTimer=setTimeout(()=>{
+      if(layer?.hidden||modelReady||visual!=='model')return;
+      automaticVisual=true;setVisual('photo',{automatic:true});
+      const note=q('[data-cp-status]');if(note)note.textContent=t('modelFailed');
+     },8500);
     }
     return
    }
