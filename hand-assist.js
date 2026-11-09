@@ -206,10 +206,18 @@
   }
  }
  async function tryWorker(session){
-  if(typeof Worker!=='function'||typeof createImageBitmap!=='function'||typeof OffscreenCanvas==='undefined')return false;
+  if(typeof Worker!=='function'||typeof createImageBitmap!=='function'||typeof OffscreenCanvas==='undefined'){
+   session.onDiagnostics?.({part:'fallback',status:'loading',mode:'main',
+    reason:'Worker, ImageBitmap or OffscreenCanvas unsupported'});
+   return false;
+  }
   let worker;
   try{worker=new Worker(new URL('tracking-worker.js?v=4.9',document.baseURI),{type:'module'})}
-  catch(_){return false}
+  catch(error){
+   session.onDiagnostics?.({part:'fallback',status:'loading',mode:'main',
+    reason:'Worker blocked: '+normalizeError(error)});
+   return false
+  }
   session.worker=worker;
   let initial=true,waiter=null,busy=false,capturing=false;
   session.cancelWorker=()=>{
@@ -280,8 +288,12 @@
     new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Worker model load timed out')),40000)})
    ]);
    if(active!==session)return false;
-  }catch(_){
+  }catch(error){
    if(session.worker===worker){worker.terminate();session.worker=null}
+   if(active===session)session.onDiagnostics?.({
+    part:'fallback',status:'loading',mode:'main',
+    reason:'Worker could not initialize: '+normalizeError(error)
+   });
    return false;
   }finally{clearTimeout(timer)}
   let lastFrame=-1,lastPose=0,seq=0,failures=0;
