@@ -61,7 +61,7 @@
  width:clamp(200px,47%,450px);
  height:clamp(200px,76%,540px);
  max-height:90%;
- transform:translate(calc(-50% + var(--cp-x,0px)),calc(-50% + var(--cp-y,0px))) scale(var(--cp-scale,1));
+ transform:translate(calc(-50% + var(--cp-x,0px)),calc(-50% + var(--cp-y,0px))) scale(var(--cp-scale,1)) rotate(var(--cp-tilt,0deg));
  transform-origin:50% 50%;display:flex;flex-direction:column;
  align-items:stretch;justify-content:center;
  will-change:transform;
@@ -277,4 +277,55 @@ html[lang="ar"] .patch-cp-layer :is(
  .patch-cp-toolbar{max-height:53dvh;padding:6px 10px}
  .patch-cp-hand-panel{padding:0}
  .patch-cp-privacy,.patch-cp-sample{display:none}
+}
+
+
+/* V4.7 — approximate finger-in-front-of-handle grip compositing. */
+.patch-cp-finger-occlusion{
+ position:absolute;inset:0;z-index:5;display:block;
+ width:100%;height:100%;pointer-events:none;
+ filter:blur(.45px);
+}
+.patch-cp-finger-occlusion[hidden]{display:none!important}
+.patch-cp-grip-status{
+ display:block;flex:1 0 100%;font-size:10px;line-height:1.6;
+ min-height:0;color:#406d49;font-weight:700;text-align:center;
+}
+.patch-cp-calibration{
+ display:flex;align-items:center;justify-content:center;
+ flex-wrap:wrap;gap:8px 14px;flex:1 0 100%;
+ padding:8px 10px;border:1px solid #d4dfd0;border-radius:8px;
+ background:rgba(246,249,242,.85);
+}
+.patch-cp-palm-measure{
+ display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+ gap:9px;color:#46604b;font-size:11px;font-weight:650;line-height:1.6;
+}
+.patch-cp-palm-measure input{
+ width:clamp(100px,18vw,160px);accent-color:#3d6649;cursor:pointer;
+}
+.patch-cp-palm-measure output{min-width:45px;font-weight:800;font-variant-numeric:tabular-nums}
+.patch-cp-occlusion-check{
+ display:flex;align-items:center;justify-content:center;gap:7px;
+ color:#46604b;font-size:11px;font-weight:700;line-height:1.5;cursor:pointer;
+}
+.patch-cp-occlusion-check input{accent-color:#35603c;width:16px;height:16px}
+.patch-cp-calibration :is(input,button):focus-visible{
+ outline:3px solid #84b47d;outline-offset:3px
+}
+html[lang="ar"] .patch-cp-grip-status,
+html[lang="ar"] .patch-cp-calibration :is(label,span,output){
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
+ letter-spacing:0
+}
+@media(max-width:690px){
+ .patch-cp-calibration{gap:7px 10px;padding:7px}
+ .patch-cp-palm-measure{font-size:10px;gap:6px}
+ .patch-cp-palm-measure input{width:110px}
+ .patch-cp-occlusion-check{font-size:10px}
+ .patch-cp-grip-status{font-size:9px}
+}
+@media(max-height:570px) and (orientation:landscape){
+ .patch-cp-calibration{padding:4px 8px}
+ .patch-cp-palm-measure{font-size:9px}
 }

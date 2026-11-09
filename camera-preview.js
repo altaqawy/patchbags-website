@@ -49,7 +49,13 @@
   presetHint:['Approximate position only · move the handle to fit your hand','مكان تقريبي · حركي المقبض علشان الشنطة تكون ناحية إيدك'],
   shade:['Preview color','لون المعاينة'],
   light:['Lighting','الإضاءة'],
-  sample:['3D color is illustrative, not a verified material match. No physical size or hand occlusion is guaranteed.','ألوان المجسم توضيحية ومش مطابقة مؤكدة للخامة. الحجم والتداخل مع الإيد مش محاكاة فعلية.']
+  sample:['3D color is illustrative, not a verified material match. No physical size or hand occlusion is guaranteed.','ألوان المجسم توضيحية ومش مطابقة مؤكدة للخامة. الحجم وتداخل الإيد تقريبيين فقط.'],
+  fingerOverlap:['Show fingers in front of strap','إظهار الأصابع قدام السير'],
+  palmSize:['Your palm width (cm)','عرض كف إيدك بالسنتيمتر'],
+  gripLocked:['Grip point detected · approximate strap alignment','تم تحديد مكان القبضة · محاذاة السير تقريبية'],
+  gripOpen:['Hold thumb and index finger near the handle','قرّبي الإبهام والسبابة من مكان مسكة السير'],
+  sizeEstimate:['Scale is approximate. Actual product measurements still need verification.','الحجم تقديري ولازم نتأكد من المقاسات الحقيقية للشنطة.'],
+  overlapNote:['Finger overlap is an on-device visual effect, not physical strap bending.','ظهور الأصابع فوق السير مؤثر بصري على الموبايل مش ثني حقيقي للسير.']
  };
  const ar=()=>document.documentElement.lang==='ar';
  const t=key=>translations[key]?.[ar()?1:0]||key;
@@ -58,6 +64,7 @@
  let layer=null,video=null,viewer=null,stage=null,frame=null,stream=null,prevFocus=null,scrollLock='';
  let serial=0,facing='environment',pos={x:0,y:0,scale:1},drag=null,current=null,statusKey='loading';
  let mode='scene',light='studio',previewSku='PB-04',tracking=false,handState='';
+ let occlusion=null,fingerOverlay=true,palmWidthCm=8.5,gripState='';
  const safeURL=input=>{
   try{
    const url=new URL(String(input||''),document.baseURI);
@@ -66,6 +73,12 @@
  };
  const looks=()=>window.PATCH_BAG_LOOKS;
  const hand=()=>window.PATCH_HAND_ASSIST;
+ const bagWidthCm=()=>{
+  const item=typeof products!=='undefined'&&Array.isArray(products)
+   ?products.find(p=>p.id===current?.productId):null;
+  const width=Number(item?.dimensionsCm?.width??item?.measurements?.widthCm??item?.dimensions?.widthCm);
+  return Number.isFinite(width)&&width>=12&&width<=80?width:41.7;
+ };
  const colorKeys=['PB-04','PB-05','PB-06'];
  function setHandState(key){
   handState=key||'';
@@ -91,6 +104,9 @@
  function stopHand(){
   tracking=false;
   hand()?.stop();
+  occlusion?.clear();
+  gripState='';
+  const grip=q('[data-cp-grip-state]');if(grip)grip.textContent='';
   if(handState)setHandState('');
  }
  const productTitle=()=>{
@@ -120,6 +136,8 @@
    if(x)button.textContent=ar()?x.ar:x.en;
   });
   setHandState(handState);
+  const grip=q('[data-cp-grip-state]');if(grip)grip.textContent=gripState?t(gripState):'';
+  const palm=q('[data-cp-palm-value]');if(palm)palm.textContent=palmWidthCm.toFixed(1)+' cm';
   applyLook();
  }
  function status(key){
@@ -130,11 +148,14 @@
  function applyPosition(){
   if(!frame||!stage)return;
   const w=stage.clientWidth||360,h=stage.clientHeight||560;
-  pos.x=limit(pos.x,-w*.37,w*.37);
-  pos.y=limit(pos.y,-h*.31,h*.31);
+  const horizontal=mode==='hand'?w*.46:w*.37;
+  const vertical=mode==='hand'?h*.48:h*.31;
+  pos.x=limit(pos.x,-horizontal,horizontal);
+  pos.y=limit(pos.y,-vertical,vertical);
   frame.style.setProperty('--cp-x',pos.x+'px');
   frame.style.setProperty('--cp-y',pos.y+'px');
   frame.style.setProperty('--cp-scale',String(pos.scale));
+  frame.style.setProperty('--cp-tilt',String(limit(Number(pos.tilt)||0,-8,8))+'deg');
   const range=q('[data-cp-size]');if(range)range.value=String(Math.round(pos.scale*100));
  }
  function preset(key){
@@ -163,12 +184,32 @@
   if(!stream||stage?.dataset.camera!=='on'){setHandState('handUnavailable');return}
   if(!hand()){setHandState('handError');return}
   tracking=true;setHandState('handLoading');
+  occlusion?.setEnabled(fingerOverlay);
   const started=await hand().start({
-   video,stage,isFront:()=>facing==='user',
-   onAnchor:point=>{if(!tracking||mode!=='hand')return;pos={...point};applyPosition()},
+   video,stage,frame,isFront:()=>facing==='user',
+   getCalibration:()=>({palmCm:palmWidthCm,bagCm:bagWidthCm()}),
+   onAnchor:point=>{
+    if(!tracking||mode!=='hand')return;
+    pos={...point};applyPosition();
+   },
+   onHand:details=>{
+    if(!tracking||mode!=='hand')return;
+    if(fingerOverlay)occlusion?.draw(details);
+    const next=details.pinching?'gripLocked':'gripOpen';
+    if(gripState!==next){
+     gripState=next;
+     const msg=q('[data-cp-grip-state]');
+     if(msg)msg.textContent=t(next);
+    }
+   },
+   onLost:()=>{
+    occlusion?.clear();
+    gripState='';
+    const msg=q('[data-cp-grip-state]');if(msg)msg.textContent='';
+   },
    onState:key=>{
     if(!tracking)return;
-    if(key==='error')tracking=false;
+    if(key==='error'){tracking=false;occlusion?.clear()}
     setHandState(({loading:'handLoading',searching:'handSearching',tracking:'handTracking',noHand:'handMissing',error:'handError'})[key]||'handError');
    }
   });
@@ -251,7 +292,14 @@
         '<button type="button" data-cp-preset="front" aria-pressed="false" data-cp-i18n="presetFront"></button></div>'+
        '<button type="button" data-cp-hand-toggle class="patch-cp-hand-toggle"></button>'+
        '<span class="patch-cp-hand-message" data-cp-hand-status role="status"></span>'+
-       '<small data-cp-i18n="presetHint"></small>'+
+       '<span class="patch-cp-grip-status" data-cp-grip-state aria-live="off"></span>'+
+       '<div class="patch-cp-calibration"><label class="patch-cp-palm-measure"><span data-cp-i18n="palmSize"></span>'+
+        '<input type="range" data-cp-palm-cm min="6.5" max="11" step="0.5" value="8.5">'+
+        '<output data-cp-palm-value>8.5 cm</output></label>'+
+        '<label class="patch-cp-occlusion-check"><input type="checkbox" data-cp-occlusion checked>'+
+        '<span data-cp-i18n="fingerOverlap"></span></label></div>'+
+       '<small data-cp-i18n="sizeEstimate"></small>'+
+       '<small data-cp-i18n="overlapNote"></small>'+
       '</div>'+
       '<p class="patch-cp-guide" data-cp-i18n="guide"></p>'+
       '<div class="patch-cp-looks"><div class="patch-cp-looks-row"><div class="patch-cp-looks-group">'+
@@ -284,6 +332,7 @@
    '</section>';
   document.body.appendChild(layer);
   video=q('video');viewer=q('model-viewer');stage=q('.patch-cp-stage');frame=q('.patch-cp-model-frame');
+  occlusion=window.PATCH_GRIP_OCCLUSION?.mount({stage,video})||null;
   viewer.addEventListener('load',applyLook);
   viewer.addEventListener('error',()=>{const info=q('[data-cp-status]');if(info)info.textContent=t('missing3d')});
   layer.addEventListener('click',event=>{
@@ -303,7 +352,18 @@
    const nudge=event.target.closest('[data-cp-nudge]');
    if(nudge){const delta={up:[0,-25],down:[0,25],left:[-25,0],right:[25,0]}[nudge.dataset.cpNudge];pos.x+=delta[0];pos.y+=delta[1];applyPosition()}
   });
-  q('[data-cp-size]').addEventListener('input',event=>{pos.scale=limit(Number(event.target.value)/100,.55,1.85);applyPosition()});
+  q('[data-cp-size]').addEventListener('input',event=>{
+   if(tracking){stopHand();setHandState('handSearching')}
+   pos.scale=limit(Number(event.target.value)/100,.55,1.85);pos.tilt=0;applyPosition();
+  });
+  q('[data-cp-palm-cm]').addEventListener('input',event=>{
+   palmWidthCm=limit(Number(event.target.value)||8.5,6.5,11);
+   const val=q('[data-cp-palm-value]');if(val)val.textContent=palmWidthCm.toFixed(1)+' cm';
+  });
+  q('[data-cp-occlusion]').addEventListener('change',event=>{
+   fingerOverlay=Boolean(event.target.checked);
+   occlusion?.setEnabled(fingerOverlay);
+  });
   const handle=q('[data-cp-handle]');
   handle.addEventListener('pointerdown',event=>{
    if(tracking){stopHand();setHandState('handSearching')}
@@ -331,7 +391,11 @@
   prevFocus=document.activeElement;scrollLock=document.body.style.overflow;
   current={productId:params.productId||'',name:params.name||''};pos={x:0,y:0,scale:1};facing='environment';
   previewSku=looks()?.COLORS[params.productId]?params.productId:'PB-04';
-  light='studio';tracking=false;handState='';
+  light='studio';tracking=false;handState='';gripState='';
+  palmWidthCm=8.5;fingerOverlay=true;
+  if(q('[data-cp-palm-cm]'))q('[data-cp-palm-cm]').value='8.5';
+  if(q('[data-cp-occlusion]'))q('[data-cp-occlusion]').checked=true;
+  occlusion?.setEnabled(true);occlusion?.clear();
   statusKey='loading';stage.dataset.camera='off';layer.hidden=false;document.body.style.overflow='hidden';
   viewer.src=url;viewer.setAttribute('poster',params.poster||'');
   setMode(params.mode||'scene');
