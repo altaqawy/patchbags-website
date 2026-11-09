@@ -55,7 +55,22 @@
   gripLocked:['Grip point detected · approximate strap alignment','تم تحديد مكان القبضة · محاذاة السير تقريبية'],
   gripOpen:['Hold thumb and index finger near the handle','قرّبي الإبهام والسبابة من مكان مسكة السير'],
   sizeEstimate:['Scale is approximate. Actual product measurements still need verification.','الحجم تقديري ولازم نتأكد من المقاسات الحقيقية للشنطة.'],
-  overlapNote:['Finger overlap is an on-device visual effect, not physical strap bending.','ظهور الأصابع فوق السير مؤثر بصري على الموبايل مش ثني حقيقي للسير.']
+  overlapNote:['Finger overlap is an on-device visual effect, not physical strap bending.','ظهور الأصابع فوق السير مؤثر بصري على الموبايل مش ثني حقيقي للسير.'],
+  handWorking:['Hand tracking is running','تتبع الإيد شغّال'],
+  handSearchingAgain:['Show your entire hand in good light and move it slowly','اظهري الإيد كلها في إضاءة كويسة وحرّكيها بهدوء'],
+  trackBody:['Track body / shoulders','تتبع الجسم والكتفين'],
+  trackPoints:['Show tracking points','إظهار نقاط التتبع'],
+  bodyLoading:['Body model loading…','جارٍ تحميل نموذج الجسم…'],
+  bodySearching:['Looking for shoulders and torso','بندور على الكتفين والجسم'],
+  bodyTracking:['Body detected (33 points)','تم تتبع الجسم (33 نقطة)'],
+  bodyNoBody:['Move back until the upper body is visible','ارجعي خطوة علشان الجزء العلوي من الجسم يظهر'],
+  bodyError:['Body tracking unavailable; hand mode still works','تتبع الجسم مش متاح، لكن تتبع الإيد ممكن يشتغل'],
+  diagnosticLoading:['Downloading the hand model… Check your connection','بنحمّل نموذج تتبع الإيد… اتأكدي من اتصال الإنترنت'],
+  diagnosticReady:['Hand model loaded · point detection is active','نموذج اليد اتحمّل · البحث عن النقاط بدأ'],
+  diagnosticsTitle:['Live tracking status','حالة التتبع المباشرة'],
+  diagnosticError:['Tracker could not start. Try Chrome, allow downloads, then Retry tracking.','تعذر بدء التتبع. جرّبي Chrome واتأكدي من الإنترنت واضغطي إعادة تشغيل التتبع'],
+  retryTracking:['Retry tracking','إعادة تشغيل التتبع'],
+  bodyNote:['Pose tracking requires a visible upper body; it is optional on slower phones.','تتبع الجسم يحتاج ظهور الجزء العلوي، وممكن تقفليه على الموبايلات الضعيفة.']
  };
  const ar=()=>document.documentElement.lang==='ar';
  const t=key=>translations[key]?.[ar()?1:0]||key;
@@ -64,7 +79,8 @@
  let layer=null,video=null,viewer=null,stage=null,frame=null,stream=null,prevFocus=null,scrollLock='';
  let serial=0,facing='environment',pos={x:0,y:0,scale:1},drag=null,current=null,statusKey='loading';
  let mode='scene',light='studio',previewSku='PB-04',tracking=false,handState='';
- let occlusion=null,fingerOverlay=true,palmWidthCm=8.5,gripState='';
+ let occlusion=null,overlay=null,fingerOverlay=true,palmWidthCm=8.5,gripState='';
+ let bodyTracking=true,showPoints=true,autoTrack=true,bodyState='',trackingError='',diagnosticState='';
  const safeURL=input=>{
   try{
    const url=new URL(String(input||''),document.baseURI);
@@ -105,6 +121,7 @@
   tracking=false;
   hand()?.stop();
   occlusion?.clear();
+  overlay?.clear();
   gripState='';
   const grip=q('[data-cp-grip-state]');if(grip)grip.textContent='';
   if(handState)setHandState('');
@@ -136,6 +153,9 @@
    if(x)button.textContent=ar()?x.ar:x.en;
   });
   setHandState(handState);
+  const body=q('[data-cp-body-status]');if(body)body.textContent=bodyState?t(bodyState):'';
+  const diag=q('[data-cp-diagnostic]');
+  if(diag)diag.textContent=trackingError?(t('diagnosticError')+' · '+trackingError):(diagnosticState?t(diagnosticState):'');
   const grip=q('[data-cp-grip-state]');if(grip)grip.textContent=gripState?t(gripState):'';
   const palm=q('[data-cp-palm-value]');if(palm)palm.textContent=palmWidthCm.toFixed(1)+' cm';
   applyLook();
@@ -174,16 +194,21 @@
   if(stage)stage.dataset.mode=mode;
   stopHand();
   layer?.querySelectorAll('[data-cp-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.cpMode===mode)));
-  if(mode==='hand'){preset('hand');setHandState('handSearching')}
+  if(mode==='hand'){preset('hand');setHandState('handSearching');autoTrack=true}
   else preset('front');
   const title=q('#patchCpHeading');if(title)title.textContent=t(mode==='hand'?'handTitle':'title');
+  if(mode==='hand'&&stream&&stage?.dataset.camera==='on'&&!tracking){
+   toggleHand();
+  }
  }
  async function toggleHand(){
-  if(tracking){stopHand();setHandState('handSearching');return}
+  if(tracking){autoTrack=false;stopHand();setHandState('handSearching');return}
   if(mode!=='hand')setMode('hand');
   if(!stream||stage?.dataset.camera!=='on'){setHandState('handUnavailable');return}
   if(!hand()){setHandState('handError');return}
-  tracking=true;setHandState('handLoading');
+  tracking=true;autoTrack=true;trackingError='';diagnosticState='diagnosticLoading';bodyState=bodyTracking?'bodyLoading':'';
+  setHandState('handLoading');refreshDiagnostic();
+  overlay?.setVisible(showPoints);
   occlusion?.setEnabled(fingerOverlay);
   const started=await hand().start({
    video,stage,frame,isFront:()=>facing==='user',
@@ -252,7 +277,10 @@
    const track=stream.getVideoTracks()[0];
    track?.addEventListener('ended',()=>{if(ticket===serial){stopCamera();status('unavailable')}},{once:true});
    status('ready');
-   if(mode==='hand'&&!tracking)setHandState('handSearching');
+   if(mode==='hand'&&!tracking&&autoTrack){
+    setHandState('handSearching');
+    toggleHand();
+   }
   }catch(err){
    if(ticket!==serial)return;
    stopCamera();
