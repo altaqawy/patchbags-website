@@ -352,7 +352,7 @@
       facingMode:{ideal:facing},
       width:{ideal:chosenQuality().idealWidth},
       height:{ideal:chosenQuality().idealHeight},
-      frameRate:{ideal:chosenQuality().maxFps*2,max:30}
+      frameRate:{ideal:24,max:30}
      }
     });
    }catch(firstError){
