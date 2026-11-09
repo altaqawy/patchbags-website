@@ -263,6 +263,7 @@
       part:'live',status:session.lastState,mode:'worker',
       inferenceMs:session.budget.inferenceMs,
       handIntervalMs:session.budget.handMs,
+      fps:Math.round(session.countHand/Math.max(.5,(now-session.startedAt)/1000)*10)/10,
       handFrames:session.countHand,poseFrames:session.countPose
      });
     }
@@ -435,6 +436,7 @@
       part:'live',status:session.lastState,mode:'main',
       inferenceMs:session.budget.inferenceMs,
       handIntervalMs:session.budget.handMs,
+      fps:Math.round(session.countHand/Math.max(.5,(now-session.startedAt)/1000)*10)/10,
       handFrames:session.countHand,poseFrames:session.countPose,
       videoWidth:video.videoWidth,videoHeight:video.videoHeight
      });
