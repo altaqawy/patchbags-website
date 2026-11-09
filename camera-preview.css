@@ -462,3 +462,54 @@ html[lang="ar"] .patch-cp-visual-toggle button{
 @media(prefers-reduced-motion:reduce){
  .patch-cp-model{transition:none}
 }
+
+
+/* V5.0: camera video canvas compatibility path for affected Android browsers.
+ * The high FPS native video remains available by toggling "Normal".
+ * The canvas never records or uploads frames. */
+.patch-cp-camera-canvas{
+ position:absolute;inset:0;z-index:2;
+ width:100%;height:100%;object-fit:cover;
+ display:block;pointer-events:none;background:#c9d3c8;
+}
+.patch-cp-camera-canvas[hidden]{display:none!important}
+.patch-cp-stage[data-video-render="canvas"] .patch-cp-video{
+ opacity:0!important;visibility:visible!important;
+}
+.patch-cp-stage[data-video-render="canvas"] .patch-cp-camera-canvas{
+ visibility:visible!important;
+}
+.patch-cp-display-modes{
+ display:flex;align-items:center;justify-content:center;gap:8px 12px;
+ flex-wrap:wrap;color:#66816d;
+ font:700 10px/1.5 var(--pb-ui-en,Manrope,system-ui);
+}
+.patch-cp-display-modes>div{
+ display:flex;gap:4px;padding:3px;border-radius:100px;
+ background:#e7ede4;
+}
+.patch-cp-display-modes button{
+ border:0;border-radius:100px;cursor:pointer;
+ padding:6px 13px;background:transparent;color:#436349;
+ font:700 10px/1.5 var(--pb-ui-en,Manrope,system-ui);
+}
+.patch-cp-display-modes button[aria-pressed="true"]{
+ background:#345340;color:#fff;
+}
+.patch-cp-display-modes button:focus-visible{
+ outline:3px solid #85b383;outline-offset:2px;
+}
+.patch-cp-engine-note{
+ font:650 10px/1.45 var(--pb-ui-en,Manrope,system-ui);
+ color:#80685d;overflow-wrap:anywhere;text-align:center;
+}
+html[lang="ar"] .patch-cp-display-modes,
+html[lang="ar"] .patch-cp-display-modes button,
+html[lang="ar"] .patch-cp-engine-note{
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
+ letter-spacing:0;
+}
+@media(max-width:690px){
+ .patch-cp-display-modes{font-size:9px;gap:6px}
+ .patch-cp-display-modes button{font-size:9px;padding:5px 10px}
+}
