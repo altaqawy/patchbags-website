@@ -480,7 +480,8 @@
    modelReady=true;applyLook();
    // Low-power phones start with the real photograph to avoid a blank or
    // opaque WebGL surface. 3D remains one tap away.
-   if(automaticVisual&&chosenQuality().name!=='light')
+   if(automaticVisual&&chosenQuality().name!=='light'&&
+      !window.matchMedia?.('(max-width: 690px)')?.matches)
     setVisual('model',{automatic:true});
   });
   photo?.addEventListener('error',()=>{
