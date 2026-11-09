@@ -329,3 +329,50 @@ html[lang="ar"] .patch-cp-calibration :is(label,span,output){
  .patch-cp-calibration{padding:4px 8px}
  .patch-cp-palm-measure{font-size:9px}
 }
+
+
+/* V4.8 Live hand/body landmark diagnostics, visible when tracking is active. */
+.patch-cp-landmark-overlay{
+ position:absolute;inset:0;z-index:6;
+ width:100%;height:100%;pointer-events:none;
+}
+.patch-cp-landmark-overlay[hidden]{display:none!important}
+.patch-cp-tracking-options{
+ flex:1 0 100%;display:flex;justify-content:center;
+ align-items:center;gap:8px 18px;flex-wrap:wrap;
+}
+.patch-cp-tracking-options label{
+ display:inline-flex;align-items:center;gap:6px;
+ cursor:pointer;color:#405c46;font-weight:650;font-size:11px;
+}
+.patch-cp-tracking-options input{
+ appearance:auto;accent-color:#375944;width:16px;height:16px;
+}
+.patch-cp-body-status{
+ flex:1 0 100%;color:#53725b;text-align:center;
+ font-size:10px;font-weight:650;line-height:1.6;
+}
+.patch-cp-live-diagnostic{
+ flex:1 0 100%;display:flex;flex-direction:column;
+ text-align:center;gap:4px;
+ border:1px solid #d7e2d2;background:#f1f5ec;
+ padding:8px 11px;border-radius:8px;
+ color:#536d57;font-size:10px;line-height:1.5;
+}
+.patch-cp-live-diagnostic b{
+ font-size:11px;font-weight:750;color:#315341;
+}
+.patch-cp-live-diagnostic span{
+ word-break:break-word;overflow-wrap:anywhere;
+}
+html[lang="ar"] .patch-cp-tracking-options label,
+html[lang="ar"] .patch-cp-body-status,
+html[lang="ar"] .patch-cp-live-diagnostic{
+ font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif)
+}
+@media(max-width:690px){
+ .patch-cp-tracking-options{gap:6px 12px}
+ .patch-cp-tracking-options label{font-size:10px}
+ .patch-cp-body-status{font-size:9px}
+ .patch-cp-live-diagnostic{padding:6px 8px;font-size:9px}
+}
