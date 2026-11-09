@@ -81,6 +81,7 @@
  let mode='scene',light='studio',previewSku='PB-04',tracking=false,handState='';
  let occlusion=null,overlay=null,fingerOverlay=true,palmWidthCm=8.5,gripState='';
  let bodyTracking=true,showPoints=true,autoTrack=true,bodyState='',trackingError='',diagnosticState='';
+ let carryPreset='hand';
  const safeURL=input=>{
   try{
    const url=new URL(String(input||''),document.baseURI);
@@ -188,6 +189,7 @@
   const range=q('[data-cp-size]');if(range)range.value=String(Math.round(pos.scale*100));
  }
  function preset(key){
+  carryPreset=key;
   const w=stage?.clientWidth||360,h=stage?.clientHeight||520;
   const options={
    hand:{x:w*.11,y:-h*.09,scale:.79},
@@ -221,14 +223,16 @@
   occlusion?.setEnabled(fingerOverlay);
   const started=await hand().start({
    video,stage,frame,isFront:()=>facing==='user',
+   withPose:bodyTracking,
    getCalibration:()=>({palmCm:palmWidthCm,bagCm:bagWidthCm()}),
    onAnchor:point=>{
-    if(!tracking||mode!=='hand')return;
+    if(!tracking||mode!=='hand'||carryPreset==='shoulder')return;
     pos={...point};applyPosition();
    },
    onHand:details=>{
     if(!tracking||mode!=='hand')return;
     if(fingerOverlay)occlusion?.draw(details);
+    overlay?.hands(details.allHands||details.points);
     const next=details.pinching?'gripLocked':'gripOpen';
     if(gripState!==next){
      gripState=next;
@@ -238,13 +242,47 @@
    },
    onLost:()=>{
     occlusion?.clear();
+    overlay?.hands(null);
     gripState='';
     const msg=q('[data-cp-grip-state]');if(msg)msg.textContent='';
    },
+   onPose:details=>{
+    if(!tracking)return;
+    overlay?.pose(details?.points||null);
+    if(carryPreset==='shoulder'&&details?.shoulder&&mode==='hand'){
+     // Illustration only: joint-guided shoulder carrying, not 6DoF body attachment.
+     const pt=details.shoulder;
+     pos.x=pos.x*.76+(pt.x-stage.clientWidth/2+stage.clientWidth*.12)*.24;
+     pos.y=pos.y*.76+(pt.y-stage.clientHeight/2+frame.clientHeight*.32)*.24;
+     applyPosition();
+    }
+   },
+   onPoseState:key=>{
+    bodyState=({loading:'bodyLoading',searching:'bodySearching',
+      tracking:'bodyTracking',noBody:'bodyNoBody',error:'bodyError'})[key]||'bodyError';
+    refreshDiagnostic();
+   },
+   onDiagnostics:info=>{
+    if(!tracking)return;
+    diagnosticState=info.status==='ready'?'diagnosticReady':'diagnosticLoading';
+    refreshDiagnostic();
+   },
+   onError:info=>{
+    if(!tracking)return;
+    if(info.part==='body')bodyState='bodyError';
+    else trackingError=(info.part||'hand')+': '+String(info.detail||'Error').slice(0,110);
+    refreshDiagnostic();
+   },
    onState:key=>{
     if(!tracking)return;
-    if(key==='error'){tracking=false;occlusion?.clear()}
-    setHandState(({loading:'handLoading',searching:'handSearching',tracking:'handTracking',noHand:'handMissing',error:'handError'})[key]||'handError');
+    if(key==='error'){
+     tracking=false;occlusion?.clear();overlay?.clear();
+     diagnosticState='diagnosticError';
+    }else if(key==='noHand'){diagnosticState='handSearchingAgain'}
+    else if(key==='tracking'){diagnosticState='handWorking';trackingError=''}
+    setHandState(({loading:'handLoading',searching:'handSearching',tracking:'handTracking',
+      noHand:'handMissing',error:'handError'})[key]||'handError');
+    refreshDiagnostic();
    }
   });
   if(!started&&tracking){tracking=false;setHandState('handError')}
