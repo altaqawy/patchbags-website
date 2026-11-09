@@ -42,6 +42,7 @@ async function setup(settings,withPose){
       minHandDetectionConfidence:.55,minHandPresenceConfidence:.52,minTrackingConfidence:.56
      });
      version=host;
+     running=true; // Hand tracking starts immediately while pose weights load separately.
      emit('ready',{host,part:'hand'});
      if(withPose){
       const localPose=new URL('assets/models/pose_landmarker_full.task',self.location.href).href;
@@ -62,7 +63,6 @@ async function setup(settings,withPose){
       }
       if(!pose)emit('pose-error',{message:failText(last)});
      }
-     running=true;
      return;
     }catch(error){last=error;emit('progress',{part:'hand-retry',message:failText(error)})}
    }
