@@ -63,7 +63,7 @@ const write=()=>{
 const base=()=>({id:'',productId:cat()[0]?.id||'PB-01',material:'as_shown',size:'as_shown',colorMode:'photo',customColor:'',monogram:'',letterStyle:'classic',letterPosition:'lower',notes:'',qty:1});
 let state=base();
 let layer=null,body=null,prevFocus=null,prevOverflow='';
-let photoIndex=0,editingId=null,touchX=null,viewMode='photo';
+let photoIndex=0,editingId=null,touchX=null,viewMode='photo',studioLight='studio';
 const tr={
  kicker:['DESIGN YOUR BAG / PATCH STUDIO','صمّمي حقيبتك / استوديو باتش'],
  title:['Made yours.','قطعة على ذوقك.'],
@@ -140,7 +140,13 @@ const tr={
  viewAR:['VIEW IN YOUR SPACE','شوفيها في مكانك'],
  arFailed:['AR could not start on this device. You can still rotate the 3D model.','الواقع المعزز مش متاح على الجهاز ده، لكن تقدري تلفّي المجسم 3D.'],
  modelLoadFailed:['Could not load the 3D model. Product photos remain available.','تعذر تحميل المجسم ثلاثي الأبعاد، لكن صور الشنطة ما زالت متاحة.'],
- cameraPreview:['CAMERA PREVIEW','عاينيها بالكاميرا']
+ cameraPreview:['CAMERA PREVIEW','عاينيها بالكاميرا'],
+ inHand:['IN YOUR HAND','شوفيها في إيدك'],
+ studioLight:['PREVIEW LIGHT','إضاءة المعاينة'],
+ studio:['Studio','استوديو'],
+ daylight:['Daylight','نهار'],
+ soft:['Soft','ناعمة'],
+ previewColorNote:['3D colors are illustrative. Real fabric shade depends on the item and lighting.','ألوان المجسم توضيحية، ودرجة الخامة الحقيقية ممكن تختلف حسب الإضاءة.']
 };
 const T=k=>{const v=tr[k];return v? v[ar()?1:0]:k};
 const materialLabel=v=>tr.materialOptions.find(x=>x[0]===v)?.[ar()?2:1]||v;
@@ -232,7 +238,7 @@ function render(){
       '<button type="button" class="patch-cz-ar-button" slot="ar-button" aria-label="'+E(T('viewAR'))+'">'+E(T('viewAR'))+' ↗</button>'+
       '</model-viewer>':
    '<img src="'+image+'" alt="'+E(productLabel(p)+' · '+(photoIndex+1)+' / '+imageList.length)+'" decoding="async">')+
-  (model&&viewMode==='model'&&window.PATCH_CAMERA_PREVIEW?'<button type="button" class="patch-cz-camera-entry" data-cz-camera>'+E(T('cameraPreview'))+' <span aria-hidden="true">◎</span></button>':'')+
+  (model&&viewMode==='model'&&window.PATCH_CAMERA_PREVIEW?'<div class="patch-cz-preview-actions"><button type="button" class="patch-cz-camera-entry" data-cz-camera>'+E(T('cameraPreview'))+' ◎</button><button type="button" class="patch-cz-camera-entry patch-cz-hand-entry" data-cz-hand>'+E(T('inHand'))+' ✋</button></div>':'')+
   (viewMode==='photo'&&state.monogram?'<span class="patch-cz-monogram patch-cz-monogram--'+E(state.letterStyle)+' patch-cz-monogram--'+E(state.letterPosition)+'">'+E(state.monogram)+'</span>':'')+
   '<span class="patch-cz-photo-tag">'+E(viewMode==='model'?T('modelPreview'):T('previewOnly'))+'</span>'+
   (viewMode==='photo'&&imageList.length>1?'<div class="patch-cz-photo-arrows"><button type="button" data-cz-photo="-1" aria-label="'+E(T('prevImage'))+'">←</button><span aria-live="polite">'+(photoIndex+1)+' / '+imageList.length+'</span><button type="button" data-cz-photo="1" aria-label="'+E(T('nextImage'))+'">→</button></div>':'')+'</div>'+
@@ -241,6 +247,8 @@ function render(){
   ).join('')+'</div>':'')+
   '<div class="patch-cz-preview-bottom"><p>'+E(productLabel(p))+'</p><span>'+E(T('previewCaption'))+'</span></div>'+
   '<p class="patch-cz-preview-note">'+E(viewMode==='model'?T('modelHelp'):T('previewNotice'))+'</p>'+
+  (viewMode==='model'&&window.PATCH_BAG_LOOKS?.isReference(model)?'<div class="patch-cz-studio-light"><span>'+E(T('studioLight'))+'</span><div role="group">'+
+   ['studio','daylight','soft'].map(id=>'<button type="button" data-cz-studio-light="'+id+'" aria-pressed="'+(studioLight===id)+'">'+E(T(id))+'</button>').join('')+'</div><small>'+E(T('previewColorNote'))+'</small></div>':'')+
   '<div class="patch-cz-summary"><p class="patch-cz-summary-title">'+E(T('summary'))+'</p><dl class="patch-cz-summary-values" aria-live="off">'+summaryMarkup()+'</dl><p>'+E(T('previewSummary'))+'</p></div></div></div>'+
  '<div class="patch-cz-editor"><div class="patch-cz-top">'+
   '<p class="patch-cz-kicker">'+E(editingId?T('editingTitle'):T('kicker'))+'</p>'+
@@ -273,6 +281,7 @@ function render(){
   '<p class="patch-cz-fineprint">'+E(T('savedDevice'))+'</p></div></div>';
  const viewer=body.querySelector('model-viewer');
  if(viewer){
+  window.PATCH_BAG_LOOKS?.attach(viewer,()=>({productId:state.productId,light:studioLight}));
   viewer.addEventListener('ar-status',event=>{
    if(event.detail?.status==='failed'){
     const info=body.querySelector('.patch-cz-preview-note');
@@ -365,11 +374,17 @@ function handleInput(e){
 function handleClick(e){
  const target=e.target.closest('button,[data-cz-close]');if(!target)return;
  if(target.hasAttribute('data-cz-close')){close();return}
- if(target.hasAttribute('data-cz-camera')){
+ if(target.dataset.czStudioLight){
+  studioLight=target.dataset.czStudioLight;
+  window.PATCH_BAG_LOOKS?.apply(body.querySelector('model-viewer'),{productId:state.productId,light:studioLight});
+  layer.querySelectorAll('[data-cz-studio-light]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.czStudioLight===studioLight)));
+  return;
+ }
+ if(target.hasAttribute('data-cz-hand')||target.hasAttribute('data-cz-camera')){
   const item=currentProduct();
   const model=availableModel(item);
   if(model&&window.PATCH_CAMERA_PREVIEW){
-   window.PATCH_CAMERA_PREVIEW.open({src:model,poster:photos(item)[photoIndex]||item.image,name:productLabel(item),productId:item.id});
+   window.PATCH_CAMERA_PREVIEW.open({src:model,poster:photos(item)[photoIndex]||item.image,name:productLabel(item),productId:item.id,mode:target.hasAttribute('data-cz-hand')?'hand':'scene'});
   }
   return;
  }
