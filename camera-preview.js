@@ -71,7 +71,8 @@
   diagnosticsTitle:['Live tracking status','حالة التتبع المباشرة'],
   diagnosticError:['Tracker could not start. Try Chrome, allow downloads, then Retry tracking.','تعذر بدء التتبع. جرّبي Chrome واتأكدي من الإنترنت واضغطي إعادة تشغيل التتبع'],
   retryTracking:['Retry tracking','إعادة تشغيل التتبع'],
-  bodyNote:['Pose tracking requires a visible upper body; it is optional on slower phones.','تتبع الجسم يحتاج ظهور الجزء العلوي، وممكن تقفليه على الموبايلات الضعيفة.']
+  bodyNote:['Pose tracking requires a visible upper body; it is optional on slower phones.','تتبع الجسم يحتاج ظهور الجزء العلوي، وممكن تقفليه على الموبايلات الضعيفة.'],
+  testTracking:['Open hand & body diagnostic test','افتح اختبار تتبع الإيد والجسم']
  };
  const ar=()=>document.documentElement.lang==='ar';
  const t=key=>translations[key]?.[ar()?1:0]||key;
@@ -374,7 +375,8 @@
         '<label><input type="checkbox" data-cp-show-points checked><span data-cp-i18n="trackPoints"></span></label>'+
        '</div>'+
        '<span class="patch-cp-body-status" data-cp-body-status role="status"></span>'+
-       '<div class="patch-cp-live-diagnostic" role="status"><b data-cp-i18n="diagnosticsTitle"></b><span data-cp-diagnostic></span></div>'+
+       '<div class="patch-cp-live-diagnostic" role="status"><b data-cp-i18n="diagnosticsTitle"></b><span data-cp-diagnostic></span>'+
+        '<a href="tracking-lab.html" target="_blank" rel="noopener noreferrer" data-cp-i18n="testTracking"></a></div>'+
        '<span class="patch-cp-grip-status" data-cp-grip-state aria-live="off"></span>'+
        '<div class="patch-cp-calibration"><label class="patch-cp-palm-measure"><span data-cp-i18n="palmSize"></span>'+
         '<input type="range" data-cp-palm-cm min="6.5" max="11" step="0.5" value="8.5">'+
