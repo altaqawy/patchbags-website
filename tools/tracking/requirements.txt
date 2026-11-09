@@ -1,0 +1,5 @@
+# Python 3.10–3.12 recommended for local testing.
+# No Python server is needed for the public GitHub Pages shop.
+mediapipe>=0.10.22,<0.11
+opencv-python>=4.8,<5
+numpy>=1.26,<3
