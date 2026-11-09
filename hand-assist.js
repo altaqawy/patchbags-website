@@ -152,7 +152,9 @@
   if(session.previousPoints){
    points.forEach((p,i)=>{
     const prev=session.previousPoints[i];
-    p.x=mix(prev.x,p.x,.43);p.y=mix(prev.y,p.y,.43);
+    const delta=Math.hypot(p.x-prev.x,p.y-prev.y);
+    const gain=clamp(.26+delta/150,.26,.75);
+    p.x=mix(prev.x,p.x,gain);p.y=mix(prev.y,p.y,gain);
    });
   }
   session.previousPoints=points.map(x=>({...x}));
@@ -204,7 +206,7 @@
   }
  }
  async function tryWorker(session){
-  if(typeof Worker!=='function'||typeof createImageBitmap!=='function')return false;
+  if(typeof Worker!=='function'||typeof createImageBitmap!=='function'||typeof OffscreenCanvas==='undefined')return false;
   let worker;
   try{worker=new Worker(new URL('tracking-worker.js?v=4.9',document.baseURI),{type:'module'})}
   catch(_){return false}
@@ -218,8 +220,11 @@
    const message=String(error?.message||error||'Worker not available');
    if(initial){initial=false;waiter?.reject(new Error(message));return}
    if(active===session){
-    session.onError?.({part:'hand',detail:message.slice(0,140)});
-    session.state('error');stop();session.onLost?.();
+    session.onDiagnostics?.({part:'fallback',status:'loading',
+     mode:'main',reason:message.slice(0,120)});
+    start({...session.restartOptions,quality:'light',forceMain:true}).catch(error=>{
+     session.onError?.({part:'hand',detail:String(error?.message||error).slice(0,140)});
+    });
    }
   };
   worker.onerror=event=>{event?.preventDefault?.();setFailure(event?.message||'Worker start failure')};
@@ -252,12 +257,13 @@
      deliverPose(session,data.pose,data.world);
      session.countPose++;
     }
-    if(now-session.lastReport>=900){
+    if(now-session.lastReport>=1100){
      session.lastReport=now;
      session.onDiagnostics?.({
       part:'live',status:session.lastState,mode:'worker',
       inferenceMs:session.budget.inferenceMs,
       handIntervalMs:session.budget.handMs,
+      fps:Math.round(session.countHand/Math.max(.5,(now-session.startedAt)/1000)*10)/10,
       handFrames:session.countHand,poseFrames:session.countPose
      });
     }
@@ -288,7 +294,12 @@
    lastFrame=now;
    session.prevVideoTime=session.video.currentTime;
    capturing=true;
-   createImageBitmap(session.video).then(bitmap=>{
+   const vw=session.video.videoWidth||640,vh=session.video.videoHeight||480;
+   const width=Math.min(vw,session.settings.idealWidth||640);
+   const height=Math.max(1,Math.round(vh*width/vw));
+   createImageBitmap(session.video,{
+    resizeWidth:width,resizeHeight:height,resizeQuality:'medium'
+   }).catch(()=>createImageBitmap(session.video)).then(bitmap=>{
     capturing=false;
     if(active!==session||session.worker!==worker){bitmap.close?.();return}
     busy=true;
@@ -311,7 +322,7 @@
  }
  async function start({
   video,stage,frame,isFront,onAnchor,onHand,onLost,onState,onPose,onPoseState,onError,
-  onDiagnostics,getCalibration,withPose=false,quality='auto'
+  onDiagnostics,getCalibration,withPose=false,quality='auto',forceMain=false
  }={}){
   stop();
   const perf=window.PATCH_TRACKING_PERFORMANCE;
@@ -322,6 +333,7 @@
    previousPoints:null,previousGrip:null,handDetector:null,poseDetector:null,
    raf:0,atHand:0,atPose:0,countHand:0,countPose:0,startedAt:0,lastState:'',
    settings,budget,withPose,worker:null,workerReady:false,
+   restartOptions:{video,stage,frame,isFront,onAnchor,onHand,onLost,onState,onPose,onPoseState,onError,onDiagnostics,getCalibration,withPose,quality},
    motion:perf?.makeMotionFilter()||null,lastReport:0,cancelWorker:null};
   session.state=key=>{
    if(active===session&&session.lastState!==key){
@@ -333,7 +345,7 @@
   try{
    await videoReady(video);
    if(active!==session)return false;
-   if(await tryWorker(session))return true;
+   if(!forceMain&&await tryWorker(session))return true;
    if(active!==session)return false;
    const resources=await createHands((part,host)=>{
     if(active===session)onDiagnostics?.({part,host,status:'loading'});
@@ -351,6 +363,18 @@
      if(active===session){onPoseState?.('error');onError?.({part:'body',detail:normalizeError(error)})}
     });
    }
+   // Small inference canvas reduces CPU frame preprocessing; live camera
+   // video and customer 3D viewer keep their normal visual resolution.
+   try{
+    const vw=video.videoWidth||640,vh=video.videoHeight||480;
+    const target=Math.min(vw,settings.name==='light'?384:
+     settings.name==='balanced'?480:640);
+    const inferenceCanvas=document.createElement('canvas');
+    inferenceCanvas.width=target;
+    inferenceCanvas.height=Math.max(1,Math.round(target*vh/vw));
+    const inferenceContext=inferenceCanvas.getContext('2d',{alpha:false});
+    if(inferenceContext)session.smallFrame={canvas:inferenceCanvas,ctx:inferenceContext};
+   }catch(_){}
    const tick=now=>{
     if(active!==session)return;
     session.raf=requestAnimationFrame(tick);
@@ -359,7 +383,15 @@
      session.atHand=now;
      try{
       const begin=performance.now();
-      const raw=session.handDetector.detectForVideo(video,now);
+      let source=video;
+      if(session.smallFrame){
+       try{
+        session.smallFrame.ctx.drawImage(video,0,0,
+         session.smallFrame.canvas.width,session.smallFrame.canvas.height);
+        source=session.smallFrame.canvas;
+       }catch(_){source=video}
+      }
+      const raw=session.handDetector.detectForVideo(source,now);
       session.budget.observe(performance.now()-begin,now);
       processHand(session,raw?.landmarks,session);
       session.countHand++;
@@ -374,7 +406,7 @@
     if(session.poseDetector&&now-session.atPose>=session.budget.poseMs){
      session.atPose=now;
      try{
-      const result=session.poseDetector.detectForVideo(video,now);
+      const result=session.poseDetector.detectForVideo(session.smallFrame?.canvas||video,now);
       const pose=result?.landmarks?.[0];
       if(pose?.length>=33){
        const geometry=mapped(pose,video,stage,isFront);
@@ -404,6 +436,7 @@
       part:'live',status:session.lastState,mode:'main',
       inferenceMs:session.budget.inferenceMs,
       handIntervalMs:session.budget.handMs,
+      fps:Math.round(session.countHand/Math.max(.5,(now-session.startedAt)/1000)*10)/10,
       handFrames:session.countHand,poseFrames:session.countPose,
       videoWidth:video.videoWidth,videoHeight:video.videoHeight
      });
