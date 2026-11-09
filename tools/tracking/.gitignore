@@ -1,0 +1,9 @@
+# The downloaded ML weights and personal tracking output must never be committed.
+models/
+outputs/
+*.jsonl
+*.mp4
+*.avi
+*.mov
+__pycache__/
+.venv/
