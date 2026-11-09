@@ -109,6 +109,8 @@
  const colorKeys=['PB-04','PB-05','PB-06'];
  function refreshDiagnostic(){
   if(!layer)return;
+  const performanceSlot=q('[data-cp-performance]');
+  if(performanceSlot)performanceSlot.textContent=performanceStats;
   const slot=q('[data-cp-diagnostic]');
   if(slot)slot.textContent=trackingError
    ?t('diagnosticError')+' · '+trackingError
