@@ -43,6 +43,7 @@
   handMissing:['Hand not found. You can move the bag manually.','مش ظاهر إيد واضحة، تقدري تحركي الشنطة بنفسك'],
   handError:['Hand tracking unavailable. Manual placement still works.','تتبع الإيد مش متاح، والتحريك اليدوي شغّال'],
   handUnavailable:['Turn on the camera before starting hand tracking.','شغّلي الكاميرا قبل استخدام تتبع الإيد'],
+  handPaused:['Tracking paused after manual adjustment · tap Retry tracking','التتبع اتوقف بعد التحريك اليدوي · اضغطي إعادة تشغيل التتبع'],
   presetHand:['Held in hand','ممسوكة بالإيد'],
   presetShoulder:['Near shoulder','قريبة من الكتف'],
   presetFront:['In front','أمام الجسم'],
@@ -427,7 +428,17 @@
    const modeChoice=event.target.closest('[data-cp-mode]');
    if(modeChoice){setMode(modeChoice.dataset.cpMode);return}
    const presetChoice=event.target.closest('[data-cp-preset]');
-   if(presetChoice){stopHand();preset(presetChoice.dataset.cpPreset);setHandState('handSearching');return}
+   if(presetChoice){
+    const running=tracking;
+    stopHand();preset(presetChoice.dataset.cpPreset);
+    if(presetChoice.dataset.cpPreset==='shoulder'&&!bodyTracking){
+     bodyTracking=true;
+     if(q('[data-cp-track-body]'))q('[data-cp-track-body]').checked=true;
+    }
+    if(running&&stage?.dataset.camera==='on'){autoTrack=true;toggleHand()}
+    else setHandState('handSearching');
+    return
+   }
    if(event.target.closest('[data-cp-hand-toggle]')){toggleHand();return}
    if(event.target.closest('[data-cp-retry-tracking]')){
     stopHand();autoTrack=true;trackingError='';diagnosticState='';
@@ -441,7 +452,7 @@
    if(nudge){const delta={up:[0,-25],down:[0,25],left:[-25,0],right:[25,0]}[nudge.dataset.cpNudge];pos.x+=delta[0];pos.y+=delta[1];applyPosition()}
   });
   q('[data-cp-size]').addEventListener('input',event=>{
-   if(tracking){stopHand();setHandState('handSearching')}
+   if(tracking){stopHand();autoTrack=false;setHandState('handPaused')}
    pos.scale=limit(Number(event.target.value)/100,.55,1.85);pos.tilt=0;applyPosition();
   });
   q('[data-cp-palm-cm]').addEventListener('input',event=>{
@@ -462,7 +473,7 @@
   });
   const handle=q('[data-cp-handle]');
   handle.addEventListener('pointerdown',event=>{
-   if(tracking){stopHand();setHandState('handSearching')}
+   if(tracking){stopHand();autoTrack=false;setHandState('handPaused')}
    if(event.button!==0)return;
    event.preventDefault();
    drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:pos.x,top:pos.y};
@@ -488,9 +499,11 @@
   current={productId:params.productId||'',name:params.name||''};pos={x:0,y:0,scale:1};facing='environment';
   previewSku=looks()?.COLORS[params.productId]?params.productId:'PB-04';
   light='studio';tracking=false;handState='';gripState='';
-  autoTrack=true;bodyTracking=true;showPoints=true;
+  autoTrack=true;
+  bodyTracking=!Boolean(window.matchMedia?.('(max-width: 690px)')?.matches);
+  showPoints=true;
   trackingError='';diagnosticState='';bodyState='';
-  if(q('[data-cp-track-body]'))q('[data-cp-track-body]').checked=true;
+  if(q('[data-cp-track-body]'))q('[data-cp-track-body]').checked=bodyTracking;
   if(q('[data-cp-show-points]'))q('[data-cp-show-points]').checked=true;
   overlay?.setVisible(true);overlay?.clear();
   palmWidthCm=8.5;fingerOverlay=true;
