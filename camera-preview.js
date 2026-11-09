@@ -478,7 +478,13 @@
   overlay=window.PATCH_TRACKING_OVERLAY?.mount({stage})||null;
   viewer.addEventListener('load',()=>{
    modelReady=true;applyLook();
-   if(automaticVisual)setVisual('model',{automatic:true});
+   // Low-power phones start with the real photograph to avoid a blank or
+   // opaque WebGL surface. 3D remains one tap away.
+   if(automaticVisual&&chosenQuality().name!=='light')
+    setVisual('model',{automatic:true});
+  });
+  photo?.addEventListener('error',()=>{
+   if(visual==='photo')setVisual('model',{automatic:true});
   });
   viewer.addEventListener('error',()=>{
    modelReady=false;automaticVisual=true;setVisual('photo',{automatic:true});
