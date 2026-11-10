@@ -136,12 +136,8 @@ const tr={
  photosTab:['Photos','الصور'],
  modelTab:['3D model','نموذج 3D'],
  modelPreview:['Original 3D model provided by the studio','نموذج ثلاثي الأبعاد أصلي من الاستوديو'],
- modelHelp:['Drag to rotate the 3D reference. AR and scale depend on your device; final details are confirmed by the studio.','لفّي المجسم باللمس أو الماوس. الواقع المعزز والحجم تقريبي، والتفاصيل النهائية بعد تأكيد الاستوديو.'],
- viewAR:['VIEW IN YOUR SPACE','شوفيها في مكانك'],
- arFailed:['AR could not start on this device. You can still rotate the 3D model.','الواقع المعزز مش متاح على الجهاز ده، لكن تقدري تلفّي المجسم 3D.'],
+ modelHelp:['Drag to rotate and pinch to zoom the 3D bag. Model size and materials are illustrative until confirmed by the studio.','لفّي المجسم باللمس أو الماوس وكبّريه بإصبعين. الحجم والخامة للتوضيح لحد ما صاحبة المشروع تأكد التفاصيل.'],
  modelLoadFailed:['Could not load the 3D model. Product photos remain available.','تعذر تحميل المجسم ثلاثي الأبعاد، لكن صور الشنطة ما زالت متاحة.'],
- cameraPreview:['CAMERA PREVIEW','عاينيها بالكاميرا'],
- inHand:['IN YOUR HAND','شوفيها في إيدك'],
  studioLight:['PREVIEW LIGHT','إضاءة المعاينة'],
  studio:['Studio','استوديو'],
  daylight:['Daylight','نهار'],
@@ -234,11 +230,9 @@ function render(){
   '<p class="patch-cz-overline">'+E(T('preview'))+' <span>✳</span></p>'+
   (model?'<div class="patch-cz-view-modes" role="group"><button type="button" data-cz-view="photo" aria-pressed="'+(viewMode==='photo')+'">'+E(T('photosTab'))+'</button><button type="button" data-cz-view="model" aria-pressed="'+(viewMode==='model')+'">'+E(T('modelTab'))+'</button></div>':'')+
   '<div class="patch-cz-photo'+(viewMode==='model'?' patch-cz-photo-model':'')+'" aria-label="'+E(viewMode==='model'?T('modelPreview'):T('previewOnly'))+'">'+
-  (viewMode==='model'&&model?'<model-viewer src="'+E(model)+'" poster="'+E(image)+'" alt="'+E(productLabel(p))+'" camera-controls touch-action="pan-y" shadow-intensity="0.85" exposure="1.05" environment-image="neutral" ar ar-modes="scene-viewer webxr quick-look" ar-placement="floor" ar-scale="auto" loading="eager">'+
-      '<button type="button" class="patch-cz-ar-button" slot="ar-button" aria-label="'+E(T('viewAR'))+'">'+E(T('viewAR'))+' ↗</button>'+
+  (viewMode==='model'&&model?'<model-viewer src="'+E(model)+'" poster="'+E(image)+'" alt="'+E(productLabel(p))+'" camera-controls touch-action="pan-y" shadow-intensity="0.85" exposure="1.05" environment-image="neutral" loading="eager">'+
       '</model-viewer>':
    '<img src="'+image+'" alt="'+E(productLabel(p)+' · '+(photoIndex+1)+' / '+imageList.length)+'" decoding="async">')+
-  (model&&viewMode==='model'&&window.PATCH_CAMERA_PREVIEW?'<div class="patch-cz-preview-actions"><button type="button" class="patch-cz-camera-entry" data-cz-camera>'+E(T('cameraPreview'))+' ◎</button><button type="button" class="patch-cz-camera-entry patch-cz-hand-entry" data-cz-hand>'+E(T('inHand'))+' ✋</button></div>':'')+
   (viewMode==='photo'&&state.monogram?'<span class="patch-cz-monogram patch-cz-monogram--'+E(state.letterStyle)+' patch-cz-monogram--'+E(state.letterPosition)+'">'+E(state.monogram)+'</span>':'')+
   '<span class="patch-cz-photo-tag">'+E(viewMode==='model'?T('modelPreview'):T('previewOnly'))+'</span>'+
   (viewMode==='photo'&&imageList.length>1?'<div class="patch-cz-photo-arrows"><button type="button" data-cz-photo="-1" aria-label="'+E(T('prevImage'))+'">←</button><span aria-live="polite">'+(photoIndex+1)+' / '+imageList.length+'</span><button type="button" data-cz-photo="1" aria-label="'+E(T('nextImage'))+'">→</button></div>':'')+'</div>'+
@@ -282,12 +276,6 @@ function render(){
  const viewer=body.querySelector('model-viewer');
  if(viewer){
   window.PATCH_BAG_LOOKS?.attach(viewer,()=>({productId:state.productId,light:studioLight}));
-  viewer.addEventListener('ar-status',event=>{
-   if(event.detail?.status==='failed'){
-    const info=body.querySelector('.patch-cz-preview-note');
-    if(info)info.textContent=T('arFailed');
-   }
-  });
   viewer.addEventListener('error',()=>{
    const info=body.querySelector('.patch-cz-preview-note');
    if(info)info.textContent=T('modelLoadFailed');
@@ -378,14 +366,6 @@ function handleClick(e){
   studioLight=target.dataset.czStudioLight;
   window.PATCH_BAG_LOOKS?.apply(body.querySelector('model-viewer'),{productId:state.productId,light:studioLight});
   layer.querySelectorAll('[data-cz-studio-light]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.czStudioLight===studioLight)));
-  return;
- }
- if(target.hasAttribute('data-cz-hand')||target.hasAttribute('data-cz-camera')){
-  const item=currentProduct();
-  const model=availableModel(item);
-  if(model&&window.PATCH_CAMERA_PREVIEW){
-   window.PATCH_CAMERA_PREVIEW.open({src:model,poster:photos(item)[photoIndex]||item.image,name:productLabel(item),productId:item.id,mode:target.hasAttribute('data-cz-hand')?'hand':'scene'});
-  }
   return;
  }
  if(target.dataset.czView){viewMode=target.dataset.czView==='model'&&availableModel(currentProduct())?'model':'photo';render();return}
