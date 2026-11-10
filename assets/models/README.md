@@ -1,40 +1,26 @@
-# PatCh.BaGs · 3D / AR reference models
+# PatCh.BaGs · 3D reference model
 
-## Crescent Crossbody reference model · V4.3
+## Crescent Crossbody — 3D-only experience
 
-The optimized **user-supplied real PBR handbag model** is expected at exactly:
+The real user-provided optimized handbag model is stored at:
 
 `assets/models/crescent-reference-ar.glb`
 
-This one model is a **visual reference** for three existing color variations:
-PB-04 (Taupe), PB-05 (Ivory) and PB-06 (Ruby). It is not claimed to exactly
-match their photographed texture/color or final personalized versions.
+**The existing filename is preserved to avoid breaking references. The website no longer activates augmented reality, device cameras, or body/hand tracking.** It only loads the model into the interactive on-page 3D viewer.
 
-How to activate: upload `crescent-reference-ar.glb` to this GitHub directory
-on the default branch. The file is around **3.2 MB**, down from a 23 MB
-original. When GitHub Pages finishes deployment, a HEAD check will register
-the model and expose the 3D and AR actions automatically. No code changes are
-necessary after uploading the file.
+The shared GLB is an **illustrative reference** for PB-04 (Taupe), PB-05 (Ivory), and PB-06 (Ruby). It is not guaranteed to match every photographed color, stitch pattern, strap, or product dimension. Its apparent width in the source geometry should not be presented as a verified real handbag measurement.
 
-- Desktop or non-AR phones: interactive rotate/zoom 3D (AR button hidden).
-- Supported Android: Scene Viewer or WebXR opens the model in the user's space.
-- Supported iPhones: Quick Look converts GLB into USDZ on demand; conversion
-  depends on Safari, model compatibility and device support. A separately tested
-  USDZ can be added later.
-- Both languages have localized AR instructions.
-- Model placement is on horizontal surfaces, with **approximately** 0.42 m
-  model width; true dimensions have not been verified against a physical bag.
-- If the file is missing or blocked, original customer photos and normal cart,
-  checkout and product pages are unaffected.
+### Customer experience
 
-Product-specific 3D files uploaded by the owner in the CMS take priority over
-this shared reference. AR is never a substitute for product photos.
+- Open a product or the **Design Your Bag** studio and select **3D model**.
+- Rotate by dragging, zoom with a pinch or scroll wheel, and inspect the details.
+- In the design studio, switch between **Studio / Daylight / Soft** lighting on the reference model.
+- No camera access is requested; no AR buttons, phone movement tracking, or real-world placement is offered.
+- The product's real photographs are always available as a separate view.
+- Owner-uploaded product-specific GLB/GLTF models take priority over this shared reference.
 
-### Deployment notes
+### Deployment
 
-An optional one-time import script lives at
-`tools/import_crescent_ar_asset.py`; the archived original model is
-checksum-verified before optimization. GitHub's remote Actions importer was
-attempted but its job could not be started successfully in this environment.
-If the Action remains unavailable, adding the already optimized GLB directly
-through GitHub **Add file → Upload files** is the most reliable path.
+The supplied GLB has already been uploaded to this directory. If it is replaced, keep the same URL or update the 3D registry script and verify that the static-host HEAD request succeeds. The original product photos and customer enquiries continue independently if the model is unavailable.
+
+This release uses `patchbags-3d-viewer.js` and `patchbags-3d-viewer.css`. All previous AR/camera runtime scripts were removed from the storefront.
