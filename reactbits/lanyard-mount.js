@@ -13,8 +13,8 @@
     ]);
     const root=reactDom.createRoot(mount);
     // Reserve the editorial text column in both languages. Move the original
-    // interactive 3D tag into the opposite photographic margin, and scale it
-    // down so it cannot obscure headlines or the hero CTAs.
+    // interactive 3D tag into the opposite photographic margin, with a
+    // modest 10–11% larger ID on tablet/desktop while mobile stays unchanged.
     const phone=window.matchMedia('(max-width: 680px)');
     const tablet=window.matchMedia('(max-width: 1100px)');
     const renderLanyard=()=>{
@@ -33,7 +33,7 @@
         orientation:'portrait',
         finish:'matte',
         cornerRadius:0.29,
-        size:phone.matches?0.24:tablet.matches?0.30:0.35,
+        size:phone.matches?0.24:tablet.matches?0.33:0.39,
         anchor,
         strapLength:phone.matches?0.018:0.052,
         strapColor:'#596d59',
