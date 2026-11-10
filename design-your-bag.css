@@ -500,70 +500,6 @@ html[lang="ar"] .patch-cz-view-modes button{
 }
 
 
-/* V4.3 — mobile augmented reality button for actual product reference models.
- * model-viewer hides the slotted button when AR cannot be offered. */
-.patch-cz-photo-model model-viewer .patch-cz-ar-button{
- position:absolute;
- z-index:10;
- top:15px;
- inset-inline-end:15px;
- display:inline-flex;
- align-items:center;
- justify-content:center;
- gap:8px;
- max-width:calc(100% - 30px);
- padding:12px 18px;
- border:1px solid rgba(255,255,255,.88);
- border-radius:100px;
- background:#314d3b;
- color:#fff;
- box-shadow:0 10px 25px rgba(12,32,17,.25);
- font:750 11px/1.5 var(--pb-ui-en,Manrope,system-ui);
- text-align:center;
- letter-spacing:.055em;
- cursor:pointer;
-}
-.patch-cz-photo-model model-viewer .patch-cz-ar-button:hover{background:#425f48}
-.patch-cz-photo-model model-viewer .patch-cz-ar-button:focus-visible{
- outline:3px solid #dfedcf;outline-offset:3px
-}
-html[lang="ar"] .patch-cz-photo-model model-viewer .patch-cz-ar-button{
- font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
- font-size:12px;
- font-weight:700;
- letter-spacing:0;
-}
-@media(max-width:690px){
- .patch-cz-photo-model model-viewer .patch-cz-ar-button{
-  top:9px;inset-inline-end:8px;max-width:calc(100% - 16px);
-  padding:9px 11px;font-size:10px
- }
-}
-
-
-/* Camera mode is available even without native AR sensors. */
-.patch-cz-camera-entry{
- position:absolute;z-index:9;bottom:13px;inset-inline-end:13px;
- display:inline-flex;align-items:center;justify-content:center;gap:8px;
- max-width:66%;padding:10px 13px;border:1px solid #a8c5ae;
- border-radius:100px;background:rgba(248,251,242,.96);
- color:#2b5036;box-shadow:0 8px 20px rgba(19,38,24,.18);
- font:750 10px/1.4 var(--pb-ui-en,Manrope,system-ui);cursor:pointer;
-}
-.patch-cz-camera-entry span{font-size:17px}
-.patch-cz-camera-entry:hover{background:#e2efe3}
-html[lang="ar"] .patch-cz-camera-entry{
- font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
- letter-spacing:0;font-size:11px
-}
-@media(max-width:690px){
- .patch-cz-camera-entry{
-  bottom:5px;inset-inline-end:5px;padding:7px 9px;font-size:9px;max-width:82%
- }
- .patch-cz-camera-entry span{font-size:15px}
-}
-
-
 /* V4.5: edit-safe lighting controls for the 3D reference. */
 .patch-cz-studio-light{
  margin:13px 0;padding:12px 14px;border-radius:5px;
@@ -581,19 +517,6 @@ html[lang="ar"] .patch-cz-camera-entry{
 }
 .patch-cz-studio-light button[aria-pressed="true"]{background:#36513d;border-color:#36513d;color:#fff}
 .patch-cz-studio-light small{display:block;color:#8d766f;font-size:10px;line-height:1.8;margin-top:9px}
-.patch-cz-preview-actions{
- position:absolute;z-index:10;bottom:11px;inset-inline-end:11px;
- display:flex;flex-direction:column;align-items:flex-end;gap:7px;max-width:85%
-}
-.patch-cz-preview-actions .patch-cz-camera-entry{
- position:static;inset:auto;max-width:100%;
- box-sizing:border-box;white-space:normal;min-height:35px;
- box-shadow:0 5px 15px rgba(21,41,27,.18)
-}
-.patch-cz-preview-actions .patch-cz-hand-entry{
- background:#35533d;color:#fff;border-color:#436b4c
-}
-.patch-cz-preview-actions .patch-cz-hand-entry:hover{background:#496b50}
 html[lang="ar"] .patch-cz-studio-light :is(span,button,small){
  font-family:var(--pb-ui-ar,"IBM Plex Sans Arabic",sans-serif);
  letter-spacing:0
@@ -601,6 +524,4 @@ html[lang="ar"] .patch-cz-studio-light :is(span,button,small){
 @media(max-width:690px){
  .patch-cz-studio-light{padding:10px}
  .patch-cz-studio-light button{padding:6px 10px;font-size:9px}
- .patch-cz-preview-actions{bottom:6px;inset-inline-end:6px;gap:4px}
- .patch-cz-preview-actions .patch-cz-camera-entry{font-size:9px;padding:6px 8px;min-height:27px}
 }
